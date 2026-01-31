@@ -1,0 +1,67 @@
+﻿@using pax.schafkopf.Shared
+
+<style>
+    .playleftcard {
+    position: absolute;
+    left: 0;
+    top: 30vh;
+    z-index: 100;
+    animation-name: leftanim;
+    animation-duration: @(SKData.AnimationTime(table.AnimationMode))ms;
+    animation-fill-mode: forwards;
+}
+
+.playtopcard {
+    position: absolute;
+    left: 45vw;
+    top: 0;
+    z-index: 100;
+    animation-name: topanim;
+    animation-duration: @(SKData.AnimationTime(table.AnimationMode))ms;
+    animation-fill-mode: forwards;
+}
+
+.playrightcard {
+    position: absolute;
+    right: 0;
+    top: 30vh;
+    z-index: 100;
+    animation-name: rightanim;
+    animation-duration: @(SKData.AnimationTime(table.AnimationMode))ms;
+    animation-fill-mode: forwards;
+}
+
+.playbottomcard {
+    position: absolute;
+    bottom: 0;
+    left: 45vw;
+    z-index: 100;
+    animation-name: bottomanim;
+    animation-duration: @(SKData.AnimationTime(table.AnimationMode))ms;
+    animation-fill-mode: forwards;
+}
+</style>
+
+
+@*<div id="trick" class="w-100 h-100">*@
+    <div class="position-relative" style="left: 50%; top: 50%;">
+        <div class="skcard top-card" style="z-index: @trickCards[2].zindex">
+            <img class="skimage" src="@trickCards[2].card" />
+        </div>
+        <div class="skcard bottom-card" style="z-index: @trickCards[0].zindex">
+            <img class="skimage" src="@trickCards[0].card" />
+        </div>
+        <div class="skcard left-card" style="transform: rotate(90deg); z-index: @trickCards[1].zindex">
+            <img class="skimage" src="@trickCards[1].card" />
+        </div>
+        <div class="skcard right-card" style="transform: rotate(-90deg); z-index: @trickCards[3].zindex">
+            <img class="skimage" src="@trickCards[3].card" />
+        </div>
+    </div>
+@*</div>*@
+@if (!String.IsNullOrEmpty(cardplayed))
+{
+    <div class="skcard @playclass">
+        <img class="skimage" src="@cardplayed" />
+    </div>
+}

@@ -1,0 +1,136 @@
+﻿@page "/table"
+@page "/table/{tableid}"
+@page "/table/{tableid}/{debugname}"
+@using pax.schafkopf.Shared
+@using pax.schafkopf.lib.Enums
+
+<div id="gamesize" class="m-0 p-0 vw-100 vh-100 cardtable overflow-hidden">
+    <CascadingValue Value="Table">
+        <div class="d-inline-flex vw-100" style="height: 20vh;">
+            <div class="d-flex bg-transparent" style="width: 37.5%;">
+                <div class="btn-block">
+                    @*<button type="button" class="btn btn-sm btn-outline-primary" @onclick="@(() => StateHasChanged())">Re</button>*@
+                    <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle" value="Display an" />
+                    @if (Table.Table != null)
+                    {
+                    <button type="button" class="btn btn-sm btn-outline-dark" @onclick="() => LastTrick.Show()">Letzter Stich</button>
+                    }
+                    @*<button type="button" class="btn btn-sm btn-outline-danger" @onclick="@(() => Bidding1(false))">Bid</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" @onclick="@(() => Bidding1(true))">Bid</button>*@
+                    @*<button type="button" class="btn btn-sm @animationClass" @onclick="ShowAnimation">Animations</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="showLastTrick">Letzer Stich</button>*@
+                    @*<button type="button" class="btn btn-sm btn-primary" @onclick="DebugPlayCard">Play</button>*@
+                    @*<button type="button" class="btn btn-sm btn-primary" @onclick="e => Table.isLastTrick = !Table.isLastTrick">last</button>*@
+                </div>
+
+                @*<button type="button" class="btn btn-sm btn-primary" @onclick="showLastTrick">Trick</button>*@
+            </div>
+
+            <div class="d-flex position-relative" style="width: 25vw">
+                @if (Table.Table != null)
+                {
+                    <PlayerComponent TablePosition="2"></PlayerComponent>
+                }
+            </div>
+            <div class="d-flex align-items-end justify-content-end bg-transparent" style="width: 37.5%;">
+                <div class="align-self-start">
+                    <div class="row">
+                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="NewTable">Verlassen</button>
+                        <StatusComponent></StatusComponent>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (String.IsNullOrEmpty(Player.Name))
+        {
+            <div class="d-flex align-items-center justify-content-center bg-dark" style="height: 80vh;">
+                <div class="align-self-center">
+                    <LoginComponent player="Player" onSubmit="OnPlayerNameSet"></LoginComponent>
+                </div>
+            </div>
+        }
+        else
+        {
+            @if (Table.Table != null)
+            {
+                <div class="d-inline-flex vw-100" style="height: 50vh;">
+                    <div class="d-flex position-relative w-25">
+                        <PlayerComponent TablePosition="1"></PlayerComponent>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center w-50">
+                        @if (!Table.isFull)
+                        {
+                            <div class="align-self-center card" style="z-index: 301;">
+                                <div class="card-header">
+                                    Tisch-Nummer oder Link um Spieler einzuladen
+                                </div>
+                                <div class="card-body text-wrap text-break">
+                                    <h5><span role="button" id="tableid" class="schare-button pointer oi oi-share-boxed" @onclick="@(() => _js.InvokeVoidAsync("CopyToClipboard", "tableid"))">@Table.Table.Guid</span></h5>
+                                    <h5><span role="button" id="tableurl" class="schare-button pointer oi oi-share-boxed" @onclick="@(() => _js.InvokeVoidAsync("CopyToClipboard", "tableurl"))">@navigationManager.ToAbsoluteUri("table/" + Table.Table.Guid.ToString())</span></h5>
+                                </div>
+                            </div>
+                        }
+                        else if (Table.hasDisconnects)
+                        {
+                            <div class="align-self-center card" style="z-index: 301;">
+                                <div class="card-header">
+                                    Ein Spieler ist nicht verbunden
+                                </div>
+                                <div class="card-body text-wrap text-break">
+                                    Versuche die Verbindung wieder herzustellen ...
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @if (Table.Table.State == (int)TableState.Bidding && Table.Table.CurrentPlayer == Table.ClientPosition)
+                            {
+                                <Bidding1Component OnBidding1="Bidding1"></Bidding1Component>
+                            }
+                            else if (Table.Table.State == (int)TableState.Bidding2 && Table.Table.CurrentPlayer == Table.ClientPosition)
+                            {
+                                <Bidding2Component onBidding2="Bidding2"></Bidding2Component>
+                            }
+                            else if (Table.Table.State == (int)TableState.Playing || Table.Table.State == (int)TableState.Finished)
+                            {
+
+                                <div id="trick" class="@(Table.isLastTrick ? "d-none" : "") w-100 h-100" style="z-index: 10;">
+                                    <TrickComponent></TrickComponent>
+                                </div>
+                                @if (showHands)
+                                {
+                                    <StartingHandsComponent onClose="ShowHands"></StartingHandsComponent>
+                                }
+                                <div class="@(Table.isLastTrick ? "fadein" : "d-none")" style="z-index: 301;">
+                                    <FinishComponent onNextRequest="NextRound" ShowHands="ShowHands"></FinishComponent>
+                                </div>
+                            }
+                        }
+                        @*<ConfigComponent onConfigSet="SetConfig"></ConfigComponent>*@
+                    </div>
+                    <div class="d-flex position-relative w-25">
+                        <PlayerComponent TablePosition="3"></PlayerComponent>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-center w-100" style="height: 30vh; @(Table.Table.CurrentPlayer == Table.ClientPosition ? $"background-color: {SKData.BgColorOnMove};" : "")">
+                    @if (Table.isVisitor)
+                    {
+                        <PlayerComponent TablePosition="0"></PlayerComponent>
+                    }
+                    <HandComponent OnCardPlayed="PlayCard"></HandComponent>
+                </div>
+                <LastTrickComponent @ref="LastTrick"></LastTrickComponent>
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center bg-dark" style="height: 95vh;">
+                    <div class="align-self-center">
+                        <ConnectComponent storedTableId="@storedTableID" urlTableID="@tableid" OnReconnectRequest="ReconnectTable" OnNewTableRequest="StartTable" OnJoinTableRequest="JoinTable" OnVisitTableRequest="VisitTable"></ConnectComponent>
+                    </div>
+                </div>
+            }
+
+        }
+    </CascadingValue>
+</div>
+

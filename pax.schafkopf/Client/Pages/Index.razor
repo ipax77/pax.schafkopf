@@ -1,0 +1,54 @@
+﻿@page "/"
+@using Blazored.LocalStorage
+@using pax.schafkopf.Client.Services
+@using pax.schafkopf.Client.Models
+@inject NavigationManager _nav
+@inject ISyncLocalStorageService localStorage
+@layout GameLayout
+
+    <div style="width: 0; height: 0">
+        <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle" value="Display" />
+    </div>
+    <div class="d-flex vh-100 align-items-center justify-content-center bg-dark">
+        <div class="align-self-center">
+            @if (doChangeName || String.IsNullOrEmpty(Player.Name))
+            {
+                <LoginComponent player="Player" onSubmit="onSubmit"></LoginComponent>
+            }
+            else
+            {
+                <p class="text-white-50">Hallo @Player.Name! <button type="button" class="btn btn-sm btn-secondary ml-4 ml-sm-3" @onclick="ChangeName">Name ändern</button></p>
+            }
+            <br />
+            <button type="button" class="btn btn-primary" @onclick="Play">Spielen</button>
+        </div>
+    </div>
+
+
+    @code {
+        ClientPlayer Player;
+        bool doChangeName = false;
+
+        protected override void OnInitialized()
+        {
+            Player = new ClientPlayer();
+            (Player.Name, Player.AuthName) = StorageService.GetUserName(localStorage);
+            base.OnInitialized();
+        }
+
+        void Play()
+        {
+            _nav.NavigateTo("/table");
+        }
+
+        void ChangeName()
+        {
+            doChangeName = true;
+        }
+
+        void onSubmit()
+        {
+            StorageService.SetUserName(localStorage, Player.Name, Player.AuthName);
+            doChangeName = false;
+        }
+    } 

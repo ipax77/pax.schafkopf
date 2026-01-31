@@ -1,0 +1,20 @@
+﻿@using pax.schafkopf.Client.Models
+<div class="card" style="z-index: 301">
+    <div class="card-header">
+        Spielen?
+    </div>
+    <div class="card-body">
+        <div class="btn-group-vertical">
+            <button type="button" class="btn btn-primary" @onclick="@(() => OnBidding1.InvokeAsync(true))">@(table.Table.PlayerCount > 0 ? "Spiele auch!" : "Spiele!")</button>
+            <button type="button" class="btn btn-primary mt-4 mt-sm-3" @onclick="@(() => OnBidding1.InvokeAsync(false))">@(table.Table.PlayerCount > 0 ? "Ist recht" : "Weiter")</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ClientTable table { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnBidding1 { get; set; }
+}

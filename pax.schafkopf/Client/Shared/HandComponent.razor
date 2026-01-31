@@ -1,0 +1,21 @@
+﻿@using pax.schafkopf.lib
+@using pax.schafkopf.Client.Services
+<div class="d-flex align-items-center justify-content-center h-100 bg-transparent @dragClass" ondragover="event.preventDefault();" style="z-index: 8; width: 90%; max-width: 1200px;">
+    @for (int i = 0; i < Player.Cards.Count; i++)
+    {
+        int j = i;
+        SKCard card = Player.Cards[j];
+        <div class="position-relative mb-5" style="height: 50%; width: 12%;">
+            <div class="skcard cardWrapper" draggable="true" style="transform: rotate(@(GetAngle(j))deg); @(isInvalid == j ? "border-color: red;": "")" @ontouchstart="e => TouchStart(e, j)" @ondragenter="e => DragEnter(e, j)" @onclick="async => PlayCard(j)" @ontouchend="e => TouchEnd(e)" @ondragend="e => DragEnd(e)">
+                <img class="skimage" src="@CardService.GetImageString(card)" />
+            </div>
+        </div>
+    }
+    @if (Player.Tricks.Any())
+    {
+        <div class="skcard" style="right: 30%; bottom: 25%; height: 40%; width: auto; max-height: 25vh; z-index: -1;">
+            <img class="skimage" src="images/stich@(Player.Tricks.Count() / 4).png" />
+        </div>
+    }
+</div>
+

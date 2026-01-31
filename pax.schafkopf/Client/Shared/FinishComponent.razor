@@ -1,0 +1,73 @@
+﻿@using pax.schafkopf.Client.Models
+@using pax.schafkopf.lib.Enums 
+
+<div class="card" @onclick="NextRound" style="z-index: 301; max-height: 95vh; overflow-y: auto;">
+    <div class="card-header">
+        Stand nach @table.Table.Round @(table.Table.Round > 1 ? "Runden" : "Runde")
+    </div>
+    <div class="card-body">
+        <p>
+            @if (table.Table.TrickCount == 0)
+            {
+                <span>Kein Spieler.</span>
+            } else {
+                <span>@(table.Table.GameMode > (int)GameMode.Ruf ? "Der Spieler hat" : "Die Spieler haben") <b class="text-danger">@table.Table.PlayerPoints</b> Augen.</span>
+                @if(table.Table.Runners >= 3 || (table.Table.GameMode == (int)GameMode.Wenz) || table.Table.GameMode == (int)GameMode.WenzTout && table.Table.Runners >= 2) {
+                    <span class="badge badge-warning"> Läufer: @table.Table.Runners </span>
+                }
+                @(table.Table.PlayerPoints < 30 || table.Table.PlayerPoints > 90 ? "Schneider" : "")
+                @(table.Table.PlayerPoints == 0 || table.Table.PlayerPoints == 120 ? "Schwarz" : "")
+            }
+        </p>
+        <table class="table table-sm table-dark table-hover">
+            <thead>
+                <tr>
+                    <th>Spieler</th>
+                    <th>Preis</th>
+                    <th>Punkte</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pl in table.Table.Players.OrderByDescending(o => o.Points))
+                {
+                    <tr>
+                        <td>@table.Players.Single(s => s.Position == pl.Position).Name</td>
+                        <td class="@(pl.isWinner ? "text-success" : "text-danger")">@(pl.isPlaying ? table.Table.GameMode == (int)GameMode.Ruf ? table.Table.GameValue : table.Table.GameValue * 3 : table.Table.GameValue)</td>
+                        <td>@pl.Points</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-around">
+        <button type="button" class="btn btn-sm btn-primary" @onclick="ShowHands" @onclick:stopPropagation="true">Starthände</button>
+        @if (isNextRequested)
+        {
+            <p>Warte auf andere Spieler ...</p>
+        }
+        else
+        {
+            <button type="button" class="btn btn-sm btn-primary" @onclick="NextRound">Weiter</button>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ClientTable table { get; set; }
+
+    [Parameter]
+    public EventCallback onNextRequest { get; set; }
+
+    [Parameter]
+    public EventCallback ShowHands { get; set; }
+
+    bool isNextRequested = false;
+
+    void NextRound()
+    {
+        isNextRequested = true;
+        onNextRequest.InvokeAsync();
+    }
+
+}

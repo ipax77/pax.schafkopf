@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\pax.schafkopf.lib\pax.schafkopf.lib.csproj" />
+    <ProjectReference Include="..\Client\pax.schafkopf.Client.csproj" />
+    <ProjectReference Include="..\Shared\pax.schafkopf.Shared.csproj" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,369 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+
+:root {
+    --cardheight: 40vh;
+    --cardwidth: 22vh;
+    --cardmaxheight: 378.5px;
+    --cardmaxwidth: 208.4px;
+}
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.cardtable {
+    background-image: url("../images/tableback.png");
+}
+
+.skcard {
+    position: absolute;
+    object-position: top left;
+    height: var(--cardheight);
+    width: var(--cardwidth);
+    max-height: var(--cardmaxheight);
+    max-width: var(--cardmaxwidth);
+}
+
+.cardWrapper {
+    overflow: hidden;
+    position: absolute;
+    object-position: top left;
+}
+
+    .cardWrapper:last-child {
+        overflow-x: visible;
+    }
+
+    .cardWrapper:hover {
+        border: solid;
+        border-color: yellow;
+        border-radius: 2px;
+    }
+
+.topcardWrapper {
+    overflow-x: visible;
+    overflow-y: visible;
+    position: absolute;
+    object-position: left bottom;
+}
+
+    .topcardWrapper:last-child {
+        overflow-x: visible;
+        overflow-y: visible;
+    }
+
+    .topcardWrapper:hover {
+        border: solid;
+        border-color: dimgrey;
+        border-radius: 1px;
+    }
+
+.oppcardWrapper {
+    overflow: hidden;
+    position: absolute;
+    object-position: left top;
+}
+
+    .oppcardWrapper:last-child {
+        overflow-x: visible;
+        overflow-y: hidden;
+    }
+
+    .oppcardWrapper:hover {
+        border: solid;
+        border-color: dimgrey;
+        border-radius: 1px;
+    }
+
+.skimage {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.fadein {
+    animation-name: fademein;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.fadeout {
+    animation-name: fademeout;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fademein {
+    0% {
+        transform: scale(0.25);
+        opacity: 0
+    }
+
+    50% {
+        transform: scale(0.5);
+        opacity: 0.5
+    }
+
+    100% {
+        transform: scale(1.0);
+        opacity: 1
+    }
+}
+
+@keyframes fademeout {
+    0% {
+        transform: scale(1.0);
+        opacity: 1
+    }
+
+    50% {
+        transform: scale(0.5);
+        opacity: 0.5
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0
+    }
+}
+
+.draggable {
+    position: absolute;
+    cursor: pointer; /* IE */
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+
+.dragging {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+    background-color: red;
+}
+
+.top-card {
+    top: calc(var(--cardheight) * -1 + 5vh);
+    left: calc(var(--cardwidth) / -2);
+}
+
+.bottom-card {
+    top: -5vh;
+    left: calc(var(--cardwidth) / -2);
+}
+
+.left-card {
+    top: calc(var(--cardheight) / -2);
+    left: calc(var(--cardheight) * -1 + 5vh);
+}
+
+.right-card {
+    top: calc(var(--cardheight) / -2);
+    left: calc(var(--cardwidth) - 5vh);
+}
+
+@media screen and (min-width: 1800px), screen and (min-height: 900px) {
+    .top-card {
+        top: calc(var(--cardmaxheight) * -1 + 50px);
+        left: calc(var(--cardmaxwidth) / -2);
+    }
+
+    .bottom-card {
+        top: -50px;
+        left: calc(var(--cardmaxwidth) / -2);
+    }
+
+    .left-card {
+        top: calc(var(--cardmaxheight) / -2);
+        left: calc(var(--cardmaxheight) * -1 + 50px);
+    }
+
+    .right-card {
+        top: calc(var(--cardmaxheight) / -2);
+        left: calc(var(--cardmaxwidth) - 50px);
+    }
+}
+
+.collecttrick {
+    z-index: 33;
+    animation: trickanim;
+    animation-duration: 1.5s;
+    animation-delay: 1s;
+}
+
+@keyframes trickanim {
+    80% {
+        transform: rotate(5deg) scale(1, 1);
+        transform-origin: center center;
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        transform: rotate(12deg) scale(0.1, 0.1);
+        transform-origin: center bottom;
+        opacity: 0;
+    }
+}
+
+
+
+@keyframes leftanim {
+    33% {
+        left: 0;
+        top: 30vh;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 30vh;
+        left: 30vw;
+        transform: rotate(90deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes topanim {
+    33% {
+        left: 45vw;
+        top: 0;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 20vh;
+        left: 45vw;
+        transform: rotate(-3deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes rightanim {
+    33% {
+        right: 0;
+        top: 30vh;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 30vh;
+        right: 30vw;
+        transform: rotate(-90deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes bottomanim {
+    33% {
+        bottom: 0;
+        left: 45vw;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        bottom: 20vh;
+        left: 45vw;
+        transform: rotate(3deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+.modal-dialog,
+.modal-content {
+    height: 80%;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }

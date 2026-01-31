@@ -1,0 +1,101 @@
+﻿
+
+<div class="card-body">
+    @if (!String.IsNullOrEmpty(storedTableId))
+    {
+        <div>
+            <button type="button" class="btn btn-primary btn-block mb-2" @onclick="OnReconnectRequest">Zu altem Tisch verbinden</button>
+        </div>
+    }
+    <div>
+        <button type="button" class="btn btn-primary btn-block" @onclick="OnNewTableRequest">Neuen Tisch erstellen</button>
+    </div>
+    <div class="form-group row justify-content-start mb-2">
+        <label class="col-sm-7 col-lg-6 col-xl-5 col-form-label text-muted" for="tableid">
+            Tisch-Nummer:
+        </label>
+        <div class="col-sm-9 col-xl-7">
+            <input id="tableid" class="form-control" @bind="TableID" />
+        </div>
+    </div>
+    <button type="button" class="btn @(String.IsNullOrEmpty(TableID) ? "btn-primary" : "btn-warning") btn-block mb-2" @onclick="JoinTable">Tisch beitreten</button>
+    <button type="button" class="btn @(String.IsNullOrEmpty(TableID) ? "btn-primary" : "btn-warning") btn-block mb-2" @onclick="VisitTable">Tisch zuschauen</button>
+    @if (!String.IsNullOrEmpty(Error))
+    {
+        <span class="badge badge-danger">@Error</span>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public string storedTableId { get; set; }
+
+    [Parameter]
+    public string urlTableID { get; set; }
+
+    [Parameter]
+    public EventCallback OnNewTableRequest { get; set; }
+
+    [Parameter]
+    public EventCallback OnReconnectRequest { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnJoinTableRequest { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnVisitTableRequest { get; set; }
+
+    public string TableID;
+    public string Error = String.Empty;
+
+    protected override void OnInitialized()
+    {
+        Guid guid;
+        if (!String.IsNullOrEmpty(urlTableID))
+            if (Guid.TryParse(urlTableID, out guid))
+            {
+                TableID = urlTableID;
+            }
+            else
+                urlTableID = null;
+        base.OnInitialized();
+    }
+
+    public void VisitTable()
+    {
+        if (String.IsNullOrEmpty(TableID))
+        {
+            Error = "Bitter eine Tisch-Nummer angeben.";
+            StateHasChanged();
+            return;
+        }
+        Guid guid;
+        if (Guid.TryParse(TableID, out guid))
+            OnVisitTableRequest.InvokeAsync(guid);
+        else
+        {
+            Error = "Bitte eine gültige Tisch-Nummer angeben.";
+            StateHasChanged();
+        }
+    }
+
+    public void JoinTable()
+    {
+        if (String.IsNullOrEmpty(TableID))
+        {
+            Error = "Bitter eine Tisch-Nummer angeben.";
+            StateHasChanged();
+            return;
+        }
+        Guid guid;
+        if (Guid.TryParse(TableID, out guid))
+            OnJoinTableRequest.InvokeAsync(guid);
+        else
+        {
+            Error = "Bitte eine gültige Tisch-Nummer angeben.";
+            StateHasChanged();
+        }
+    }
+
+}

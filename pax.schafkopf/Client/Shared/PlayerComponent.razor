@@ -1,0 +1,123 @@
+﻿@using pax.schafkopf.Client.Models
+@using pax.schafkopf.lib
+@using pax.schafkopf.lib.Enums
+@using pax.schafkopf.Shared
+
+<div class="position-absolute" style="z-index: 5; width: 25vw;">
+    <div class="border border-primary rounded" style="background-color: @(clientPlayer.isDisconnected ? SKData.BgColorDisconnect : bgColor);">
+        <div class="text-center">
+            @if (Table.Table.LeadingPlayer == clientPlayer.Position && (Table.Table.State == (byte)TableState.Bidding || Table.Table.State == (byte)TableState.Bidding2))
+            {
+                <span class="badge badge-secondary">Erster</span>
+            }
+            <div>
+                <span class="badge badge-primary">@(String.IsNullOrEmpty(clientPlayer.Name) ? "Nicht verbunden" : $"{clientPlayer.Name}")</span>
+            </div>
+            @if (clientPlayer.isDisconnected)
+            {
+                <span class="badge badge-secondary">Nicht verbunden.</span>
+            }
+            @if (Table.Table.PlayerMoved(clientPlayer.Position) && Table.Table.State == (int)TableState.Bidding)
+            {
+                if (Player.isPlaying)
+                {
+                    <span class="badge badge-danger">Spiele!</span>
+                }
+                else
+                {
+                    <span class="badge badge-warning">Weiter.</span>
+                }
+            }
+            else if (Table.Table.PlayerMoved(clientPlayer.Position) && Table.Table.State == (int)TableState.Bidding2)
+            {
+                @if (Player.isPlaying)
+                {
+                    <span class="badge badge-danger">Spiele @((GameMode)Player.GameProposal)</span>
+                }
+                else
+                {
+                    <span class="badge badge-warning">Weiter.</span>
+                }
+            }
+            else if (Table.Table.State == (int)TableState.Playing)
+            {
+                @if (Player.isPlaying)
+                {
+                    <span class="badge badge-dark text-white-50">@SKData.GetGameString(Player.GameProposal, Player.TrumpProposal, Player.Partner)</span>
+                }
+                else if (Player.isPartner)
+                {
+                    <span class="badge badge-dark text-white-50">@SKData.GetPartnerString(Table.Table.Players[Table.Table.PlayingPlayer].Partner)</span>
+                }
+            }
+        </div>
+    </div>
+</div>
+@if (clientPlayer.TablePosition == 1)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < 8 - Player.CardsPlayed.Count(); i++)
+        {
+            int j = i;
+            <div class="oppcardWrapper" style="top: @((j + 1) * 10)%; left: -20%; transform: rotate(@(85 + (j * 2))deg); height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="images/back.png" />
+            </div>
+        }
+        @if (Player.Tricks.Any())
+        {
+            <div class="skcard" style="top: 5%; left: 20%; height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="images/stich@(Player.Tricks.Count() / 4).png" />
+            </div>
+        }
+    </div>
+}
+else if (clientPlayer.TablePosition == 3)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < 8 - Player.CardsPlayed.Count(); i++)
+        {
+            int j = i;
+            <div class="oppcardWrapper" style="top: @((j + 1) * 10)%; right: -20%; transform: rotate(@(99 - (j * 2))deg); height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="images/back.png" />
+            </div>
+        }
+        @if (Player.Tricks.Any())
+        {
+            <div class="skcard" style="top: 5%; right: 20%; height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="images/stich@(Player.Tricks.Count() / 4).png" />
+            </div>
+        }
+    </div>
+}
+else if (clientPlayer.TablePosition == 2)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < 8 - Player.CardsPlayed.Count(); i++)
+        {
+            int j = i;
+            <div class="topcardWrapper" style="left: @((j + 1) * 10)%; top: -50%; transform: rotate(@(9 - (j * 2))deg); height: auto; max-height: 20vh; width: 40%">
+                <img class="skimage" src="images/back.png" />
+            </div>
+        }
+        @if (Player.Tricks.Any())
+        {
+            <div class="skcard" style="left: -10%; top: 50%; height: auto; max-height: 20vh; width: 40%">
+                <img class="skimage" src="images/stich@(Player.Tricks.Count() / 4).png" />
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public ClientTable Table { get; set; }
+
+    [Parameter]
+    public int TablePosition { get; set; }
+
+    ClientPlayer clientPlayer => Table.Players.Single(s => s.TablePosition == TablePosition);
+    SKPlayer Player => Table.Table.Players[clientPlayer.Position];
+
+    string bgColor => Table.Table.CurrentPlayer == clientPlayer.Position ? SKData.BgColorOnMove : SKData.BgColorInfo;
+
+}
