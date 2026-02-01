@@ -22,5 +22,11 @@ namespace sk.api.Hubs
         {
             await _gameHubService.JoinGame(gameId, player, Context.ConnectionId);
         }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            await _gameHubService.DisconnectPlayer(Context.ConnectionId);
+            await base.OnDisconnectedAsync(exception);
+        }
     }
 }

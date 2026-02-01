@@ -19,7 +19,8 @@ public static class GameExtensions
                 Player = originalPlayer.Player,
                 Position = originalPlayer.Position,
                 Tricks = originalPlayer.Tricks,
-                Hand = i == forPlayer ? originalPlayer.Hand : new List<Card>()
+                Hand = i == forPlayer ? originalPlayer.Hand : new List<Card>(),
+                IsConnected = originalPlayer.IsConnected
             };
         }
 

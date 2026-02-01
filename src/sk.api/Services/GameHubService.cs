@@ -61,17 +61,47 @@ namespace sk.api.Services
                 var exisiting = game.Table.Players.FirstOrDefault(f => f.Player.Guid == player.Guid);
                 if (exisiting is not null)
                 {
+                    exisiting.IsConnected = true;
                     _playerConnections[player.Guid] = connectionId;
-                    var playerState = game.ToPublicGameState(exisiting.Position);
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGameState", playerState);
+                    await BroadcastGameState(game);
                     return;
                 }
                 var playerSlot = game.Table.Players.FirstOrDefault(p => string.IsNullOrEmpty(p.Player.Name));
                 if (playerSlot != null)
                 {
                     playerSlot.Player = player;
+                    playerSlot.IsConnected = true;
                     _playerConnections[player.Guid] = connectionId;
                     await BroadcastGameState(game);
+                }
+            }
+        }
+
+        public async Task DisconnectPlayer(string connectionId)
+        {
+            Guid playerId = Guid.Empty;
+            foreach (var entry in _playerConnections)
+            {
+                if (entry.Value == connectionId)
+                {
+                    playerId = entry.Key;
+                    break;
+                }
+            }
+
+            if (playerId != Guid.Empty)
+            {
+                // now find the game this player is in
+                foreach (var game in _games.Values)
+                {
+                    var playerInGame = game.Table.Players.FirstOrDefault(p => p.Player.Guid == playerId);
+                    if (playerInGame != null)
+                    {
+                        playerInGame.IsConnected = false;
+                        _playerConnections.TryRemove(playerId, out _); // remove from connections
+                        await BroadcastGameState(game);
+                        break; // assuming player can only be in one game
+                    }
                 }
             }
         }
