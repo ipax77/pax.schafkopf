@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="sk.shared/sk.shared.csproj" />
+  <Project Path="sk.tests/sk.tests.csproj" />
+</Solution>
