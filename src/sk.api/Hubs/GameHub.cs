@@ -20,7 +20,7 @@ public class GameHub(GameHubService service) : Hub
     public async Task JoinGame(Guid gameId, Player player)
     {
         Context.Items["playerId"] = player.Guid;
-        Context.Items["gameId"]   = gameId;
+        Context.Items["gameId"] = gameId;
         player.ConnectionId = Context.ConnectionId;
         service.JoinGame(gameId, player);
         await service.BroadcastGame(gameId);
@@ -29,15 +29,48 @@ public class GameHub(GameHubService service) : Hub
     public async Task RejoinGame(Guid gameId, Guid playerId)
     {
         Context.Items["playerId"] = playerId;
-        Context.Items["gameId"]   = gameId;
+        Context.Items["gameId"] = gameId;
         service.RejoinGame(gameId, playerId);
         await service.BroadcastGame(gameId);
+    }
+
+    public async Task SubmitBidding1(BiddingState request)
+    {
+        if (Context.Items.TryGetValue("gameId", out var gameIdObj)
+            && Context.Items.TryGetValue("playerId", out var playerIdObj)
+            && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
+        {
+            service.SubmitBidding1(gameId, playerId, request);
+            await service.BroadcastGame(gameId);
+        }
+    }
+
+    public async Task SubmitBidding2(BiddingState request)
+    {
+        if (Context.Items.TryGetValue("gameId", out var gameIdObj)
+            && Context.Items.TryGetValue("playerId", out var playerIdObj)
+            && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
+        {
+            service.SubmitBidding2(gameId, playerId, request);
+            await service.BroadcastGame(gameId);
+        }
+    }
+
+    public async Task PlayCard(Card card)
+    {
+        if (Context.Items.TryGetValue("gameId", out var gameIdObj)
+            && Context.Items.TryGetValue("playerId", out var playerIdObj)
+            && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
+        {
+            service.PlayCard(gameId, playerId, card);
+            await service.BroadcastGame(gameId);
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         if (Context.Items.TryGetValue("playerId", out var p) &&
-            Context.Items.TryGetValue("gameId", out var g) 
+            Context.Items.TryGetValue("gameId", out var g)
             && p is Guid pGuid && g is Guid gGuid)
         {
             service.DisconnectPlayer(gGuid, pGuid);

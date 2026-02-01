@@ -42,9 +42,35 @@ public class GameHubService(IHubContext<GameHub> hub)
     public void DisconnectPlayer(Guid gameId, Guid playerId)
     {
         var seat = GetGame(gameId).GetTablePlayer(playerId);
-        if (seat != null)
-            seat.IsConnected = false;
+        seat?.IsConnected = false;
     }
+
+    public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)
+    {
+        var game = GetGame(gameId);
+        var seat = game.GetTablePlayer(playerId) ?? throw new InvalidOperationException("Player not in game");
+
+        game.SetBidding1(seat.Position, request);
+    }
+
+    public void SubmitBidding2(Guid gameId, Guid playerId, BiddingState request)
+    {
+        var game = GetGame(gameId);
+        var seat = game.GetTablePlayer(playerId)
+            ?? throw new InvalidOperationException("Player not in game");
+
+        game.SetBidding2(seat.Position, request);
+    }
+
+    public void PlayCard(Guid gameId, Guid playerId, Card card)
+    {
+        var game = GetGame(gameId);
+        var seat = game.GetTablePlayer(playerId)
+            ?? throw new InvalidOperationException("Player not in game");
+
+        game.PlayCard(seat.Position, card);
+    }
+
 
     public async Task BroadcastGame(Guid gameId)
     {
