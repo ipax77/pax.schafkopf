@@ -1,9 +1,13 @@
 
 namespace sk.shared;
 
-public static class TableLayerExtensions
+public static class TablePlayerExtensions
 {
-
+    public static void Reset(this TablePlayer player)
+    {
+        player.Hand.Clear();
+        player.Tricks.Clear();
+    }
 }
 
 public static class GameExtensions

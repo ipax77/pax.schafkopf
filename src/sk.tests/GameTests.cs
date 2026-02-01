@@ -36,4 +36,26 @@ public sealed class GameTests
         Assert.AreEqual(32, distinctCards);
     }
 
+    [TestMethod]
+    public void CanDetectTrump()
+    {
+        Card card = new() { Rank = Rank.Unter, Suit = Suit.Schellen };
+        var isTrump = card.IsTrump(GameType.Wenz, Suit.None);
+        Assert.IsTrue(isTrump);
+    }
+
+    [TestMethod]
+    public void CanDoBidding1()
+    {
+        Game game = new();
+        game.GameState = GameState.Bidding1;
+
+        game.SetBidding1(0, new() { WouldPlay = true });
+        game.SetBidding1(1, new() { WouldPlay = false });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        Assert.AreEqual(GameState.Bidding2, game.GameState);
+    }
+
 }
