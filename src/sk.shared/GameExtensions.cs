@@ -53,7 +53,7 @@ public static class GameExtensions
                 Player = originalPlayer.Player,
                 Position = originalPlayer.Position,
                 Tricks = originalPlayer.Tricks,
-                Hand = i == forPlayer ? originalPlayer.Hand : [],
+                Hand = i == forPlayer ? originalPlayer.Hand : GetPrivateHand(originalPlayer.Hand),
                 IsConnected = originalPlayer.IsConnected
             };
         }
@@ -62,11 +62,22 @@ public static class GameExtensions
         {
             GameState = game.GameState,
             ActivePlayer = game.ActivePlayer,
+            YourPosition = forPlayer,
             Turn = game.Turn,
-            Bidding1Result = game.Bidding1Result,
-            Bidding2Result = game.Bidding2Result,
+            Bidding1Result = game.GetPublicBidding1Result(),
+            Bidding2Result = game.GetPublicBidding2Result(),
             Table = publicTable
         };
+    }
+
+    private static List<Card> GetPrivateHand(List<Card> hand)
+    {
+        List<Card> cards = [];
+        foreach (var card in hand)
+        {
+            cards.Add(new() { Rank = Rank.Seven, Suit = Suit.None });
+        }
+        return cards;
     }
 
     private static readonly Rank[] Ranks =

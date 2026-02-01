@@ -2,4 +2,5 @@
   <Project Path="sk.api/sk.api.csproj" />
   <Project Path="sk.shared/sk.shared.csproj" />
   <Project Path="sk.tests/sk.tests.csproj" />
+  <Project Path="sk.weblib/sk.weblib.csproj" />
 </Solution>

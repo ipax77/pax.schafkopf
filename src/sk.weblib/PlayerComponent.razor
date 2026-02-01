@@ -1,0 +1,11 @@
+@using sk.shared
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public TablePlayer TablePlayer { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public bool IsPlayer { get; set; }
+}

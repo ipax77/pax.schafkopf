@@ -14,7 +14,41 @@ public sealed class Game
     private readonly List<int> _bidding1Interested = [];
     private int _bidding1Count;
     private int _firstPlayer;
-    private readonly List<BiddingState> _bidding2States = [];
+    private readonly List<(int, BiddingState)> _bidding2States = [];
+
+    public Bidding1Result? GetPublicBidding1Result()
+    {
+        if (Bidding1Result is not null)
+        {
+            return Bidding1Result;
+        }
+        else
+        {
+            if (GameState == GameState.Bidding1)
+            {
+                return new()
+                {
+                    InterestedPlayers = _bidding1Interested
+                };
+            }
+            else if (GameState == GameState.Bidding2)
+            {
+                return new()
+                {
+                    InterestedPlayers = _bidding2States
+                        .Where(x => x.Item2.WouldPlay)
+                        .Select(s => s.Item1)
+                        .ToList()
+                };
+            }
+        }
+        return Bidding1Result;
+    }
+
+    public Bidding2Result? GetPublicBidding2Result()
+    {
+        return Bidding2Result;
+    }
 
     public void SetBidding1(int playerIndex, BiddingState command)
     {
@@ -65,21 +99,22 @@ public sealed class Game
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
 
-        _bidding2States.Add(command);
+        _bidding2States.Add((playerIndex, command));
 
         if (_bidding2States.Count == Bidding1Result.InterestedPlayers.Count)
         {
             var comparer = new BiddingStateComparer();
-            var highestBid = _bidding2States.OrderByDescending(o => o, comparer).FirstOrDefault();
-            ArgumentNullException.ThrowIfNull(highestBid);
-            ArgumentNullException.ThrowIfNull(highestBid.ProposedGame);
+            var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+            ArgumentNullException.ThrowIfNull(highestBid.Item2);
+            ArgumentNullException.ThrowIfNull(highestBid.Item2.ProposedGame);
 
             Bidding2Result = new()
             {
-                GameType = highestBid.ProposedGame.Value,
-                Suit = highestBid.ProposedSuit ?? Suit.None,
-                Sie = highestBid.Sie,
-                Tout = highestBid.Tout
+                PlayerIndex = highestBid.Item1,
+                GameType = highestBid.Item2.ProposedGame.Value,
+                Suit = highestBid.Item2.ProposedSuit ?? Suit.None,
+                Sie = highestBid.Item2.Sie,
+                Tout = highestBid.Item2.Tout
             };
             ActivePlayer = Bidding1Result.FirstPlayer;
             GameState = GameState.Playing;
@@ -152,6 +187,7 @@ public sealed class Bidding1Result
 
 public sealed class Bidding2Result
 {
+    public int PlayerIndex { get; set; }
     public GameType GameType { get; set; }
     public Suit Suit { get; set; }
     public bool Sie { get; set; }
