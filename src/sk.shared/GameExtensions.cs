@@ -2,8 +2,27 @@ namespace sk.shared;
 
 public static class GameExtensions
 {
-    public static PublicGameState ToPublicGameState(this Game game)
+    public static PublicGameState ToPublicGameState(this Game game, int forPlayer = -1)
     {
+        var publicTable = new Table
+        {
+            Guid = game.Table.Guid,
+            PreviouseTrick = game.Table.PreviouseTrick,
+            CurrentTrick = game.Table.CurrentTrick
+        };
+
+        for (int i = 0; i < 4; i++)
+        {
+            var originalPlayer = game.Table.Players[i];
+            publicTable.Players[i] = new TablePlayer
+            {
+                Player = originalPlayer.Player,
+                Position = originalPlayer.Position,
+                Tricks = originalPlayer.Tricks,
+                Hand = i == forPlayer ? originalPlayer.Hand : new List<Card>()
+            };
+        }
+
         return new PublicGameState
         {
             GameState = game.GameState,
@@ -11,7 +30,7 @@ public static class GameExtensions
             Turn = game.Turn,
             Bidding1Result = game.Bidding1Result,
             Bidding2Result = game.Bidding2Result,
-            Table = game.Table
+            Table = publicTable
         };
     }
 

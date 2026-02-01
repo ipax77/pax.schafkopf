@@ -13,10 +13,31 @@ namespace sk.api.Services
     {
         private readonly IHubContext<GameHub> _hubContext;
         private readonly ConcurrentDictionary<Guid, Game> _games = new();
+        private readonly ConcurrentDictionary<Guid, string> _playerConnections = new();
 
         public GameHubService(IHubContext<GameHub> hubContext)
         {
             _hubContext = hubContext;
+        }
+
+        private async Task BroadcastGameState(Game game)
+        {
+            var playerConnectionIds = new List<string>();
+
+            // Send personalized state to each player and collect their connection IDs
+            foreach (var player in game.Table.Players)
+            {
+                if (player.Player.Guid != Guid.Empty && _playerConnections.TryGetValue(player.Player.Guid, out var connectionId))
+                {
+                    playerConnectionIds.Add(connectionId);
+                    var playerState = game.ToPublicGameState(player.Position);
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGameState", playerState);
+                }
+            }
+
+            // Send spectator state to all other clients
+            var spectatorState = game.ToPublicGameState();
+            await _hubContext.Clients.AllExcept(playerConnectionIds).SendAsync("ReceiveGameState", spectatorState);
         }
 
         public async Task<Guid> CreateNewGame()
@@ -28,8 +49,7 @@ namespace sk.api.Services
             game.GameState = GameState.Bidding1;
             game.ActivePlayer = 0;
 
-            var publicGameState = game.ToPublicGameState();
-            await _hubContext.Clients.All.SendAsync("ReceiveGameState", publicGameState);
+            await BroadcastGameState(game);
 
             return game.Table.Guid;
         }
@@ -41,15 +61,17 @@ namespace sk.api.Services
                 var exisiting = game.Table.Players.FirstOrDefault(f => f.Player.Guid == player.Guid);
                 if (exisiting is not null)
                 {
-                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGameState", game.ToPublicGameState());
+                    _playerConnections[player.Guid] = connectionId;
+                    var playerState = game.ToPublicGameState(exisiting.Position);
+                    await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGameState", playerState);
                     return;
                 }
                 var playerSlot = game.Table.Players.FirstOrDefault(p => string.IsNullOrEmpty(p.Player.Name));
                 if (playerSlot != null)
                 {
                     playerSlot.Player = player;
-                    var publicGameState = game.ToPublicGameState();
-                    await _hubContext.Clients.All.SendAsync("ReceiveGameState", publicGameState);
+                    _playerConnections[player.Guid] = connectionId;
+                    await BroadcastGameState(game);
                 }
             }
         }
