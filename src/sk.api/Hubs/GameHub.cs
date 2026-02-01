@@ -2,31 +2,49 @@ using Microsoft.AspNetCore.SignalR;
 using sk.api.Services;
 using sk.shared;
 
-namespace sk.api.Hubs
+namespace sk.api.Hubs;
+
+public class GameHub(GameHubService service) : Hub
 {
-    public class GameHub : Hub
+    public async Task<Guid> CreateNewGame(Player player)
     {
-        private readonly GameHubService _gameHubService;
+        Context.Items["playerId"] = player.Guid;
 
-        public GameHub(GameHubService gameHubService)
+        var gameId = service.CreateNewGame(player);
+        Context.Items["gameId"] = gameId;
+
+        await service.BroadcastGame(gameId);
+        return gameId;
+    }
+
+    public async Task JoinGame(Guid gameId, Player player)
+    {
+        Context.Items["playerId"] = player.Guid;
+        Context.Items["gameId"]   = gameId;
+        player.ConnectionId = Context.ConnectionId;
+        service.JoinGame(gameId, player);
+        await service.BroadcastGame(gameId);
+    }
+
+    public async Task RejoinGame(Guid gameId, Guid playerId)
+    {
+        Context.Items["playerId"] = playerId;
+        Context.Items["gameId"]   = gameId;
+        service.RejoinGame(gameId, playerId);
+        await service.BroadcastGame(gameId);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        if (Context.Items.TryGetValue("playerId", out var p) &&
+            Context.Items.TryGetValue("gameId", out var g) 
+            && p is Guid pGuid && g is Guid gGuid)
         {
-            _gameHubService = gameHubService;
+            service.DisconnectPlayer(gGuid, pGuid);
+            await service.BroadcastGame((Guid)g);
         }
 
-        public async Task<Guid> CreateNewGame()
-        {
-            return await _gameHubService.CreateNewGame();
-        }
-
-        public async Task JoinGame(Guid gameId, Player player)
-        {
-            await _gameHubService.JoinGame(gameId, player, Context.ConnectionId);
-        }
-
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            await _gameHubService.DisconnectPlayer(Context.ConnectionId);
-            await base.OnDisconnectedAsync(exception);
-        }
+        await base.OnDisconnectedAsync(exception);
     }
 }
+

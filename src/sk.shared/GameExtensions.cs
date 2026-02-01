@@ -2,6 +2,40 @@ namespace sk.shared;
 
 public static class GameExtensions
 {
+    public static bool TryAssignEmptySeat(this Game game, Player player)
+    {
+        var emptySlot = game.Table.Players.OrderBy(o => o.Position).FirstOrDefault(f => f.Player.Guid == Guid.Empty);
+        if (emptySlot is null)
+        {
+            return false;
+        }
+        emptySlot.Player = player;
+        emptySlot.IsConnected = true;
+        return true;
+    }
+
+    public static bool HasPlayer(this Game game, Player player)
+    {
+        var slot = game.Table.Players.FirstOrDefault(f => f.Player.Guid == player.Guid);
+        return slot is not null;
+    }
+
+    public static bool TryStartGame(this Game game)
+    {
+        if (!game.Table.Players.All(a => a.IsConnected))
+        {
+            return false;
+        }
+        game.DealCards();
+        game.GameState = GameState.Bidding1;
+        return true;
+    }
+
+    public static TablePlayer? GetTablePlayer(this Game game, Guid playerId)
+    {
+        return game.Table.Players.FirstOrDefault(f => f.Player.Guid == playerId);
+    }
+
     public static PublicGameState ToPublicGameState(this Game game, int forPlayer = -1)
     {
         var publicTable = new Table
@@ -19,7 +53,7 @@ public static class GameExtensions
                 Player = originalPlayer.Player,
                 Position = originalPlayer.Position,
                 Tricks = originalPlayer.Tricks,
-                Hand = i == forPlayer ? originalPlayer.Hand : new List<Card>(),
+                Hand = i == forPlayer ? originalPlayer.Hand : [],
                 IsConnected = originalPlayer.IsConnected
             };
         }
