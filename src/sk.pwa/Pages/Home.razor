@@ -1,0 +1,12 @@
+﻿@page "/"
+@using sk.shared
+@using sk.weblib
+
+<PageTitle>pax.schafkopf</PageTitle>
+
+<TableComponent Player="player" />
+
+@code {
+    Player player = new() { Guid = Guid.NewGuid(), Name = "TestUser" };
+
+}

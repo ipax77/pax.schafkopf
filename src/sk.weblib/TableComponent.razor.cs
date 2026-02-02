@@ -9,7 +9,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     [Parameter, EditorRequired]
     public Player Player { get; set; } = default!;
 
-    [Parameter, EditorRequired]
+    [Parameter]
     public Guid GameGuid { get; set; }
 
     private HubConnection? hubConnection;
@@ -74,20 +74,36 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
         await hubConnection.StartAsync();
 
         // Initial join or rejoin
-        await hubConnection.SendAsync(
-            "JoinGame",
-            GameGuid,
-            Player);
-
+        if (GameGuid == Guid.Empty)
+        {
+            await hubConnection.SendAsync("CreateNewGame", Player);
+        }
+        else
+        {
+            await hubConnection.SendAsync(
+                "JoinGame",
+                GameGuid,
+                Player);
+        }
         await base.OnInitializedAsync();
     }
 
     private List<PlayerViewInfo> GetPlayersByView()
     {
-        return publicGameState.Table.Players
-            .Select((p, serverIndex) => new PlayerViewInfo(p, serverIndex, (serverIndex - publicGameState.YourPosition!.Value + 4) % 4))
-            .OrderBy(p => p.ViewIndex)
-            .ToList();
+        if (publicGameState.YourPosition.HasValue)
+        {
+            return publicGameState.Table.Players
+                .Select((p, serverIndex) => new PlayerViewInfo(p, serverIndex, (serverIndex - publicGameState.YourPosition.Value + 4) % 4))
+                .OrderBy(p => p.ViewIndex)
+                .ToList();
+        }
+        else
+        {
+            return publicGameState.Table.Players
+                .Select((p, serverIndex) => new PlayerViewInfo(p, serverIndex, (serverIndex - 0 + 4) % 4))
+                .OrderBy(p => p.ViewIndex)
+                .ToList();
+        }
     }
 
     private async Task SubmitBidding1(bool wouldPlay)
