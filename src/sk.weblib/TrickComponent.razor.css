@@ -1,0 +1,19 @@
+.trick {
+    position: relative;
+}
+
+.trick .card-face {
+    position: absolute;
+}
+
+.trick .pos-0 { left: 0; }
+.trick .pos-1 { left: 90px; }
+.trick .pos-2 { left: 180px; }
+.trick .pos-3 { left: 270px; }
+
+.card-face {
+    width: 160px;
+    height: 223px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}

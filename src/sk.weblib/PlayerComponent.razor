@@ -1,6 +1,17 @@
 @using sk.shared
 
+<div class="border border-primary rounded p-1">
+    <p>@TablePlayer.Position</p>
+    <div class="row">
+        @foreach (var card in TablePlayer.Hand)
+        {
+            <div class="col-1">
+                <div class="card-face @card.GetCssClass()"></div>
+            </div>
+        }
 
+    </div>
+</div>
 
 @code {
     [Parameter, EditorRequired]

@@ -1,0 +1,37 @@
+@using sk.shared
+
+<div class="trick">
+    @foreach (var info in trickCards)
+    {
+        <div class="card-face @info.Card.GetCssClass() pos-@info.Pos"></div>
+    }
+</div>
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        AddCard(0, new Card() { Rank = Rank.Ace, Suit = Suit.Eichel });
+        AddCard(1, new Card() { Rank = Rank.Ten, Suit = Suit.Eichel });
+        AddCard(2, new Card() { Rank = Rank.King, Suit = Suit.Eichel });
+        AddCard(3, new Card() { Rank = Rank.Nine, Suit = Suit.Eichel });
+        base.OnInitialized();
+    }
+
+
+    Card card = new() { Rank = Rank.Ace, Suit = Suit.Eichel };
+
+    List<CardInfo> trickCards = [];
+
+    public void AddCard(int position, Card card)
+    {
+        trickCards.Add(new(position, card));
+    }
+
+    public void Clear(int position)
+    {
+        trickCards.Clear();
+    }
+
+    private record CardInfo(int Pos, Card Card);
+}

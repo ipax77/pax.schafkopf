@@ -81,4 +81,14 @@ public static class CardExtensions
         return true;
     }
 
+    public static string GetCssClass(this Card card)
+    {
+        if (card.Suit == Suit.None)
+        {
+            return "card-hidden";
+        }
+        var suit = card.Suit.ToString();
+        var rank = card.Rank.ToString();
+        return $"card-{rank}-{suit}";
+    }
 }
