@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
                           if (builder.Environment.IsDevelopment())
                           {
                               allowedOrigins.Add("http://localhost:5027");
+                              allowedOrigins.Add("https://localhost:7233");
                           }
 
                           policy.WithOrigins([.. allowedOrigins])

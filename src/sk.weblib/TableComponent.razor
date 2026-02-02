@@ -32,11 +32,8 @@
         </div>
 
         <!-- Eigener Spieler unten -->
-        <div class="player bottom d-flex justify-content-center align-items-end pb-3 bg-transparent">
-            @if (publicGameState.YourPosition.HasValue && publicGameState.Table.Players.Length >= publicGameState.YourPosition.Value)
-            {
-                <PlayerComponent TablePlayer="publicGameState.Table.Players[publicGameState.YourPosition.Value]" />
-            }
+        <div class="player bottom bg-transparent overflow-hidden">
+            <PlayerComponent TablePlayer="publicGameState.Table.Players[0]" PublicGameState="publicGameState" />
         </div>
 
     </div>

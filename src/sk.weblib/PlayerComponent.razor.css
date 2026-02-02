@@ -1,0 +1,28 @@
+.hand-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+
+.hand-card {
+    cursor: pointer;
+    margin-bottom: 20%;
+    margin-left: 80px; /* Adjust overlap */
+    transition: transform 0.3s ease, z-index 0s;
+    cursor: pointer;
+    transform: rotate(calc(var(--rotation) * 1deg));
+    /* Pivot point is below the visible area */
+    transform-origin: center bottom;
+    z-index: 1000;
+}
+
+    .hand-card:first-child {
+        margin-left: 0;
+    }
+
+    .hand-card:hover {
+        /* Lift card up to show more on hover */
+        transform: rotate(calc(var(--rotation) * 1deg)) translateY(-40%) scale(1.05);
+        z-index: 10;
+    }
