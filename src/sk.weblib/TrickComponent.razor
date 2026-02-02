@@ -1,10 +1,14 @@
 @using sk.shared
 
-<div class="trick">
-    @foreach (var info in trickCards)
-    {
-        <div class="card-face @info.Card.GetCssClass() pos-@info.Pos"></div>
-    }
+<div class="position-relative">
+    <div class="skcard top-card @topCard?.GetCssClass()">
+    </div>
+    <div class="skcard bottom-card @bottomCard?.GetCssClass()">
+    </div>
+    <div class="skcard left-card @leftCard?.GetCssClass()">
+    </div>
+    <div class="skcard right-card @rightCard?.GetCssClass()">
+    </div>
 </div>
 
 
@@ -18,19 +22,31 @@
         base.OnInitialized();
     }
 
-
-    Card card = new() { Rank = Rank.Ace, Suit = Suit.Eichel };
-
-    List<CardInfo> trickCards = [];
+    Card? bottomCard;
+    Card? leftCard;
+    Card? topCard;
+    Card? rightCard;
+    CardInfo? currentCard;
 
     public void AddCard(int position, Card card)
     {
-        trickCards.Add(new(position, card));
+        currentCard = new(position, card);
+        _ = position switch {
+            0 => bottomCard = card,
+            1 => leftCard = card,
+            2 => topCard = card,
+            3 => rightCard = card,
+            _ => null,
+        };
     }
 
     public void Clear(int position)
     {
-        trickCards.Clear();
+        bottomCard = null;
+        leftCard = null;
+        topCard = null;
+        rightCard = null;
+        currentCard = null;
     }
 
     private record CardInfo(int Pos, Card Card);

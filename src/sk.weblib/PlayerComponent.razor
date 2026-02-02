@@ -1,22 +1,15 @@
 @using sk.shared
 
-<div class="border border-primary rounded p-1">
+<div class="border border-primary rounded p-1 w-100 h-100">
     <p>@TablePlayer.Position</p>
     <div class="row">
         @foreach (var card in TablePlayer.Hand)
         {
             <div class="col-1">
-                <div class="card-face @card.GetCssClass()"></div>
+                <div class="skcard @card.GetCssClass()"></div>
             </div>
         }
 
     </div>
 </div>
 
-@code {
-    [Parameter, EditorRequired]
-    public TablePlayer TablePlayer { get; set; } = default!;
-
-    [Parameter, EditorRequired]
-    public bool IsPlayer { get; set; }
-}

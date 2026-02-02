@@ -1,73 +1,459 @@
-.preload-Ace-Eichel { background-image: url("/_content/sk.weblib/images/noto/AceEichel.svg"); }
-.preload-Ace-Gras { background-image: url("/_content/sk.weblib/images/noto/AceGras.svg"); }
-.preload-Ace-Herz { background-image: url("/_content/sk.weblib/images/noto/AceHerz.svg"); }
-.preload-Ace-Schellen { background-image: url("/_content/sk.weblib/images/noto/AceSchellen.svg"); }
-.preload-Eight-Eichel { background-image: url("/_content/sk.weblib/images/noto/EightEichel.svg"); }
-.preload-Eight-Gras { background-image: url("/_content/sk.weblib/images/noto/EightGras.svg"); }
-.preload-Eight-Herz { background-image: url("/_content/sk.weblib/images/noto/EightHerz.svg"); }
-.preload-Eight-Schellen { background-image: url("/_content/sk.weblib/images/noto/EightSchellen.svg"); }
-.preload-King-Eichel { background-image: url("/_content/sk.weblib/images/noto/KingEichel.svg"); }
-.preload-King-Gras { background-image: url("/_content/sk.weblib/images/noto/KingGras.svg"); }
-.preload-King-Herz { background-image: url("/_content/sk.weblib/images/noto/KingHerz.svg"); }
-.preload-King-Schellen { background-image: url("/_content/sk.weblib/images/noto/KingSchellen.svg"); }
-.preload-Nine-Eichel { background-image: url("/_content/sk.weblib/images/noto/NineEichel.svg"); }
-.preload-Nine-Gras { background-image: url("/_content/sk.weblib/images/noto/NineGras.svg"); }
-.preload-Nine-Herz { background-image: url("/_content/sk.weblib/images/noto/NineHerz.svg"); }
-.preload-Nine-Schellen { background-image: url("/_content/sk.weblib/images/noto/NineSchellen.svg"); }
-.preload-Ober-Eichel { background-image: url("/_content/sk.weblib/images/noto/OberEichel.svg"); }
-.preload-Ober-Gras { background-image: url("/_content/sk.weblib/images/noto/OberGras.svg"); }
-.preload-Ober-Herz { background-image: url("/_content/sk.weblib/images/noto/OberHerz.svg"); }
-.preload-Ober-Schellen { background-image: url("/_content/sk.weblib/images/noto/OberSchellen.svg"); }
-.preload-Seven-Eichel { background-image: url("/_content/sk.weblib/images/noto/SevenEichel.svg"); }
-.preload-Seven-Gras { background-image: url("/_content/sk.weblib/images/noto/SevenGras.svg"); }
-.preload-Seven-Herz { background-image: url("/_content/sk.weblib/images/noto/SevenHerz.svg"); }
-.preload-Seven-Schellen { background-image: url("/_content/sk.weblib/images/noto/SevenSchellen.svg"); }
-.preload-Ten-Eichel { background-image: url("/_content/sk.weblib/images/noto/TenEichel.svg"); }
-.preload-Ten-Gras { background-image: url("/_content/sk.weblib/images/noto/TenGras.svg"); }
-.preload-Ten-Herz { background-image: url("/_content/sk.weblib/images/noto/TenHerz.svg"); }
-.preload-Ten-Schellen { background-image: url("/_content/sk.weblib/images/noto/TenSchellen.svg"); }
-.preload-Unter-Eichel { background-image: url("/_content/sk.weblib/images/noto/UnterEichel.svg"); }
-.preload-Unter-Gras { background-image: url("/_content/sk.weblib/images/noto/UnterGras.svg"); }
-.preload-Unter-Herz { background-image: url("/_content/sk.weblib/images/noto/UnterHerz.svg"); }
-.preload-Unter-Schellen { background-image: url("/_content/sk.weblib/images/noto/UnterSchellen.svg"); }
+:root {
+    --cardheight: 30vh;
+    --cardwidth: 16vh;
+    --cardmaxheight: 378.5px;
+    --cardmaxwidth: 208.4px;
+}
 
-.card-Ace-Eichel { background-image: url("/_content/sk.weblib/images/noto/AceEichel.svg"); }
-.card-Ace-Gras { background-image: url("/_content/sk.weblib/images/noto/AceGras.svg"); }
-.card-Ace-Herz { background-image: url("/_content/sk.weblib/images/noto/AceHerz.svg"); }
-.card-Ace-Schellen { background-image: url("/_content/sk.weblib/images/noto/AceSchellen.svg"); }
-.card-Eight-Eichel { background-image: url("/_content/sk.weblib/images/noto/EightEichel.svg"); }
-.card-Eight-Gras { background-image: url("/_content/sk.weblib/images/noto/EightGras.svg"); }
-.card-Eight-Herz { background-image: url("/_content/sk.weblib/images/noto/EightHerz.svg"); }
-.card-Eight-Schellen { background-image: url("/_content/sk.weblib/images/noto/EightSchellen.svg"); }
-.card-King-Eichel { background-image: url("/_content/sk.weblib/images/noto/KingEichel.svg"); }
-.card-King-Gras { background-image: url("/_content/sk.weblib/images/noto/KingGras.svg"); }
-.card-King-Herz { background-image: url("/_content/sk.weblib/images/noto/KingHerz.svg"); }
-.card-King-Schellen { background-image: url("/_content/sk.weblib/images/noto/KingSchellen.svg"); }
-.card-Nine-Eichel { background-image: url("/_content/sk.weblib/images/noto/NineEichel.svg"); }
-.card-Nine-Gras { background-image: url("/_content/sk.weblib/images/noto/NineGras.svg"); }
-.card-Nine-Herz { background-image: url("/_content/sk.weblib/images/noto/NineHerz.svg"); }
-.card-Nine-Schellen { background-image: url("/_content/sk.weblib/images/noto/NineSchellen.svg"); }
-.card-Ober-Eichel { background-image: url("/_content/sk.weblib/images/noto/OberEichel.svg"); }
-.card-Ober-Gras { background-image: url("/_content/sk.weblib/images/noto/OberGras.svg"); }
-.card-Ober-Herz { background-image: url("/_content/sk.weblib/images/noto/OberHerz.svg"); }
-.card-Ober-Schellen { background-image: url("/_content/sk.weblib/images/noto/OberSchellen.svg"); }
-.card-Seven-Eichel { background-image: url("/_content/sk.weblib/images/noto/SevenEichel.svg"); }
-.card-Seven-Gras { background-image: url("/_content/sk.weblib/images/noto/SevenGras.svg"); }
-.card-Seven-Herz { background-image: url("/_content/sk.weblib/images/noto/SevenHerz.svg"); }
-.card-Seven-Schellen { background-image: url("/_content/sk.weblib/images/noto/SevenSchellen.svg"); }
-.card-Ten-Eichel { background-image: url("/_content/sk.weblib/images/noto/TenEichel.svg"); }
-.card-Ten-Gras { background-image: url("/_content/sk.weblib/images/noto/TenGras.svg"); }
-.card-Ten-Herz { background-image: url("/_content/sk.weblib/images/noto/TenHerz.svg"); }
-.card-Ten-Schellen { background-image: url("/_content/sk.weblib/images/noto/TenSchellen.svg"); }
-.card-Unter-Eichel { background-image: url("/_content/sk.weblib/images/noto/UnterEichel.svg"); }
-.card-Unter-Gras { background-image: url("/_content/sk.weblib/images/noto/UnterGras.svg"); }
-.card-Unter-Herz { background-image: url("/_content/sk.weblib/images/noto/UnterHerz.svg"); }
-.card-Unter-Schellen { background-image: url("/_content/sk.weblib/images/noto/UnterSchellen.svg"); }
-.card-hidden { background-image: url("/_content/sk.weblib/images/back.png"); }
+.card-Ace-Eichel { background-image: url("/_content/sk.weblib/images/noto/AceEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ace-Gras { background-image: url("/_content/sk.weblib/images/noto/AceGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ace-Herz { background-image: url("/_content/sk.weblib/images/noto/AceHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ace-Schellen { background-image: url("/_content/sk.weblib/images/noto/AceSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Eight-Eichel { background-image: url("/_content/sk.weblib/images/noto/EightEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Eight-Gras { background-image: url("/_content/sk.weblib/images/noto/EightGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Eight-Herz { background-image: url("/_content/sk.weblib/images/noto/EightHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Eight-Schellen { background-image: url("/_content/sk.weblib/images/noto/EightSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-King-Eichel { background-image: url("/_content/sk.weblib/images/noto/KingEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-King-Gras { background-image: url("/_content/sk.weblib/images/noto/KingGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-King-Herz { background-image: url("/_content/sk.weblib/images/noto/KingHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-King-Schellen { background-image: url("/_content/sk.weblib/images/noto/KingSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Nine-Eichel { background-image: url("/_content/sk.weblib/images/noto/NineEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Nine-Gras { background-image: url("/_content/sk.weblib/images/noto/NineGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Nine-Herz { background-image: url("/_content/sk.weblib/images/noto/NineHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Nine-Schellen { background-image: url("/_content/sk.weblib/images/noto/NineSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ober-Eichel { background-image: url("/_content/sk.weblib/images/noto/OberEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ober-Gras { background-image: url("/_content/sk.weblib/images/noto/OberGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ober-Herz { background-image: url("/_content/sk.weblib/images/noto/OberHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ober-Schellen { background-image: url("/_content/sk.weblib/images/noto/OberSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Seven-Eichel { background-image: url("/_content/sk.weblib/images/noto/SevenEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Seven-Gras { background-image: url("/_content/sk.weblib/images/noto/SevenGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Seven-Herz { background-image: url("/_content/sk.weblib/images/noto/SevenHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Seven-Schellen { background-image: url("/_content/sk.weblib/images/noto/SevenSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ten-Eichel { background-image: url("/_content/sk.weblib/images/noto/TenEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ten-Gras { background-image: url("/_content/sk.weblib/images/noto/TenGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ten-Herz { background-image: url("/_content/sk.weblib/images/noto/TenHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Ten-Schellen { background-image: url("/_content/sk.weblib/images/noto/TenSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Unter-Eichel { background-image: url("/_content/sk.weblib/images/noto/UnterEichel.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Unter-Gras { background-image: url("/_content/sk.weblib/images/noto/UnterGras.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Unter-Herz { background-image: url("/_content/sk.weblib/images/noto/UnterHerz.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-Unter-Schellen { background-image: url("/_content/sk.weblib/images/noto/UnterSchellen.svg"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
+.card-hidden { background-image: url("/_content/sk.weblib/images/back.png"); 
+    background-size:     cover;                      /* <------ */
+    background-repeat:   no-repeat;
+    background-position: center center; 
+}
 
-.card-face {
-    width: 160px;
-    height: 223px;
-    background-size: contain;
-    background-repeat: no-repeat;
+.pointer {
+    cursor: pointer;
+}
+
+.cardtable {
+    /* background-image: url("/_content/sk.weblib/images/tableback.png"); */
+}
+
+.skcard {
+    position: absolute;
+    object-position: top left;
+    height: var(--cardheight);
+    width: var(--cardwidth);
+    max-height: var(--cardmaxheight);
+    max-width: var(--cardmaxwidth);
+}
+
+.cardWrapper {
+    overflow: hidden;
+    position: absolute;
+    object-position: top left;
+}
+
+    .cardWrapper:last-child {
+        overflow-x: visible;
+    }
+
+    .cardWrapper:hover {
+        border: solid;
+        border-color: yellow;
+        border-radius: 2px;
+    }
+
+.topcardWrapper {
+    overflow-x: visible;
+    overflow-y: visible;
+    position: absolute;
+    object-position: left bottom;
+}
+
+    .topcardWrapper:last-child {
+        overflow-x: visible;
+        overflow-y: visible;
+    }
+
+    .topcardWrapper:hover {
+        border: solid;
+        border-color: dimgrey;
+        border-radius: 1px;
+    }
+
+.oppcardWrapper {
+    overflow: hidden;
+    position: absolute;
+    object-position: left top;
+}
+
+    .oppcardWrapper:last-child {
+        overflow-x: visible;
+        overflow-y: hidden;
+    }
+
+    .oppcardWrapper:hover {
+        border: solid;
+        border-color: dimgrey;
+        border-radius: 1px;
+    }
+
+.skimage {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.fadein {
+    animation-name: fademein;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.fadeout {
+    animation-name: fademeout;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fademein {
+    0% {
+        transform: scale(0.25);
+        opacity: 0
+    }
+
+    50% {
+        transform: scale(0.5);
+        opacity: 0.5
+    }
+
+    100% {
+        transform: scale(1.0);
+        opacity: 1
+    }
+}
+
+@keyframes fademeout {
+    0% {
+        transform: scale(1.0);
+        opacity: 1
+    }
+
+    50% {
+        transform: scale(0.5);
+        opacity: 0.5
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0
+    }
+}
+
+.draggable {
+    position: absolute;
+    cursor: pointer; /* IE */
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+
+.dragging {
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
+    background-color: red;
+}
+
+@media screen and (min-width: 1800px), screen and (min-height: 900px) {
+    .top-card {
+        top: calc(var(--cardmaxheight) * -1 + 50px);
+        left: calc(var(--cardmaxwidth) / -2);
+    }
+
+    .bottom-card {
+        top: -50px;
+        left: calc(var(--cardmaxwidth) / -2);
+    }
+
+    .left-card {
+        top: calc(var(--cardmaxheight) / -2);
+        left: calc(var(--cardmaxheight) * -1 + 50px);
+    }
+
+    .right-card {
+        top: calc(var(--cardmaxheight) / -2);
+        left: calc(var(--cardmaxwidth) - 50px);
+    }
+}
+
+.collecttrick {
+    z-index: 33;
+    animation: trickanim;
+    animation-duration: 1.5s;
+    animation-delay: 1s;
+}
+
+@keyframes trickanim {
+    80% {
+        transform: rotate(5deg) scale(1, 1);
+        transform-origin: center center;
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        transform: rotate(12deg) scale(0.1, 0.1);
+        transform-origin: center bottom;
+        opacity: 0;
+    }
+}
+
+
+
+@keyframes leftanim {
+    33% {
+        left: 0;
+        top: 30vh;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 30vh;
+        left: 30vw;
+        transform: rotate(90deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes topanim {
+    33% {
+        left: 45vw;
+        top: 0;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 20vh;
+        left: 45vw;
+        transform: rotate(-3deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes rightanim {
+    33% {
+        right: 0;
+        top: 30vh;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        top: 30vh;
+        right: 30vw;
+        transform: rotate(-90deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+@keyframes bottomanim {
+    33% {
+        bottom: 0;
+        left: 45vw;
+        transform: rotate(0deg);
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    95% {
+        opacity: 0;
+    }
+
+    100% {
+        bottom: 20vh;
+        left: 45vw;
+        transform: rotate(3deg);
+        display: none;
+        overflow: hidden;
+        visibility: hidden;
+        opacity: 0;
+    }
 }

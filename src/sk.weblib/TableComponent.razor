@@ -1,34 +1,43 @@
-﻿<div class="container-fluid vh-100 d-flex flex-column">
+﻿<div class="container-fluid vh-100 p-0 cardtable">
+    <div class="schafkopf-table h-100 w-100">
 
-    <!-- Top player -->
-    <div class="row justify-content-center" style="height: 20vh;">
-        <div class="col-auto">
-            <PlayerComponent TablePlayer="playersByView[2].TablePlayer"
-                             IsPlayer="false" />
+        <!-- Top-left corner for settings -->
+        <div class="corner top-left d-flex justify-content-start align-items-start p-3">
+            <button class="btn btn-secondary">⚙️ Settings</button>
         </div>
-    </div>
 
-    <!-- Middle row: left + right -->
-    <div class="row flex-grow-1 align-items-center justify-content-between" style="height: 50vh;">
-        <div class="col-2">
-            <PlayerComponent TablePlayer="playersByView[1].TablePlayer"
-                             IsPlayer="false" />
+        <!-- Top-right corner for other controls -->
+        <div class="corner top-right d-flex justify-content-end align-items-start p-3">
+            <button class="btn btn-info">ℹ️ Info</button>
         </div>
-        <div class="col-8">
+
+        <!-- Gegner oben -->
+        <div class="player top d-flex justify-content-center align-items-center bg-primary border rounded">
+            <div class="card-stack">🂠 🂠 🂠 🂠</div>
+        </div>
+
+        <!-- Gegner links -->
+        <div class="player left d-flex justify-content-center align-items-center bg-primary border rounded">
+            <div class="card-stack vertical">🂠 🂠 🂠 🂠</div>
+        </div>
+
+        <!-- Tischmitte -->
+        <div class="table-center d-flex justify-content-center align-items-center">
             <TrickComponent />
         </div>
-        <div class="col-2">
-            <PlayerComponent TablePlayer="playersByView[3].TablePlayer"
-                             IsPlayer="false" />
-        </div>
-    </div>
 
-    <!-- Bottom player (you) -->
-    <div class="row justify-content-center" style="height: 30vh;">
-        <div class="col-auto">
-            <PlayerComponent TablePlayer="playersByView[0].TablePlayer"
-                             IsPlayer="true" />
+        <!-- Gegner rechts -->
+        <div class="player right d-flex justify-content-center align-items-center bg-primary border rounded">
+            <div class="card-stack vertical">🂠 🂠 🂠 🂠</div>
         </div>
-    </div>
 
+        <!-- Eigener Spieler unten -->
+        <div class="player bottom d-flex justify-content-center align-items-end pb-3 bg-transparent">
+            @if (publicGameState.YourPosition.HasValue && publicGameState.Table.Players.Length >= publicGameState.YourPosition.Value)
+            {
+                <PlayerComponent TablePlayer="publicGameState.Table.Players[publicGameState.YourPosition.Value]" />
+            }
+        </div>
+
+    </div>
 </div>
