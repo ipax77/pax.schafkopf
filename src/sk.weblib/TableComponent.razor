@@ -12,13 +12,17 @@
         </div>
 
         <!-- Gegner oben -->
-        <div class="player top d-flex justify-content-center align-items-center bg-primary border rounded">
-            <div class="card-stack">🂠 🂠 🂠 🂠</div>
+        <div class="player top rounded bg-primary overflow-hidden">
+            <div style="transform: rotate(180deg);">
+                <PlayerComponent TablePlayer="publicGameState.Table.Players[2]" PublicGameState="publicGameState" />
+            </div>
         </div>
 
         <!-- Gegner links -->
-        <div class="player left d-flex justify-content-center align-items-center bg-primary border rounded">
-            <div class="card-stack vertical">🂠 🂠 🂠 🂠</div>
+        <div class="player left rounded bg-primary overflow-hidden">
+            <div style="transform: rotate(90deg);">
+                <PlayerComponent TablePlayer="publicGameState.Table.Players[1]" PublicGameState="publicGameState" />
+            </div>
         </div>
 
         <!-- Tischmitte -->
@@ -27,16 +31,16 @@
         </div>
 
         <!-- Gegner rechts -->
-        <div class="player right d-flex justify-content-center align-items-center bg-primary border rounded">
-            <div class="card-stack vertical">🂠 🂠 🂠 🂠</div>
+        <div class="player right rounded bg-primary overflow-hidden">
+            <div style="transform: rotate(-90deg);">
+                <PlayerComponent TablePlayer="publicGameState.Table.Players[3]" PublicGameState="publicGameState" />
+            </div>
         </div>
 
         <!-- Eigener Spieler unten -->
         <div class="player bottom bg-transparent overflow-hidden">
-            <PlayerComponent @ref="playerComponent" 
-                TablePlayer="publicGameState.Table.Players[0]" 
-                PublicGameState="publicGameState" 
-                OnCardPlayed="PlayCard" />
+            <PlayerComponent @ref="playerComponent" TablePlayer="publicGameState.Table.Players[0]"
+                             PublicGameState="publicGameState" OnCardPlayed="PlayCard" />
         </div>
 
     </div>
