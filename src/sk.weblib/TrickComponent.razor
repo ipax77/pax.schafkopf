@@ -10,15 +10,19 @@
     <div class="skcard right-card @rightCard?.GetCssClass()">
     </div>
 </div>
-
+@if (!string.IsNullOrEmpty(cardAnimationCssClass))
+{
+    <div class="skcard @currentCard?.Card.GetCssClass() @cardAnimationCssClass">
+    </div>
+}
 
 @code {
     protected override void OnInitialized()
     {
-        AddCard(0, new Card() { Rank = Rank.Ace, Suit = Suit.Eichel });
-        AddCard(1, new Card() { Rank = Rank.Ten, Suit = Suit.Eichel });
-        AddCard(2, new Card() { Rank = Rank.King, Suit = Suit.Eichel });
-        AddCard(3, new Card() { Rank = Rank.Nine, Suit = Suit.Eichel });
+        AddCard(new PlayerCard() { Position = 0, Card = new Card() { Rank = Rank.Ace, Suit = Suit.Eichel } });
+        AddCard(new PlayerCard() { Position = 1, Card = new Card() { Rank = Rank.Ten, Suit = Suit.Eichel } });
+        AddCard(new PlayerCard() { Position = 2, Card = new Card() { Rank = Rank.King, Suit = Suit.Eichel } });
+        AddCard(new PlayerCard() { Position = 3, Card = new Card() { Rank = Rank.Nine, Suit = Suit.Eichel } });
         base.OnInitialized();
     }
 
@@ -26,16 +30,27 @@
     Card? leftCard;
     Card? topCard;
     Card? rightCard;
-    CardInfo? currentCard;
+    PlayerCard? currentCard;
+    string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch {
+        0 => "playbottomcard",
+        1 => "playleftcard",
+        2 => "playtopcard",
+        3 => "playrightcard",
+        _ => null
+    };
 
-    public void AddCard(int position, Card card)
+    public void AddCard(PlayerCard playerCard)
     {
-        currentCard = new(position, card);
-        _ = position switch {
-            0 => bottomCard = card,
-            1 => leftCard = card,
-            2 => topCard = card,
-            3 => rightCard = card,
+        if (currentCard?.Card == playerCard.Card)
+        {
+            return;
+        }
+        currentCard = playerCard;
+        _ = currentCard.Position switch {
+            0 => bottomCard = playerCard.Card,
+            1 => leftCard = playerCard.Card,
+            2 => topCard = playerCard.Card,
+            3 => rightCard = playerCard.Card,
             _ => null,
         };
     }
@@ -48,6 +63,4 @@
         rightCard = null;
         currentCard = null;
     }
-
-    private record CardInfo(int Pos, Card Card);
 }

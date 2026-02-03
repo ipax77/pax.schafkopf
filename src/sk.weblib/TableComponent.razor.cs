@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Logging;
 using sk.shared;
 
 namespace sk.weblib;
@@ -30,6 +29,8 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
       => (serverIndex - publicGameState.YourPosition!.Value + 4) % 4;
 
     private List<PlayerViewInfo> playersByView => GetPlayersByView();
+    private PlayerComponent? playerComponent;
+    private TrickComponent? trickComponent;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,6 +49,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
             state =>
             {
                 publicGameState = state;
+                trickComponent?.AddCard(state.Table.CurrentTrickCard);
                 InvokeAsync(StateHasChanged);
             });
 

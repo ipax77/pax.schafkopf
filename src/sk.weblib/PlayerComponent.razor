@@ -11,7 +11,16 @@
                 var rotation = (i - (cardCount - 1) / 2.0) * 4; // Adjust for more/less fan
 
                 <div class="hand-card" style="--rotation: @rotation;">
-                    <div class="skcard @card.GetCssClass()"></div>
+                    <div class="draggable skcard @card.GetCssClass() @(IsValidCard(card) ? "border border-3 rounded border-info" : "")"
+                         draggable="true"
+                         @onclick="() => PlayCard(card)"
+                         @ontouchstart="(e) => OnDragStart(e, card)"
+                         @ontouchmove="OnDragMove"
+                         @ontouchend="OnDragEnd"
+                         @onmousedown="(e) => OnDragStart(e, card)"
+                         @onmousemove="OnDragMove"
+                         @onmouseup="OnDragEnd">
+                    </div>
                 </div>
             }
         }

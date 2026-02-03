@@ -23,7 +23,7 @@
 
         <!-- Tischmitte -->
         <div class="table-center d-flex justify-content-center align-items-center">
-            <TrickComponent />
+            <TrickComponent @ref="trickComponent" />
         </div>
 
         <!-- Gegner rechts -->
@@ -33,7 +33,10 @@
 
         <!-- Eigener Spieler unten -->
         <div class="player bottom bg-transparent overflow-hidden">
-            <PlayerComponent TablePlayer="publicGameState.Table.Players[0]" PublicGameState="publicGameState" />
+            <PlayerComponent @ref="playerComponent" 
+                TablePlayer="publicGameState.Table.Players[0]" 
+                PublicGameState="publicGameState" 
+                OnCardPlayed="PlayCard" />
         </div>
 
     </div>

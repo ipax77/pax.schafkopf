@@ -7,14 +7,13 @@
 
 .hand-card {
     cursor: pointer;
-    margin-bottom: 20%;
-    margin-left: 80px; /* Adjust overlap */
+    margin-bottom: 17vh;
+    margin-left: 6vw; /* Adjust overlap */
     transition: transform 0.3s ease, z-index 0s;
     cursor: pointer;
     transform: rotate(calc(var(--rotation) * 1deg));
     /* Pivot point is below the visible area */
     transform-origin: center bottom;
-    z-index: 1000;
 }
 
     .hand-card:first-child {
@@ -24,5 +23,16 @@
     .hand-card:hover {
         /* Lift card up to show more on hover */
         transform: rotate(calc(var(--rotation) * 1deg)) translateY(-40%) scale(1.05);
+        margin-bottom: 19vh;
         z-index: 10;
     }
+
+.draggable {
+    cursor: grabbing;
+}
+
+.draggable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}

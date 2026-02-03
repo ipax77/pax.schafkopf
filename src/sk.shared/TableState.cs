@@ -142,6 +142,7 @@ public sealed class Game
         {
             AdvanceTurn();
         }
+        Table.CurrentTrickCard = new() { Position = playerIndex, Card = card };
     }
 
     private void AdvanceTurn()
@@ -172,7 +173,7 @@ public sealed class Game
         _bidding2States.Clear();
         Bidding1Result = null;
         Bidding2Result = null;
-        Turn = 0;
+        Table.Reset();
         AdvanceTurn();
         GameState = GameState.Bidding1;
     }
@@ -230,12 +231,24 @@ public sealed class Table
         new TablePlayer() { Position = 2 },
         new TablePlayer() { Position = 3 },
     ];
+    public PlayerCard? CurrentTrickCard { get; set; }
     public Card?[]? PreviouseTrick { get; set; }
     public Card?[] CurrentTrick { get; set; } = [null, null, null, null];
+
+    public void Reset()
+    {
+        CurrentTrickCard = null;
+    }
 }
 
 public sealed record Card
 {
     public Rank Rank { get; init; }
     public Suit Suit { get; init; }
+}
+
+public sealed class PlayerCard
+{
+    public int Position { get; init; }
+    public Card Card { get; init; } = new();
 }

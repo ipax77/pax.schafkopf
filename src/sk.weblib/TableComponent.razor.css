@@ -1,7 +1,7 @@
 ﻿.schafkopf-table {
     display: grid;
     grid-template-columns: 0.4fr 2fr 0.4fr;
-    grid-template-rows: 0.5fr 2fr 1fr;
+    grid-template-rows: 0.6fr 2fr 1fr;
 }
 
 /* Grid-Zuordnung */
@@ -48,11 +48,6 @@
 .card-stack.vertical {
     writing-mode: vertical-rl;
     text-orientation: upright;
-}
-
-/* optional */
-.player {
-    pointer-events: none;
 }
 
 .table-center {
