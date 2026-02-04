@@ -1,12 +1,34 @@
 ﻿@page "/"
 @using sk.shared
 @using sk.weblib
+@using sk.weblib.Modals
 
 <PageTitle>pax.schafkopf</PageTitle>
 
-<TableComponent Player="player" />
+<TableComponent Player="player" GameGuid="tableGuid" />
+
+<ConnectModal @ref="connectModal" OnConnect="Connect" />
 
 @code {
-    Player player = new() { Guid = Guid.NewGuid(), Name = "TestUser" };
+    [SupplyParameterFromQuery]
+    public string? TableGuid { get; set; }
 
+    Player player = new() { Guid = Guid.NewGuid(), Name = "TestUser" };
+    Guid tableGuid = Guid.Empty;
+
+    ConnectModal? connectModal;
+
+    protected override void OnInitialized()
+    {
+        if (Guid.TryParse(TableGuid, out var guid))
+        {
+            tableGuid = guid;
+        }
+        base.OnInitialized();
+    }
+
+    private void Connect(Guid guid)
+    {
+
+    }
 }

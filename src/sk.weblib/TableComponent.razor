@@ -1,47 +1,46 @@
-﻿<div class="container-fluid vh-100 p-0 cardtable">
+﻿<div class="container-fluid vh-100 p-0 cardtable overflow-hidden">
     <div class="schafkopf-table h-100 w-100">
+        @{var players = GetPlayersByView(); }
+        <CascadingValue Value="publicGameState">
+            @* top *@
+            <div class="d-inline-flex vw-100" style="height: 20vh;">
+                <div class="d-flex bg-transparent" style="width: 37.5%;">
+                    <div class="btn-block">
+                        <button type="button" class="btn btn-sm btn-outline-warning">Display an</button>
+                        <button type="button" class="btn btn-sm btn-outline-light">Letzter Stich</button>
+                    </div>
+                </div>
 
-        <!-- Top-left corner for settings -->
-        <div class="corner top-left d-flex justify-content-start align-items-start p-3">
-            <button class="btn btn-secondary">⚙️ Settings</button>
-        </div>
+                <div class="d-flex position-relative" style="width: 25vw">
+                    <OppPlayerComponent PlayerViewInfo="players[2]" />
+                </div>
 
-        <!-- Top-right corner for other controls -->
-        <div class="corner top-right d-flex justify-content-end align-items-start p-3">
-            <button class="btn btn-info">ℹ️ Info</button>
-        </div>
-
-        <!-- Gegner oben -->
-        <div class="player top rounded bg-primary overflow-hidden">
-            <div style="transform: rotate(180deg);">
-                <PlayerComponent TablePlayer="publicGameState.Table.Players[2]" PublicGameState="publicGameState" />
+                <div class="d-flex align-items-end justify-content-end bg-transparent" style="width: 37.5%;">
+                    <div class="align-self-start">
+                        <button type="button" class="btn btn-sm btn-outline-danger">Verlassen</button>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- Gegner links -->
-        <div class="player left rounded bg-primary overflow-hidden">
-            <div style="transform: rotate(90deg);">
-                <PlayerComponent TablePlayer="publicGameState.Table.Players[1]" PublicGameState="publicGameState" />
+            @* middle *@
+            <div class="d-inline-flex vw-100" style="height: 50vh;">
+                <div class="d-flex position-relative w-25">
+                    <OppPlayerComponent PlayerViewInfo="players[1]" />
+                </div>
+                <div class="d-flex align-items-center justify-content-center w-50 bg-secondary rounded">
+                    <div id="trick" class="w-100 h-100" style="z-index: 10;">
+                        <TrickComponent @ref="trickComponent"></TrickComponent>
+                    </div>
+                </div>
+                <div class="d-flex position-relative w-25">
+                    <OppPlayerComponent PlayerViewInfo="players[3]" />
+                </div>
             </div>
-        </div>
 
-        <!-- Tischmitte -->
-        <div class="table-center d-flex justify-content-center align-items-center">
-            <TrickComponent @ref="trickComponent" />
-        </div>
-
-        <!-- Gegner rechts -->
-        <div class="player right rounded bg-primary overflow-hidden">
-            <div style="transform: rotate(-90deg);">
-                <PlayerComponent TablePlayer="publicGameState.Table.Players[3]" PublicGameState="publicGameState" />
+            @* bottom *@
+            <div class="d-flex align-items-center justify-content-center w-100"           style="height: 30vh;">
+                <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
             </div>
-        </div>
-
-        <!-- Eigener Spieler unten -->
-        <div class="player bottom bg-transparent overflow-hidden">
-            <PlayerComponent @ref="playerComponent" TablePlayer="publicGameState.Table.Players[0]"
-                             PublicGameState="publicGameState" OnCardPlayed="PlayCard" />
-        </div>
-
+        </CascadingValue>
     </div>
 </div>

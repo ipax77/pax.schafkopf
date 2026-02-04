@@ -6,12 +6,11 @@ namespace sk.weblib;
 
 public partial class PlayerComponent
 {
-    [Parameter, EditorRequired]
-    public TablePlayer TablePlayer { get; set; } = default!;
-
-    [Parameter, EditorRequired]
+    [CascadingParameter]
     public PublicGameState PublicGameState { get; set; } = default!;
 
+    [Parameter, EditorRequired]
+    public PlayerViewInfo PlayerViewInfo { get; set; } = default!;
 
     [Parameter]
     public EventCallback<Card> OnCardPlayed { get; set; }
@@ -22,21 +21,6 @@ public partial class PlayerComponent
     private Card? draggedCard;
     private double dragStartY;
     private const double DragThreshold = 50;
-
-    protected override void OnParametersSet()
-    {
-        TablePlayer.Hand = [
-            new Card() { Rank = Rank.Ace, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Eight, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.King, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Nine, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Ten, Suit = Suit.Eichel },
-        ];
-        base.OnParametersSet();
-    }
 
     private void PlayCard(Card card)
     {
@@ -49,22 +33,22 @@ public partial class PlayerComponent
 
     protected override void OnInitialized()
     {
-        TablePlayer.Hand = [
-            new Card() { Rank = Rank.Ace, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Eight, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.King, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Nine, Suit = Suit.Eichel },
-            new Card() { Rank = Rank.Ten, Suit = Suit.Eichel },
-        ];
+        // PlayerViewInfo.TablePlayer.Hand = [
+        //     new Card() { Rank = Rank.Ace, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Eight, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.King, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Nine, Suit = Suit.Eichel },
+        //     new Card() { Rank = Rank.Ten, Suit = Suit.Eichel },
+        // ];
         base.OnInitialized();
     }
 
     private List<Card> GetOrderedCards()
     {
-        return TablePlayer.Hand.OrderByDescending(o => o.GetCardOrder(gameType, suit)).ToList();
+        return PlayerViewInfo.TablePlayer.Hand.OrderByDescending(o => o.GetCardOrder(gameType, suit)).ToList();
     }
 
     private bool IsValidCard(Card card)

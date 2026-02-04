@@ -1,6 +1,6 @@
 @using sk.shared
 
-<div class="position-relative">
+<div class="position-relative" style="left: 50%; top: 50%;">
     <div class="skcard top-card @topCard?.GetCssClass()">
     </div>
     <div class="skcard bottom-card @bottomCard?.GetCssClass()">
@@ -19,10 +19,10 @@
 @code {
     protected override void OnInitialized()
     {
-        AddCard(new PlayerCard() { Position = 0, Card = new Card() { Rank = Rank.Ace, Suit = Suit.Eichel } });
+        @* AddCard(new PlayerCard() { Position = 0, Card = new Card() { Rank = Rank.Ace, Suit = Suit.Eichel } });
         AddCard(new PlayerCard() { Position = 1, Card = new Card() { Rank = Rank.Ten, Suit = Suit.Eichel } });
         AddCard(new PlayerCard() { Position = 2, Card = new Card() { Rank = Rank.King, Suit = Suit.Eichel } });
-        AddCard(new PlayerCard() { Position = 3, Card = new Card() { Rank = Rank.Nine, Suit = Suit.Eichel } });
+        AddCard(new PlayerCard() { Position = 3, Card = new Card() { Rank = Rank.Nine, Suit = Suit.Eichel } }); *@
         base.OnInitialized();
     }
 

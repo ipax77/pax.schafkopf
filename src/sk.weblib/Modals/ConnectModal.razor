@@ -1,0 +1,33 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" @onclick="e => OnConnect.InvokeAsync(Guid.Empty)">
+                        Neuen Tisch erstellen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "connectModal";
+
+    [Parameter]
+    public EventCallback<Guid> OnConnect { get; set; }
+
+    public void Show()
+    {
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+}

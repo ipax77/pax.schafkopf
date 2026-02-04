@@ -49,7 +49,8 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
             state =>
             {
                 publicGameState = state;
-                trickComponent?.AddCard(state.Table.CurrentTrickCard);
+                if (state.Table.CurrentTrickCard != null)
+                    trickComponent?.AddCard(state.Table.CurrentTrickCard);
                 InvokeAsync(StateHasChanged);
             });
 
@@ -103,7 +104,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
         else
         {
             return publicGameState.Table.Players
-                .Select((p, serverIndex) => new PlayerViewInfo(p, serverIndex, (serverIndex - 0 + 4) % 4))
+                .Select((p, serverIndex) => new PlayerViewInfo(p, serverIndex, serverIndex))
                 .OrderBy(p => p.ViewIndex)
                 .ToList();
         }
@@ -154,6 +155,4 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
             await hubConnection.DisposeAsync();
         }
     }
-
-    private record PlayerViewInfo(TablePlayer TablePlayer, int ServerIndex, int ViewIndex);
 }

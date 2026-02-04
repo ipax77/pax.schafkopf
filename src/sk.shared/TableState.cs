@@ -252,3 +252,5 @@ public sealed class PlayerCard
     public int Position { get; init; }
     public Card Card { get; init; } = new();
 }
+
+public record PlayerViewInfo(TablePlayer TablePlayer, int ServerIndex, int ViewIndex);
