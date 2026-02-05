@@ -7,6 +7,7 @@ public enum GameType
     Wenz = 2,
     Solo = 3,
     Ramsch = 5,
+    Sie = 6,
 }
 
 public enum Suit

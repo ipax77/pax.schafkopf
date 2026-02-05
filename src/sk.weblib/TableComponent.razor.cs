@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using sk.shared;
+using sk.weblib.Modals;
 
 namespace sk.weblib;
 
@@ -31,6 +32,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     private List<PlayerViewInfo> playersByView => GetPlayersByView();
     private PlayerComponent? playerComponent;
     private TrickComponent? trickComponent;
+    private Bidding1Modal? bidding1Modal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,6 +110,15 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
                 .OrderBy(p => p.ViewIndex)
                 .ToList();
         }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            
+        }
+        base.OnAfterRender(firstRender);
     }
 
     private async Task SubmitBidding1(bool wouldPlay)

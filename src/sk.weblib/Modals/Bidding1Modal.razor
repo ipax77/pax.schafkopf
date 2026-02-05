@@ -1,0 +1,45 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
+     aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-warning" @onclick="() => WouldPlay(true)">
+                        @(also ? "Spiele auch!" : "Spiele")
+                    </button>
+                    <button type="button" class="btn btn-outline-light" @onclick="() => WouldPlay(false)">
+                        @(also ? "Ist recht!" : "Weiter")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "bidding1Modal";
+    private bool also;
+
+    [Parameter]
+    public EventCallback<bool> OnWouldPlay { get; set; }
+
+    public void Show(bool also)
+    {
+        this.also = also;
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+
+    private void WouldPlay(bool would)
+    {
+        OnWouldPlay.InvokeAsync(would);
+        Close();
+    }
+}

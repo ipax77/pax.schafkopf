@@ -10,3 +10,75 @@ public class PublicGameState
     public Bidding2Result? Bidding2Result { get; set; }
     public Table Table { get; set; } = new();
 }
+
+public static class PublicGameStateExtensions
+{
+    public static List<GameType> GetValidGameModes(this PublicGameState publicGameState)
+    {
+        if (!publicGameState.YourPosition.HasValue)
+        {
+            return [];
+        }
+        var hand = publicGameState.Table.Players[publicGameState.YourPosition.Value].Hand;
+        var oberCount = hand.Count(c => c.Rank == Rank.Ober);
+        var unterCount = hand.Count(c => c.Rank == Rank.Unter);
+
+        if (oberCount + unterCount == 8)
+        {
+            return [GameType.Sie];
+        }
+
+        List<GameType> validGameTypes = [
+            GameType.Ruf,
+            GameType.Wenz,
+            GameType.Solo
+        ];
+
+        if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count > 0)
+        {
+            validGameTypes.Remove(GameType.Ruf);
+            validGameTypes.Add(GameType.None);
+        }
+        else if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count == 0)
+        {
+            var nonTrumpCards = hand.Where(s => !s.IsTrump(GameType.Ruf, Suit.Herz));
+            var aces = nonTrumpCards.Where(x => x.Rank == Rank.Ace).Select(s => s.Suit).ToHashSet();
+            var callableSuits = nonTrumpCards.Select(s => s.Suit).ToHashSet();
+            callableSuits.RemoveWhere(x => !aces.Contains(x));
+            if (callableSuits.Count == 0)
+            {
+                validGameTypes.Remove(GameType.Ruf);
+            }
+        }
+
+        return validGameTypes;
+    }
+
+    public static List<Suit> GetValidSuits(this PublicGameState publicGameState, GameType gameType)
+    {
+        if (!publicGameState.YourPosition.HasValue)
+        {
+            return [];
+        }
+        var hand = publicGameState.Table.Players[publicGameState.YourPosition.Value].Hand;
+
+
+        if (gameType == GameType.Ruf)
+        {
+            var nonTrumpCards = hand.Where(s => !s.IsTrump(GameType.Ruf, Suit.Herz));
+            var aces = nonTrumpCards.Where(x => x.Rank == Rank.Ace).Select(s => s.Suit).ToHashSet();
+            var callableSuits = nonTrumpCards.Select(s => s.Suit).ToHashSet();
+            callableSuits.RemoveWhere(x => !aces.Contains(x));
+            return callableSuits.ToList();
+        }
+
+        List<Suit> validSuits = [
+            Suit.Eichel,
+            Suit.Gras,
+            Suit.Herz,
+            Suit.Schellen
+        ];
+
+        return validSuits;
+    }
+}
