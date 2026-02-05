@@ -58,3 +58,7 @@ function screenSleep() {
         }
     }, false);
 }
+
+function updateUrlSilently(url) {
+    history.replaceState(history.state, document.title, url);
+}

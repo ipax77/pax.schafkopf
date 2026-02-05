@@ -2,10 +2,12 @@
 @using sk.shared
 @using sk.weblib
 @using sk.weblib.Modals
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>pax.schafkopf</PageTitle>
 
-<TableComponent Player="player" GameGuid="tableGuid" />
+<TableComponent Player="player" GameGuid="tableGuid" OnGuidSet="SetGuid" />
 
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
 
@@ -30,5 +32,14 @@
     private void Connect(Guid guid)
     {
 
+    }
+
+    private void SetGuid(Guid guid)
+    {
+        TableGuid = guid.ToString();
+        Dictionary<string, object?> queryDic = [];
+        queryDic.Add("TableGuid", guid.ToString());
+        var url = NavigationManager.GetUriWithQueryParameters(queryDic);
+        JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
     }
 }

@@ -13,6 +13,9 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     [Parameter]
     public Guid GameGuid { get; set; }
 
+    [Parameter]
+    public EventCallback<Guid> OnGuidSet { get; set; }
+
     private HubConnection? hubConnection;
     private PublicGameState publicGameState = new();
     bool IsMyTurn =>
@@ -33,6 +36,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     private PlayerComponent? playerComponent;
     private TrickComponent? trickComponent;
     private Bidding1Modal? bidding1Modal;
+    private Bidding2Modal? bidding2Modal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,6 +58,12 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
                 if (state.Table.CurrentTrickCard != null)
                     trickComponent?.AddCard(state.Table.CurrentTrickCard);
                 InvokeAsync(StateHasChanged);
+                ShowModals();
+                if (GameGuid == Guid.Empty)
+                {
+                    GameGuid = publicGameState.Table.Guid;
+                    OnGuidSet.InvokeAsync(GameGuid);
+                }
             });
 
         hubConnection.Reconnecting += error =>
@@ -116,9 +126,25 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     {
         if (firstRender)
         {
-            
+            ShowModals();
         }
         base.OnAfterRender(firstRender);
+    }
+
+    private void ShowModals()
+    {
+        if (publicGameState.ActivePlayer != publicGameState.YourPosition)
+        {
+            return;
+        }
+        if (publicGameState.GameState == GameState.Bidding1)
+        {
+            bidding1Modal?.Show(publicGameState.Bidding1Result?.InterestedPlayers.Count > 0);
+        }
+        else if (publicGameState.GameState == GameState.Bidding2)
+        {
+            bidding2Modal?.Show(publicGameState);
+        }
     }
 
     private async Task SubmitBidding1(bool wouldPlay)
@@ -134,22 +160,20 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     }
 
     private async Task SubmitBidding2(
-        bool wouldPlay,
-        GameType? gameType = null,
-        Suit? suit = null,
-        bool tout = false)
+        Bidding2Result? result)
     {
         if (hubConnection is null) return;
 
-        await hubConnection.SendAsync(
-            "SubmitBidding2",
-            new BiddingState
+        BiddingState biddingState = result == null ? new() { WouldPlay = false }
+            : new()
             {
-                WouldPlay = wouldPlay,
-                ProposedGame = gameType,
-                ProposedSuit = suit,
-                Tout = tout
-            });
+                WouldPlay = true,
+                ProposedGame = result.GameType,
+                ProposedSuit = result.Suit,
+                Tout = result.Tout
+            };
+
+        await hubConnection.SendAsync("SubmitBidding2", biddingState);
     }
 
     private async Task PlayCard(Card card)

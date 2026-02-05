@@ -1,4 +1,5 @@
-﻿<div class="container-fluid vh-100 p-0 cardtable overflow-hidden">
+﻿@using sk.weblib.Modals
+<div class="container-fluid vh-100 p-0 cardtable overflow-hidden">
     <div class="schafkopf-table h-100 w-100">
         @{var players = GetPlayersByView(); }
         <CascadingValue Value="publicGameState">
@@ -44,3 +45,6 @@
         </CascadingValue>
     </div>
 </div>
+
+<Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
+<Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />

@@ -1,4 +1,5 @@
 @using Microsoft.JSInterop
+@using sk.shared
 @inject IJSRuntime JSRuntime
 
 <div class="modal" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
@@ -6,14 +7,32 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-warning" @onclick="() => WouldPlay(true)">
-                        @(also ? "Spiele auch!" : "Spiele")
-                    </button>
-                    <button type="button" class="btn btn-outline-light" @onclick="() => WouldPlay(false)">
-                        @(also ? "Ist recht!" : "Weiter")
-                    </button>
+                <div class="btn-group" role="group">
+                    @foreach (var ent in validGameTypes)
+                    {
+                        <button type="button" class="btn btn-outline-primary" @onclick="() => SelectGameType(ent)">
+                            @(ent == GameType.None ? "Weiter" : ent.ToString())
+                        </button>
+                    }
                 </div>
+                @if (gameType != GameType.None)
+                {
+                    @if (gameType != GameType.Ruf)
+                    {
+                        <div>
+                            <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
+                            <label class="btn btn-outline-warning" for="toutCheck">Tout</label>
+                        </div>
+                    }
+                    <div class="btn-group" role="group">
+                        @foreach (var ent in validSuits)
+                        {
+                            <button type="button" class="btn btn-outline-secondary" @onclick="() => SelectSuit(ent)">
+                                @ent
+                            </button>
+                        }
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -21,14 +40,25 @@
 
 @code {
     private string modalId = "bidding2Modal";
-    private bool also;
+
+    GameType gameType = GameType.None;
+    Suit suit = Suit.None;
+    bool tout = false;
+    List<GameType> validGameTypes = [];
+    List<Suit> validSuits = [];
+    PublicGameState publicGameState = new();
 
     [Parameter]
-    public EventCallback<bool> OnWouldPlay { get; set; }
+    public EventCallback<Bidding2Result?> OnWouldPlay { get; set; }
 
-    public void Show(bool also)
+    public void Show(PublicGameState publicGameState)
     {
-        this.also = also;
+        this.publicGameState = publicGameState;
+        gameType = GameType.None;
+        suit = Suit.None;
+        tout = false;
+        validSuits = [];
+        validGameTypes = publicGameState.GetValidGameModes();
         JSRuntime.InvokeVoidAsync("openModalById", modalId);
     }
 
@@ -37,9 +67,37 @@
         JSRuntime.InvokeVoidAsync("closeModalById", modalId);
     }
 
-    private void WouldPlay(bool would)
+    private void SelectGameType(GameType selectedGameType)
     {
-        OnWouldPlay.InvokeAsync(would);
+        gameType = selectedGameType;
+        if (gameType == GameType.None || gameType == GameType.Wenz || gameType == GameType.Sie)
+        {
+            WouldPlay();
+        }
+        validSuits = publicGameState.GetValidSuits(gameType);
+    }
+
+    private void SelectSuit(Suit suit)
+    {
+        this.suit = suit;
+        WouldPlay();
+    }
+
+    private void WouldPlay()
+    {
+        if (gameType == GameType.None)
+        {
+            OnWouldPlay.InvokeAsync(null);
+        }
+
+        Bidding2Result result = new()
+        {
+            GameType = gameType,
+            Suit = suit,
+            Tout = tout,
+            Sie = gameType == GameType.Sie
+        };
+        OnWouldPlay.InvokeAsync(result);
         Close();
     }
 }
