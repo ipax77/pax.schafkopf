@@ -9,10 +9,10 @@ public class GameHub(GameHubService service) : Hub
     public async Task<Guid> CreateNewGame(Player player)
     {
         Context.Items["playerId"] = player.Guid;
+        player.ConnectionId = Context.ConnectionId;
 
         var gameId = service.CreateNewGame(player);
         Context.Items["gameId"] = gameId;
-
         await service.BroadcastGame(gameId);
         return gameId;
     }
@@ -26,11 +26,12 @@ public class GameHub(GameHubService service) : Hub
         await service.BroadcastGame(gameId);
     }
 
-    public async Task RejoinGame(Guid gameId, Guid playerId)
+    public async Task RejoinGame(Guid gameId, Player player)
     {
-        Context.Items["playerId"] = playerId;
+        Context.Items["playerId"] = player.Guid;
         Context.Items["gameId"] = gameId;
-        service.RejoinGame(gameId, playerId);
+        player.ConnectionId = Context.ConnectionId;
+        service.RejoinGame(gameId, player);
         await service.BroadcastGame(gameId);
     }
 

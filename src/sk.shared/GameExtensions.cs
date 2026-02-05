@@ -36,7 +36,7 @@ public static class GameExtensions
         return game.Table.Players.FirstOrDefault(f => f.Player.Guid == playerId);
     }
 
-    public static PublicGameState ToPublicGameState(this Game game, int forPlayer = -1)
+    public static PublicGameState ToPublicGameState(this Game game, int forPlayer)
     {
         var publicTable = new Table
         {

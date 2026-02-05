@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using sk.pwa;
+using sk.pwa.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -15,5 +16,7 @@ builder.Services.AddHttpClient("api", client =>
         : new Uri("http://localhost:5283");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
+
+builder.Services.AddScoped<ConnectInfoState>();
 
 await builder.Build().RunAsync();

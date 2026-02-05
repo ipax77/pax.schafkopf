@@ -60,6 +60,7 @@
         validSuits = [];
         validGameTypes = publicGameState.GetValidGameModes();
         JSRuntime.InvokeVoidAsync("openModalById", modalId);
+        InvokeAsync(StateHasChanged);
     }
 
     public void Close()

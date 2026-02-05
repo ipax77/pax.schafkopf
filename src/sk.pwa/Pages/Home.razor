@@ -1,13 +1,26 @@
 ﻿@page "/"
+@using sk.pwa.Services
 @using sk.shared
 @using sk.weblib
 @using sk.weblib.Modals
+@inject ConnectInfoState ConnectState
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject ILogger<Home> Logger
 
 <PageTitle>pax.schafkopf</PageTitle>
 
-<TableComponent Player="player" GameGuid="tableGuid" OnGuidSet="SetGuid" />
+@if (ConnectState.Current != null)
+{
+    <TableComponent Player="new() { Name = ConnectState.Current.UserName, Guid = ConnectState.Current.Guid }"
+                    GameGuid="tableGuid" OnGuidSet="SetTableGuid" />
+}
+else
+{
+    <button class="btn btn-outline-info" @onclick="ShowConnect">
+        Connect
+    </button>
+}
 
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
 
@@ -15,31 +28,47 @@
     [SupplyParameterFromQuery]
     public string? TableGuid { get; set; }
 
-    Player player = new() { Guid = Guid.NewGuid(), Name = "TestUser" };
     Guid tableGuid = Guid.Empty;
 
     ConnectModal? connectModal;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (Guid.TryParse(TableGuid, out var guid))
-        {
             tableGuid = guid;
+
+        await ConnectState.LoadAsync();
+
+        if (ConnectState.Current == null)
+        {
+            connectModal?.Show(new() { TableGuid = tableGuid });
         }
-        base.OnInitialized();
+        else if (tableGuid == Guid.Empty && ConnectState.Current.TableGuid != Guid.Empty)
+        {
+            connectModal?.Show(ConnectState.Current);
+        }
     }
 
-    private void Connect(Guid guid)
+    private async Task Connect(ConnectInfo info)
     {
-
+        await ConnectState.SaveAsync(info);
+        tableGuid = info.TableGuid;
+        StateHasChanged();
     }
 
-    private void SetGuid(Guid guid)
+    private async Task SetTableGuid(Guid guid)
     {
-        TableGuid = guid.ToString();
-        Dictionary<string, object?> queryDic = [];
-        queryDic.Add("TableGuid", guid.ToString());
-        var url = NavigationManager.GetUriWithQueryParameters(queryDic);
-        JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+        var url = NavigationManager.GetUriWithQueryParameters(
+            new Dictionary<string, object?> { ["TableGuid"] = guid.ToString() });
+
+        await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+
+        await ConnectState.UpdateAsync(ci =>
+        {
+            ci.TableGuid = guid;
+            ci.LastPlayed = DateTime.UtcNow;
+        });
     }
+
+    private void ShowConnect() => connectModal?.Show(new() { TableGuid = tableGuid });
 }

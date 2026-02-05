@@ -1,14 +1,38 @@
+@using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
+@using sk.shared
 @inject IJSRuntime JSRuntime
 
 <div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="@modalId" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-body">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" @onclick="e => OnConnect.InvokeAsync(Guid.Empty)">
+                <div>
+                    @if (editContext != null)
+                    {
+                        <EditForm EditContext="editContext" FormName="ConnectForm">
+                            <ValidationSummary />
+                            <div>
+                                <label for="nameInput" class="form-label">Spieler Name</label>
+                                <InputText class="form-control" id="nameInput" aria-describedby="nameHelp"
+                                           @bind-Value="model.UserName" />
+                                <div id="nameHelp" class="form-text">Sichtbar für die anderen Spieler.</div>
+                                <ValidationMessage For="() => model.UserName" />
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+                <div class="btn-group mt-1">
+                    <button type="button" class="btn btn-primary" @onclick="Create">
                         Neuen Tisch erstellen
                     </button>
+                    @if (model.TableGuid != Guid.Empty &&
+                                                                                            (DateTime.UtcNow - model.LastPlayed).TotalHours < 1)
+                    {
+                        <button type="button" class="btn btn-primary" @onclick="Join">
+                            Altem Tisch beitreten
+                        </button>
+                    }
                 </div>
             </div>
         </div>
@@ -19,11 +43,43 @@
     private string modalId = "connectModal";
 
     [Parameter]
-    public EventCallback<Guid> OnConnect { get; set; }
+    public EventCallback<ConnectInfo> OnConnect { get; set; }
 
-    public void Show()
+    private ConnectInfo model = new();
+    EditContext? editContext;
+
+    public void Show(ConnectInfo? seed)
     {
+        model = seed is null
+            ? new()
+            : seed with { }; // record copy
+
+        editContext = new(model);
         JSRuntime.InvokeVoidAsync("openModalById", modalId);
+        StateHasChanged();
+    }
+
+    public void Create()
+    {
+        editContext?.NotifyValidationStateChanged();
+        if (!string.IsNullOrEmpty(model.UserName))
+        {
+            model.TableGuid = Guid.Empty;
+            model.LastConnected = DateTime.UtcNow;
+            OnConnect.InvokeAsync(model);
+            Close();
+        }
+    }
+
+    public void Join()
+    {
+        editContext?.NotifyValidationStateChanged();
+        if (!string.IsNullOrEmpty(model.UserName))
+        {
+            model.LastConnected = DateTime.UtcNow;
+            OnConnect.InvokeAsync(model);
+            Close();
+        }
     }
 
     public void Close()

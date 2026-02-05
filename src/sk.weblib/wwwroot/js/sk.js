@@ -62,3 +62,13 @@ function screenSleep() {
 function updateUrlSilently(url) {
     history.replaceState(history.state, document.title, url);
 }
+
+function storeConnectInfo(info) {
+    localStorage.setItem("connectInfo", JSON.stringify(info));
+}
+
+function getConnectInfo() {
+    const value = localStorage.getItem("connectInfo");
+    return value ? JSON.parse(value) : null;
+}
+

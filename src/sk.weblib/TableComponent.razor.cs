@@ -77,7 +77,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
             await hubConnection.SendAsync(
                 "RejoinGame",
                 GameGuid,
-                Player.Guid);
+                Player);
         };
 
         hubConnection.Closed += async _ =>

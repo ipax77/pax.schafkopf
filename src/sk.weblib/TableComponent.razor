@@ -10,7 +10,10 @@
                         <button type="button" class="btn btn-sm btn-outline-warning">Display an</button>
                         <button type="button" class="btn btn-sm btn-outline-light">Letzter Stich</button>
                     </div>
-                    <p>@publicGameState.GameState</p>
+                    <div>
+                        <p>@publicGameState.GameState</p>
+                        <p>Pos: @publicGameState.YourPosition.GetValueOrDefault()</p>
+                    </div>
                 </div>
 
                 <div class="d-flex position-relative" style="width: 25vw">

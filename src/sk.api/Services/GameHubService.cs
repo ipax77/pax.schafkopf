@@ -26,7 +26,7 @@ public class GameHubService(IHubContext<GameHub> hub)
 
         if (game.HasPlayer(player))
         {
-            RejoinGame(gameId, player.Guid);
+            RejoinGame(gameId, player);
             return;
         }
 
@@ -36,11 +36,11 @@ public class GameHubService(IHubContext<GameHub> hub)
         game.TryStartGame();
     }
 
-    public void RejoinGame(Guid gameId, Guid playerId)
+    public void RejoinGame(Guid gameId, Player player)
     {
-        var seat = GetGame(gameId).GetTablePlayer(playerId)
+        var seat = GetGame(gameId).GetTablePlayer(player.Guid)
             ?? throw new InvalidOperationException("Player not part of game");
-
+        seat.Player.ConnectionId = player.ConnectionId;
         seat.IsConnected = true;
     }
 
@@ -95,9 +95,9 @@ public class GameHubService(IHubContext<GameHub> hub)
                 .SendAsync("ReceiveGameState", game.ToPublicGameState(seat.Position));
         }
 
-        await _hub.Clients
-            .AllExcept(connectionIds)
-            .SendAsync("ReceiveGameState", game.ToPublicGameState());
+        // await _hub.Clients
+        //     .AllExcept(connectionIds)
+        //     .SendAsync("ReceiveGameState", game.ToPublicGameState());
     }
 
     private Game GetGame(Guid id) =>
