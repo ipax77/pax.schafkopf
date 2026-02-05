@@ -13,6 +13,8 @@ public class GameHubService(IHubContext<GameHub> hub)
     public Guid CreateNewGame(Player player)
     {
         var game = new Game();
+        var guid = Guid.NewGuid();
+        game.Table.Guid = guid;
         game.TryAssignEmptySeat(player);
         _games[game.Table.Guid] = game;
         return game.Table.Guid;
@@ -23,7 +25,10 @@ public class GameHubService(IHubContext<GameHub> hub)
         var game = GetGame(gameId);
 
         if (game.HasPlayer(player))
-            throw new InvalidOperationException("Player already in game");
+        {
+            RejoinGame(gameId, player.Guid);
+            return;
+        }
 
         if (!game.TryAssignEmptySeat(player))
             throw new InvalidOperationException("Game is full");

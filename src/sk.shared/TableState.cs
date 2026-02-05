@@ -201,7 +201,7 @@ public sealed class TablePlayer
     public byte Position { get; init; }
     public List<Card> Hand { get; set; } = [];
     public List<Card> Tricks { get; set; } = [];
-    public bool IsConnected { get; set; } = true;
+    public bool IsConnected { get; set; }
 
 }
 
