@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using sk.pwa;
 using sk.pwa.Services;
+using sk.shared.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -18,5 +19,6 @@ builder.Services.AddHttpClient("api", client =>
 });
 
 builder.Services.AddScoped<ConnectInfoState>();
+builder.Services.AddScoped<IGameHubClient, GameHubClient>();
 
 await builder.Build().RunAsync();

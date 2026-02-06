@@ -13,16 +13,6 @@
                         <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle" value="Display aus" />
                         <button type="button" class="btn btn-sm btn-outline-light" @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
                     </div>
-                    <div>
-                        <p>@publicGameState.GameState</p>
-                        <p>Pos: @publicGameState.YourPosition.GetValueOrDefault()</p>
-                        <button class="btn btn-sm" @onclick="() => PlayTestCard(0)">Play1</button>
-                        <button class="btn btn-sm" @onclick="() => PlayTestCard(1)">Play2</button>
-                        <button class="btn btn-sm" @onclick="() => PlayTestCard(2)">Play3</button>
-                        <button class="btn btn-sm" @onclick="() => PlayTestCard(3)">Play4</button>
-                        <button class="btn btn-sm"
-                                @onclick="() => trickComponent?.Clear(0, playersByView)">Clear</button>
-                    </div>
                 </div>
 
                 <div class="d-flex position-relative" style="width: 25vw">
@@ -66,7 +56,11 @@
                             }
                         </div>
                         <div>
-                            @if (IsMyTurn)
+                            @if (publicGameState.GameState == GameState.None)
+                            {
+                                <span class="small">Warten auf andere Spieler.</span>
+                            }
+                            else if (IsMyTurn)
                             {
                                 <span class="small">Du bist am Zug!</span>
                             }
@@ -74,7 +68,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"
+                <div class="d-flex align-items-center justify-content-center w-100 @(CanAct ? "bg-warning" : "")"
                      style="width: 80%">
                     <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
                 </div>

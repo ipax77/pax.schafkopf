@@ -6,6 +6,11 @@
 <div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="@modalId" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Spieler Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        @onclick="Close"></button>
+            </div>
             <div class="modal-body">
                 <div>
                     @if (editContext != null)
@@ -22,18 +27,9 @@
                         </EditForm>
                     }
                 </div>
-                <div class="btn-group mt-1">
-                    <button type="button" class="btn btn-primary" @onclick="Create">
-                        Neuen Tisch erstellen
-                    </button>
-                    @if (model.TableGuid != Guid.Empty &&
-                                                                                            (DateTime.UtcNow - model.LastPlayed).TotalHours < 1)
-                    {
-                        <button type="button" class="btn btn-primary" @onclick="Join">
-                            Altem Tisch beitreten
-                        </button>
-                    }
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="Save">Speichern</button>
             </div>
         </div>
     </div>
@@ -59,27 +55,10 @@
         StateHasChanged();
     }
 
-    public void Create()
+    public void Save()
     {
-        editContext?.NotifyValidationStateChanged();
-        if (!string.IsNullOrEmpty(model.UserName))
-        {
-            model.TableGuid = Guid.Empty;
-            model.LastConnected = DateTime.UtcNow;
-            OnConnect.InvokeAsync(model);
-            Close();
-        }
-    }
-
-    public void Join()
-    {
-        editContext?.NotifyValidationStateChanged();
-        if (!string.IsNullOrEmpty(model.UserName))
-        {
-            model.LastConnected = DateTime.UtcNow;
-            OnConnect.InvokeAsync(model);
-            Close();
-        }
+        OnConnect.InvokeAsync(model);
+        Close();
     }
 
     public void Close()

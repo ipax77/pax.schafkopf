@@ -1,27 +1,23 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using sk.shared;
+using sk.shared.Interfaces;
 using sk.weblib.Modals;
 
 namespace sk.weblib;
 
-public partial class TableComponent(IHttpClientFactory httpClientFactory) : ComponentBase, IAsyncDisposable
+public partial class TableComponent() : ComponentBase
 {
+    [Inject]
+    public IGameHubClient GameHubClient { get; set; } = default!;
+
     [Inject]
     public IJSRuntime JSRuntime { get; set; } = default!;
 
     [Parameter, EditorRequired]
     public Player Player { get; set; } = default!;
 
-    [Parameter]
-    public Guid GameGuid { get; set; }
-
-    [Parameter]
-    public EventCallback<Guid> OnGuidSet { get; set; }
-
-    private HubConnection? hubConnection;
-    private PublicGameState publicGameState = new();
+    private PublicGameState publicGameState => GameHubClient.GameState ?? new();
     bool IsMyTurn =>
         publicGameState.YourPosition.HasValue &&
         publicGameState.ActivePlayer == publicGameState.YourPosition.Value;
@@ -43,70 +39,24 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     private Bidding2Modal? bidding2Modal;
     private LastTrickModal? lastTrickModal;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        using var httpClient = httpClientFactory.CreateClient("api");
+        GameHubClient.OnStateChanged += HandleStateChanged;
+        base.OnInitialized();
+    }
 
-        var baseUri = httpClient.BaseAddress
-            ?? new Uri("http://localhost:5283");
-
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(new Uri(baseUri, "/gameHub"))
-            .WithAutomaticReconnect()
-            .Build();
-
-        hubConnection.On<PublicGameState>(
-            "ReceiveGameState",
-            state =>
-            {
-                publicGameState = state;
-                if (state.Table.CurrentTrickCard != null)
-                    trickComponent?.AddCard(state.Table.CurrentTrickCard, playersByView);
-                InvokeAsync(StateHasChanged);
-                if (GameGuid == Guid.Empty)
-                {
-                    GameGuid = publicGameState.Table.Guid;
-                    OnGuidSet.InvokeAsync(GameGuid);
-                }
-                ShowModals();
-            });
-
-        hubConnection.Reconnecting += error =>
+    private void HandleStateChanged()
+    {
+        InvokeAsync(() =>
         {
-            // Optional: show "reconnecting..." UI
-            return Task.CompletedTask;
-        };
+            // Logic for tricks, modals, etc.
 
-        hubConnection.Reconnected += async _ =>
-        {
-            await hubConnection.SendAsync(
-                "RejoinGame",
-                GameGuid,
-                Player);
-        };
+            if (GameHubClient.GameState?.Table.CurrentTrickCard != null)
+                trickComponent?.AddCard(GameHubClient.GameState.Table.CurrentTrickCard, playersByView);
+            ShowModals();
 
-        hubConnection.Closed += async _ =>
-        {
-            // Optional backoff / logging
-            await Task.Delay(2000);
-            await hubConnection.StartAsync();
-        };
-
-        await hubConnection.StartAsync();
-
-        // Initial join or rejoin
-        if (GameGuid == Guid.Empty)
-        {
-            await hubConnection.SendAsync("CreateNewGame", Player);
-        }
-        else
-        {
-            await hubConnection.SendAsync(
-                "JoinGame",
-                GameGuid,
-                Player);
-        }
-        await base.OnInitializedAsync();
+            StateHasChanged();
+        });
     }
 
     private List<PlayerViewInfo> GetPlayersByView()
@@ -155,38 +105,18 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
 
     private async Task SubmitBidding1(bool wouldPlay)
     {
-        if (hubConnection is null) return;
-
-        await hubConnection.SendAsync(
-            "SubmitBidding1",
-            new BiddingState
-            {
-                WouldPlay = wouldPlay
-            });
+        await GameHubClient.SubmitBidding1(wouldPlay);
     }
 
     private async Task SubmitBidding2(
         Bidding2Result? result)
     {
-        if (hubConnection is null) return;
-
-        BiddingState biddingState = result == null ? new() { WouldPlay = false }
-            : new()
-            {
-                WouldPlay = true,
-                ProposedGame = result.GameType,
-                ProposedSuit = result.Suit,
-                Tout = result.Tout
-            };
-
-        await hubConnection.SendAsync("SubmitBidding2", biddingState);
+        await GameHubClient.SubmitBidding2(result);
     }
 
     private async Task PlayCard(Card card)
     {
-        if (hubConnection is null) return;
-
-        await hubConnection.SendAsync("PlayCard", card);
+        await GameHubClient.PlayCard(card);
     }
 
     private void PlayTestCard(int index)
@@ -196,15 +126,6 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
 
     private async Task LeaveTable()
     {
-        if (hubConnection is null) return;
-        await hubConnection.SendAsync("LeaveGame");
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.DisposeAsync();
-        }
+        await GameHubClient.LeaveTable();
     }
 }

@@ -1,26 +1,54 @@
 ﻿@page "/"
 @using sk.pwa.Services
 @using sk.shared
+@using sk.shared.Interfaces
 @using sk.weblib
 @using sk.weblib.Modals
 @inject ConnectInfoState ConnectState
+@inject IGameHubClient GameHubClient
 @inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject ILogger<Home> Logger
 
 <PageTitle>pax.schafkopf</PageTitle>
 
-@if (ConnectState.Current != null)
+@if (ConnectState.Current == null)
 {
-    <TableComponent Player="new() { Name = ConnectState.Current.UserName, Guid = ConnectState.Current.Guid }"
-                    GameGuid="tableGuid" OnGuidSet="SetTableGuid" />
+    @* Step 1: User needs to identify themselves *@
+    <div class="text-center">
+        <h3>Welcome to Schafkopf</h3>
+        <button class="btn btn-primary btn-lg" @onclick="ShowConnect">Set Nickname</button>
+    </div>
 }
-else
+else if (GameHubClient.GameState == null)
 {
-    <button class="btn btn-outline-info" @onclick="ShowConnect">
-        Connect
-    </button>
-}
+    @* Step 2: User is identified but not in a game *@
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-body">
+                <h4>Start Fresh</h4>
+                <button class="btn btn-success" @onclick="CreateGame">Create New Table</button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(TableGuid))
+        {
+            <div class="col-md-6">
+                <div class="card card-body border-primary">
+                    <h4>Invitation Found</h4>
+                    <p>You've been invited to a game!</p>
+                    <button class="btn btn-primary" @onclick="() => JoinGame(Guid.Parse(TableGuid))">Join Invited
+                        Game</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @* Step 3: Active Game *@
+        <TableComponent Player="CurrentPlayer" />
+    }
 
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
 
@@ -31,6 +59,12 @@ else
     Guid tableGuid = Guid.Empty;
 
     ConnectModal? connectModal;
+
+    private Player CurrentPlayer => new()
+    {
+        Name = ConnectState.Current?.UserName ?? "Anonymous",
+        Guid = ConnectState.Current?.Guid ?? Guid.Empty
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,7 +87,26 @@ else
     {
         await ConnectState.SaveAsync(info);
         tableGuid = info.TableGuid;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task CreateGame()
+    {
+        await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, Guid.Empty);
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.Table.Guid;
+            NavigationManager.NavigateTo($"?TableGuid={newId}", replace: false);
+        }
+    }
+
+    async Task JoinGame(Guid id)
+    {
+        await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, id);
+        if (GameHubClient.GameState != null)
+        {
+            NavigationManager.NavigateTo($"?TableGuid={id}", replace: false);
+        }
     }
 
     private async Task SetTableGuid(Guid guid)
@@ -68,6 +121,14 @@ else
             ci.TableGuid = guid;
             ci.LastPlayed = DateTime.UtcNow;
         });
+    }
+
+    private Uri GetBaseAddress()
+    {
+        using var httpClient = HttpClientFactory.CreateClient("api");
+        var baseUri = httpClient.BaseAddress
+            ?? new Uri("http://localhost:5283");
+        return new Uri(baseUri, "/gameHub");
     }
 
     private void ShowConnect() => connectModal?.Show(new() { TableGuid = tableGuid });

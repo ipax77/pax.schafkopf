@@ -1,0 +1,90 @@
+using Microsoft.AspNetCore.SignalR.Client;
+using sk.shared;
+using sk.shared.Interfaces;
+
+namespace sk.pwa.Services;
+
+public class GameHubClient : IAsyncDisposable, IGameHubClient
+{
+    private HubConnection? _hubConnection;
+    public PublicGameState? GameState { get; private set; }
+    public event Action? OnStateChanged;
+
+    public async Task StartAsync(Uri uri, Player player, Guid gameId)
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(uri)
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
+        {
+            GameState = state;
+            OnStateChanged?.Invoke();
+        });
+
+        // Robust Reconnect: Always tell the server who we are when we come back online
+        _hubConnection.Reconnected += async (connectionId) =>
+        {
+            await _hubConnection.InvokeAsync("RejoinGame", gameId, player);
+        };
+
+        await _hubConnection.StartAsync();
+
+        // Initial Entry
+        if (gameId == Guid.Empty)
+            await _hubConnection.InvokeAsync("CreateNewGame", player);
+        else
+            await _hubConnection.InvokeAsync("JoinGame", gameId, player);
+    }
+
+    public async Task SubmitBidding1(bool wouldPlay)
+    {
+        if (_hubConnection is null) return;
+
+        await _hubConnection.SendAsync(
+            "SubmitBidding1",
+            new BiddingState
+            {
+                WouldPlay = wouldPlay
+            });
+    }
+
+    public async Task SubmitBidding2(
+        Bidding2Result? result)
+    {
+        if (_hubConnection is null) return;
+
+        BiddingState biddingState = result == null ? new() { WouldPlay = false }
+            : new()
+            {
+                WouldPlay = true,
+                ProposedGame = result.GameType,
+                ProposedSuit = result.Suit,
+                Tout = result.Tout
+            };
+
+        await _hubConnection.SendAsync("SubmitBidding2", biddingState);
+    }
+
+    public async Task PlayCard(Card card)
+    {
+        if (_hubConnection is null) return;
+
+        await _hubConnection.SendAsync("PlayCard", card);
+    }
+
+    public async Task LeaveTable()
+    {
+        if (_hubConnection is null) return;
+        await _hubConnection.SendAsync("LeaveGame");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}
