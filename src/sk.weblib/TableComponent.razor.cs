@@ -56,7 +56,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
             {
                 publicGameState = state;
                 if (state.Table.CurrentTrickCard != null)
-                    trickComponent?.AddCard(state.Table.CurrentTrickCard);
+                    trickComponent?.AddCard(state.Table.CurrentTrickCard, playersByView);
                 InvokeAsync(StateHasChanged);
                 if (GameGuid == Guid.Empty)
                 {
@@ -185,7 +185,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
 
     private void PlayTestCard(int index)
     {
-        trickComponent?.AddCard(new() { Card = new() { Rank = (Rank)(index + 1), Suit = Suit.Eichel }, Position = index });
+        trickComponent?.AddCard(new() { Card = new() { Rank = (Rank)(index + 1), Suit = Suit.Eichel }, Position = index }, playersByView);
     }
 
     public async ValueTask DisposeAsync()

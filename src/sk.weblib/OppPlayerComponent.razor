@@ -1,7 +1,7 @@
 @using sk.shared
 
 <div class="position-absolute h-100" style="z-index: 5; width: 25vw;">
-    <div class="border border-primary rounded">
+    <div class="border border-primary rounded @(PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex ? "bg-warning" : "")">
         <div class="text-center">
             @if (PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex && PublicGameState.GameState !=
                                     GameState.Playing)

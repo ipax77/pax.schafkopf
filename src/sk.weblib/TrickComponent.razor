@@ -17,6 +17,9 @@
 }
 
 @code {
+    [CascadingParameter]
+    public PublicGameState PublicGameState { get; set; } = default!;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -34,6 +37,7 @@
 
     private readonly Queue<PlayerCard> _cardAnimationQueue = new Queue<PlayerCard>();
     private bool _isProcessingQueue;
+    private bool _isClearing; // New flag for clearing status
 
 
     string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch {
@@ -44,21 +48,36 @@
         _ => null
     };
 
-    public void AddCard(PlayerCard playerCard)
+    public void AddCard(PlayerCard playerCard, List<PlayerViewInfo> playersByView)
     {
         _cardAnimationQueue.Enqueue(playerCard);
-        if (!_isProcessingQueue)
+        // Only start processing if not already processing AND not currently clearing
+        if (!_isProcessingQueue && !_isClearing)
         {
-            _ = ProcessCardQueue();
+            _ = ProcessCardQueue(playersByView);
         }
     }
 
-    private async Task ProcessCardQueue()
+    private async Task ProcessCardQueue(List<PlayerViewInfo> playersByView)
     {
         _isProcessingQueue = true;
 
+        // Wait until clearing is finished before processing cards
+        while (_isClearing)
+        {
+            await Task.Delay(50); // Small delay to avoid busy-waiting
+        }
+
         while (_cardAnimationQueue.Any())
         {
+            // Re-check if clearing started while waiting for next card
+            if (_isClearing)
+            {
+                // Clearing started, stop processing and let Clear handle re-triggering if needed
+                _isProcessingQueue = false;
+                return;
+            }
+
             var playerCard = _cardAnimationQueue.Dequeue();
 
             // Set currentCard for animation
@@ -83,12 +102,34 @@
             });
         }
 
+        if (bottomCard != null && leftCard != null && topCard != null && rightCard != null)
+        {
+            // All positions filled, clear after a delay
+            var winner = PublicGameState.GetTrickWinner();
+            if (winner.HasValue)
+            {
+                var winnerPlayer = playersByView.FirstOrDefault(f => f.ServerIndex == winner.Value);
+                if (winnerPlayer != null)
+                {
+                    await Task.Delay(800);
+                    await Clear(winnerPlayer.ViewIndex, playersByView); // Pass playersByView here
+                }
+            }
+        }
         _isProcessingQueue = false;
+
+        // If cards were added to the queue while clearing, and clearing is now done, restart processing
+        if (_cardAnimationQueue.Any() && !_isClearing)
+        {
+             _ = ProcessCardQueue(playersByView);
+        }
     }
 
 
-    public async void Clear(int position)
+    public async Task Clear(int position, List<PlayerViewInfo> playersByView) // Add playersByView parameter
     {
+        _isClearing = true; // Set clearing flag
+
         if (bottomCard != null) clearAnimationCssClassBottom = $"clear-to-pos{position}-from-bottom";
         if (leftCard != null) clearAnimationCssClassLeft = $"clear-to-pos{position}-from-left";
         if (topCard != null) clearAnimationCssClassTop = $"clear-to-pos{position}-from-top";
@@ -113,4 +154,12 @@
 
             StateHasChanged();
         });
+
+        _isClearing = false; // Clear clearing flag
+
+        // After clearing, check if any cards are waiting in the queue
+        if (_cardAnimationQueue.Any() && !_isProcessingQueue)
+        {
+            _ = ProcessCardQueue(playersByView); // Pass playersByView here
+        }
     }}

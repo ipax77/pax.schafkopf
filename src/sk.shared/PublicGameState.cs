@@ -156,4 +156,32 @@ public static class PublicGameStateExtensions
 
         return gameTypeString;
     }
+
+    public static int? GetTrickWinner(this PublicGameState publicGameState)
+    {
+        if (publicGameState.Bidding2Result is null)
+        {
+            return null;
+        }
+
+        var trick = new List<(int Player, Card Card)>();
+
+        int player = publicGameState.ActivePlayer;
+
+        for (int i = 0; i < 4; i++)
+        {
+            var card = publicGameState.Table.CurrentTrick[player];
+            if (card is null)
+            {
+                return null;
+            }
+            trick.Add((player, card));
+            player = (player + 1) % 4;
+        }
+
+        var firstCard = trick[0].Card;
+        var comparer = new TrickCardComparer(publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit, firstCard);
+        var winner = trick.OrderByDescending(o => o.Card, comparer).First();
+        return winner.Player;
+    }
 }

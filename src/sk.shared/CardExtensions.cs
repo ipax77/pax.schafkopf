@@ -18,6 +18,10 @@ public static class CardExtensions
 
     public static int GetCardRank(this Card card, GameType mode, Suit trump, Card? firstCard = null)
     {
+        if (mode == GameType.Ruf)
+        {
+            trump = Suit.Herz;
+        }
         return mode switch
         {
             GameType.Wenz => card.Rank switch

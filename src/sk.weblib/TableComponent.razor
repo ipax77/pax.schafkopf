@@ -17,7 +17,7 @@
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(1)">Play2</button>
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(2)">Play3</button>
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(3)">Play4</button>
-                        <button class="btn btn-sm" @onclick="() => trickComponent?.Clear(0)">Clear</button>
+                        <button class="btn btn-sm" @onclick="() => trickComponent?.Clear(0, playersByView)">Clear</button>
                     </div>
                 </div>
 
@@ -48,7 +48,8 @@
             </div>
 
             @* bottom *@
-            <div class="d-flex align-items-center justify-content-center w-100"           style="height: 30vh;">
+            <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"        
+                style="height: 30vh;">
                 <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
             </div>
         </CascadingValue>
