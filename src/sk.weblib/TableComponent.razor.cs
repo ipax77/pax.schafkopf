@@ -183,6 +183,11 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
         await hubConnection.SendAsync("PlayCard", card);
     }
 
+    private void PlayTestCard(int index)
+    {
+        trickComponent?.AddCard(new() { Card = new() { Rank = (Rank)(index + 1), Suit = Suit.Eichel }, Position = index });
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (hubConnection is not null)

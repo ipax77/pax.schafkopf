@@ -1,13 +1,13 @@
 @using sk.shared
 
 <div class="position-relative" style="left: 50%; top: 50%;">
-    <div class="skcard top-card @topCard?.GetCssClass()">
+    <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
     </div>
-    <div class="skcard bottom-card @bottomCard?.GetCssClass()">
+    <div class="skcard bottom-card @bottomCard?.GetCssClass() @clearAnimationCssClassBottom">
     </div>
-    <div class="skcard left-card @leftCard?.GetCssClass()">
+    <div class="skcard left-card @leftCard?.GetCssClass() @clearAnimationCssClassLeft">
     </div>
-    <div class="skcard right-card @rightCard?.GetCssClass()">
+    <div class="skcard right-card @rightCard?.GetCssClass() @clearAnimationCssClassRight">
     </div>
 </div>
 @if (!string.IsNullOrEmpty(cardAnimationCssClass))
@@ -19,10 +19,6 @@
 @code {
     protected override void OnInitialized()
     {
-        @* AddCard(new PlayerCard() { Position = 0, Card = new Card() { Rank = Rank.Ace, Suit = Suit.Eichel } });
-        AddCard(new PlayerCard() { Position = 1, Card = new Card() { Rank = Rank.Ten, Suit = Suit.Eichel } });
-        AddCard(new PlayerCard() { Position = 2, Card = new Card() { Rank = Rank.King, Suit = Suit.Eichel } });
-        AddCard(new PlayerCard() { Position = 3, Card = new Card() { Rank = Rank.Nine, Suit = Suit.Eichel } }); *@
         base.OnInitialized();
     }
 
@@ -31,6 +27,15 @@
     Card? topCard;
     Card? rightCard;
     PlayerCard? currentCard;
+    string? clearAnimationCssClassBottom;
+    string? clearAnimationCssClassLeft;
+    string? clearAnimationCssClassTop;
+    string? clearAnimationCssClassRight;
+
+    private readonly Queue<PlayerCard> _cardAnimationQueue = new Queue<PlayerCard>();
+    private bool _isProcessingQueue;
+
+
     string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch {
         0 => "playbottomcard",
         1 => "playleftcard",
@@ -41,26 +46,71 @@
 
     public void AddCard(PlayerCard playerCard)
     {
-        if (currentCard?.Card == playerCard.Card)
+        _cardAnimationQueue.Enqueue(playerCard);
+        if (!_isProcessingQueue)
         {
-            return;
+            _ = ProcessCardQueue();
         }
-        currentCard = playerCard;
-        _ = currentCard.Position switch {
-            0 => bottomCard = playerCard.Card,
-            1 => leftCard = playerCard.Card,
-            2 => topCard = playerCard.Card,
-            3 => rightCard = playerCard.Card,
-            _ => null,
-        };
     }
 
-    public void Clear(int position)
+    private async Task ProcessCardQueue()
     {
-        bottomCard = null;
-        leftCard = null;
-        topCard = null;
-        rightCard = null;
-        currentCard = null;
+        _isProcessingQueue = true;
+
+        while (_cardAnimationQueue.Any())
+        {
+            var playerCard = _cardAnimationQueue.Dequeue();
+
+            // Set currentCard for animation
+            currentCard = playerCard;
+            await InvokeAsync(StateHasChanged);
+
+            // Wait for animation to complete
+            await Task.Delay(800);
+
+            // Move card to static position and clear animated card
+            await InvokeAsync(() =>
+            {
+                _ = playerCard.Position switch {
+                    0 => bottomCard = playerCard.Card,
+                    1 => leftCard = playerCard.Card,
+                    2 => topCard = playerCard.Card,
+                    3 => rightCard = playerCard.Card,
+                    _ => null,
+                };
+                currentCard = null;
+                StateHasChanged();
+            });
+        }
+
+        _isProcessingQueue = false;
     }
-}
+
+
+    public async void Clear(int position)
+    {
+        if (bottomCard != null) clearAnimationCssClassBottom = $"clear-to-pos{position}-from-bottom";
+        if (leftCard != null) clearAnimationCssClassLeft = $"clear-to-pos{position}-from-left";
+        if (topCard != null) clearAnimationCssClassTop = $"clear-to-pos{position}-from-top";
+        if (rightCard != null) clearAnimationCssClassRight = $"clear-to-pos{position}-from-right";
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(800); // Animation duration, should match CSS
+
+        await InvokeAsync(() =>
+        {
+            bottomCard = null;
+            leftCard = null;
+            topCard = null;
+            rightCard = null;
+            currentCard = null; // Ensure current card is also cleared
+
+            clearAnimationCssClassBottom = null;
+            clearAnimationCssClassLeft = null;
+            clearAnimationCssClassTop = null;
+            clearAnimationCssClassRight = null;
+
+            StateHasChanged();
+        });
+    }}

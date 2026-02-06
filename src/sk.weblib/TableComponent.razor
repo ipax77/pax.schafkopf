@@ -13,6 +13,11 @@
                     <div>
                         <p>@publicGameState.GameState</p>
                         <p>Pos: @publicGameState.YourPosition.GetValueOrDefault()</p>
+                        <button class="btn btn-sm" @onclick="() => PlayTestCard(0)">Play1</button>
+                        <button class="btn btn-sm" @onclick="() => PlayTestCard(1)">Play2</button>
+                        <button class="btn btn-sm" @onclick="() => PlayTestCard(2)">Play3</button>
+                        <button class="btn btn-sm" @onclick="() => PlayTestCard(3)">Play4</button>
+                        <button class="btn btn-sm" @onclick="() => trickComponent?.Clear(0)">Clear</button>
                     </div>
                 </div>
 

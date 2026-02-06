@@ -42,7 +42,8 @@ public static class GameExtensions
         {
             Guid = game.Table.Guid,
             PreviouseTrick = game.Table.PreviouseTrick,
-            CurrentTrick = game.Table.CurrentTrick
+            CurrentTrick = game.Table.CurrentTrick,
+            CurrentTrickCard = game.Table.CurrentTrickCard,
         };
 
         for (int i = 0; i < 4; i++)

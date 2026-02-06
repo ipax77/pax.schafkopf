@@ -66,3 +66,118 @@
     left: calc(var(--cardwidth) - 5vh);
     transform: rotate(90deg);
 }
+
+/* Clear Animations */
+.clear-to-pos0-from-bottom,
+.clear-to-pos0-from-left,
+.clear-to-pos0-from-top,
+.clear-to-pos0-from-right,
+.clear-to-pos1-from-bottom,
+.clear-to-pos1-from-left,
+.clear-to-pos1-from-top,
+.clear-to-pos1-from-right,
+.clear-to-pos2-from-bottom,
+.clear-to-pos2-from-left,
+.clear-to-pos2-from-top,
+.clear-to-pos2-from-right,
+.clear-to-pos3-from-bottom,
+.clear-to-pos3-from-left,
+.clear-to-pos3-from-top,
+.clear-to-pos3-from-right {
+    animation-duration: 750ms; /* Matches Task.Delay in C# */
+    animation-fill-mode: forwards;
+    position: absolute; /* Ensure it moves freely */
+    z-index: 100; /* Keep it on top during animation */
+}
+
+/* Animations to Player 0 (Bottom) */
+.clear-to-pos0-from-bottom { animation-name: clear-bottom-to-bottom; }
+.clear-to-pos0-from-left { animation-name: clear-left-to-bottom; }
+.clear-to-pos0-from-top { animation-name: clear-top-to-bottom; }
+.clear-to-pos0-from-right { animation-name: clear-right-to-bottom; }
+
+@keyframes clear-bottom-to-bottom {
+    from { top: -5vh; left: calc(var(--cardwidth) / -2); }
+    to { top: 70vh; left: 0vw; transform: rotate(0deg); } /* Move off-screen bottom */
+}
+@keyframes clear-left-to-bottom {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardheight) * -1 + 5vh); transform: rotate(90deg); }
+    to { top: 70vh; left: 0vw; transform: rotate(0deg); }
+}
+@keyframes clear-top-to-bottom {
+    from { top: calc(var(--cardheight) * -1 + 5vh); left: calc(var(--cardwidth) / -2); }
+    to { top: 70vh; left: 0vw; transform: rotate(0deg); }
+}
+@keyframes clear-right-to-bottom {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardwidth) - 5vh); transform: rotate(90deg); }
+    to { top: 70vh; left: 0vw; transform: rotate(0deg); }
+}
+
+/* Animations to Player 1 (Left) */
+.clear-to-pos1-from-bottom { animation-name: clear-bottom-to-left; }
+.clear-to-pos1-from-left { animation-name: clear-left-to-left; }
+.clear-to-pos1-from-top { animation-name: clear-top-to-left; }
+.clear-to-pos1-from-right { animation-name: clear-right-to-left; }
+
+@keyframes clear-bottom-to-left {
+    from { top: -5vh; left: calc(var(--cardwidth) / -2); }
+    to { left: -70vw; top: 0vh; transform: rotate(0deg); } /* Move off-screen left */
+}
+@keyframes clear-left-to-left {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardheight) * -1 + 5vh); transform: rotate(90deg); }
+    to { left: -70vw; top: 0vh; transform: rotate(0deg); }
+}
+@keyframes clear-top-to-left {
+    from { top: calc(var(--cardheight) * -1 + 5vh); left: calc(var(--cardwidth) / -2); }
+    to { left: -70vw; top: 0vh; transform: rotate(0deg); }
+}
+@keyframes clear-right-to-left {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardwidth) - 5vh); transform: rotate(90deg); }
+    to { left: -70vw; top: 0vh; transform: rotate(0deg); }
+}
+
+/* Animations to Player 2 (Top) */
+.clear-to-pos2-from-bottom { animation-name: clear-bottom-to-top; }
+.clear-to-pos2-from-left { animation-name: clear-left-to-top; }
+.clear-to-pos2-from-top { animation-name: clear-top-to-top; }
+.clear-to-pos2-from-right { animation-name: clear-right-to-top; }
+
+@keyframes clear-bottom-to-top {
+    from { top: -5vh; left: calc(var(--cardwidth) / -2); }
+    to { top: -70vh; left: 0vw; transform: rotate(0deg); } /* Move off-screen top */
+}
+@keyframes clear-left-to-top {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardheight) * -1 + 5vh); transform: rotate(90deg); }
+    to { top: -70vh; left: 0vw; transform: rotate(0deg); }
+}
+@keyframes clear-top-to-top {
+    from { top: calc(var(--cardheight) * -1 + 5vh); left: calc(var(--cardwidth) / -2); }
+    to { top: -70vh; left: 0vw; transform: rotate(0deg); }
+}
+@keyframes clear-right-to-top {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardwidth) - 5vh); transform: rotate(90deg); }
+    to { top: -70vh; left: 0vw; transform: rotate(0deg); }
+}
+
+/* Animations to Player 3 (Right) */
+.clear-to-pos3-from-bottom { animation-name: clear-bottom-to-right; }
+.clear-to-pos3-from-left { animation-name: clear-left-to-right; }
+.clear-to-pos3-from-top { animation-name: clear-top-to-right; }
+.clear-to-pos3-from-right { animation-name: clear-right-to-right; }
+
+@keyframes clear-bottom-to-right {
+    from { top: -5vh; left: calc(var(--cardwidth) / -2); }
+    to { left: 70vw; top: 0vh; transform: rotate(0deg); } /* Move off-screen right */
+}
+@keyframes clear-left-to-right {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardheight) * -1 + 5vh); transform: rotate(90deg); }
+    to { left: 70vw; top: 0vh; transform: rotate(0deg); }
+}
+@keyframes clear-top-to-right {
+    from { top: calc(var(--cardheight) * -1 + 5vh); left: calc(var(--cardwidth) / -2); }
+    to { left: 70vw; top: 0vh; transform: rotate(0deg); }
+}
+@keyframes clear-right-to-right {
+    from { top: calc(var(--cardheight) / -2); left: calc(var(--cardwidth) - 5vh); transform: rotate(90deg); }
+    to { left: 70vw; top: 0vh; transform: rotate(0deg); }
+}
