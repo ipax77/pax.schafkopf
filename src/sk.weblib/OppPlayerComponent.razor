@@ -3,7 +3,8 @@
 <div class="position-absolute h-100" style="z-index: 5; width: 25vw;">
     <div class="border border-primary rounded">
         <div class="text-center">
-            @if (PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex && PublicGameState.GameState != GameState.Playing)
+            @if (PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex && PublicGameState.GameState !=
+                                    GameState.Playing)
             {
                 <span class="badge badge-secondary">Erster</span>
             }
@@ -21,19 +22,21 @@
                 {
                     <span class="badge bg-danger">Spiele!</span>
                 }
-                else
+                else if (PublicGameState.Bidding1Result.DeclinedPlayers.Contains(PlayerViewInfo.ServerIndex))
                 {
                     <span class="badge bg-warning">Weiter.</span>
                 }
             }
-            else if (PublicGameState.GameState == GameState.Bidding2 && PublicGameState.Bidding2Result != null)
+            else if (PublicGameState.Bidding2Result != null
+                && PublicGameState.Bidding2Result.PlayerIndex == PlayerViewInfo.ServerIndex)
             {
-                <span class="badge bg-danger">Spiele @(PublicGameState.Bidding2Result.GameType)</span>
-            }
-            else if (PublicGameState.GameState == GameState.Playing)
-            {
-                @if (PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex)
+                @if (PublicGameState.GameState == GameState.Bidding2)
                 {
+                    <span class="badge bg-danger">Spiele @(PublicGameState.Bidding2Result.GameType)</span>
+                }
+                else if (PublicGameState.GameState == GameState.Playing)
+                {
+                    <span class="badge bg-info">@PublicGameState.Bidding2Result?.GetGameTypeString()</span>
                 }
             }
         </div>

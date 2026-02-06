@@ -114,4 +114,36 @@ public static class PublicGameStateExtensions
             .Where(x => x.CanOperate(firstCard, publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit))
             .ToList();
     }
+
+    public static string GetGameTypeString(this Bidding2Result bidding2Result)
+    {
+        var gameTypeString = bidding2Result.GameType switch
+        {
+            GameType.Sie => "Sie",
+            GameType.Wenz => "Wenz",
+            GameType.Ruf => bidding2Result.Suit switch
+            {
+                Suit.Schellen => "Auf die Lumberte",
+                Suit.Eichel => "Auf die Alte",
+                Suit.Gras => "Auf die Blaue",
+                _ => string.Empty
+            },
+            GameType.Solo => bidding2Result.Suit switch
+            {
+                Suit.Schellen => "Schellen Solo",
+                Suit.Eichel => "Eichel Solo",
+                Suit.Gras => "Gras Solo",
+                Suit.Herz => "Herz Solo",
+                _ => string.Empty
+            },
+            _ => string.Empty
+        };
+
+        if (bidding2Result.Tout)
+        {
+            gameTypeString += " Tout";
+        }
+
+        return gameTypeString;
+    }
 }
