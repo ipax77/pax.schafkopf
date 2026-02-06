@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.VisualBasic;
 using sk.shared;
 
 namespace sk.weblib;
@@ -17,6 +18,7 @@ public partial class PlayerComponent
 
     GameType gameType => PublicGameState.Bidding2Result?.GameType ?? GameType.Ruf;
     Suit suit => PublicGameState.Bidding2Result?.Suit ?? Suit.Herz;
+    List<Card> validCards => PublicGameState.GetValidCards();
 
     private Card? draggedCard;
     private double dragStartY;
@@ -31,21 +33,6 @@ public partial class PlayerComponent
         OnCardPlayed.InvokeAsync(card);
     }
 
-    protected override void OnInitialized()
-    {
-        // PlayerViewInfo.TablePlayer.Hand = [
-        //     new Card() { Rank = Rank.Ace, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Eight, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.King, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Nine, Suit = Suit.Eichel },
-        //     new Card() { Rank = Rank.Ten, Suit = Suit.Eichel },
-        // ];
-        base.OnInitialized();
-    }
-
     private List<Card> GetOrderedCards()
     {
         return PlayerViewInfo.TablePlayer.Hand.OrderByDescending(o => o.GetCardOrder(gameType, suit)).ToList();
@@ -53,17 +40,7 @@ public partial class PlayerComponent
 
     private bool IsValidCard(Card card)
     {
-        if (PublicGameState.Bidding2Result is null || PublicGameState.ActivePlayer != PublicGameState.YourPosition)
-        {
-            return false;
-        }
-        var firstPlayer = (PublicGameState.ActivePlayer + PublicGameState.Table.CurrentTrick.Count(c => c != null)) % 4;
-        var firstCard = PublicGameState.Table.CurrentTrick[firstPlayer];
-        if (firstCard is null)
-        {
-            return false;
-        }
-        return card.CanOperate(firstCard, PublicGameState.Bidding2Result.GameType, PublicGameState.Bidding2Result.Suit);
+        return validCards.Contains(card);
     }
 
     private void OnDragStart(MouseEventArgs e, Card card)

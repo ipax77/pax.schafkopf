@@ -47,7 +47,21 @@ public sealed class Game
 
     public Bidding2Result? GetPublicBidding2Result()
     {
-        return Bidding2Result;
+        if (Bidding2Result != null)
+            return Bidding2Result;
+
+        if (_bidding2States.Count == 0)
+            return null;
+        var comparer = new BiddingStateComparer();
+        var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+        return new()
+        {
+            PlayerIndex = highestBid.Item1,
+            GameType = highestBid.Item2.ProposedGame.HasValue ? highestBid.Item2.ProposedGame.Value : GameType.None,
+            Suit = highestBid.Item2.ProposedSuit ?? Suit.None,
+            Sie = highestBid.Item2.Sie,
+            Tout = highestBid.Item2.Tout
+        };
     }
 
     public void SetBidding1(int playerIndex, BiddingState command)

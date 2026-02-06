@@ -34,7 +34,7 @@ public static class PublicGameStateExtensions
             GameType.Solo
         ];
 
-        if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count > 0)
+        if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count > 1)
         {
             validGameTypes.Remove(GameType.Ruf);
             validGameTypes.Add(GameType.None);
@@ -49,6 +49,14 @@ public static class PublicGameStateExtensions
             {
                 validGameTypes.Remove(GameType.Ruf);
             }
+        }
+
+        var isLastPlayer = (publicGameState.Bidding1Result?.InterestedPlayers.Last() ?? -1)
+            == publicGameState.YourPosition.Value;
+        var noBiddingsYet = publicGameState.Bidding2Result == null || publicGameState.Bidding2Result.GameType == GameType.None;
+        if (isLastPlayer && noBiddingsYet && validGameTypes.Contains(GameType.None))
+        {
+            validGameTypes.Remove(GameType.None);
         }
 
         return validGameTypes;
@@ -80,5 +88,30 @@ public static class PublicGameStateExtensions
         ];
 
         return validSuits;
+    }
+
+    public static List<Card> GetValidCards(this PublicGameState publicGameState)
+    {
+        if (publicGameState.Bidding2Result == null || !publicGameState.YourPosition.HasValue)
+        {
+            return [];
+        }
+
+        if (publicGameState.ActivePlayer != publicGameState.YourPosition.Value)
+        {
+            return [];
+        }
+
+        var firstPlayer = (publicGameState.ActivePlayer + publicGameState.Table.CurrentTrick.Count(c => c != null)) % 4;
+        var firstCard = publicGameState.Table.CurrentTrick[firstPlayer];
+
+        if (firstCard == null)
+        {
+            return publicGameState.Table.Players[publicGameState.ActivePlayer].Hand;
+        }
+
+        return publicGameState.Table.Players[publicGameState.ActivePlayer].Hand
+            .Where(x => x.CanOperate(firstCard, publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit))
+            .ToList();
     }
 }

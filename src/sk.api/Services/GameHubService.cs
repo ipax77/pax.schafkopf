@@ -95,9 +95,9 @@ public class GameHubService(IHubContext<GameHub> hub)
                 .SendAsync("ReceiveGameState", game.ToPublicGameState(seat.Position));
         }
 
-        // await _hub.Clients
-        //     .AllExcept(connectionIds)
-        //     .SendAsync("ReceiveGameState", game.ToPublicGameState());
+        await _hub.Clients
+            .AllExcept(connectionIds)
+            .SendAsync("ReceiveGameState", game.ToPublicGameState(-1));
     }
 
     private Game GetGame(Guid id) =>

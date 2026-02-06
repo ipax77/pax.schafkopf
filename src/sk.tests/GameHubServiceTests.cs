@@ -92,7 +92,7 @@ public class GameHubServiceTests
         _gameHubService.AttachConnection(gameId, player.Guid, "oldConn");
         _gameHubService.DisconnectPlayer(gameId, player.Guid);
 
-        _gameHubService.RejoinGame(gameId, player.Guid);
+        _gameHubService.RejoinGame(gameId, player);
         _gameHubService.AttachConnection(gameId, player.Guid, "newConn");
 
         await _gameHubService.BroadcastGame(gameId);

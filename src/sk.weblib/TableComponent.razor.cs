@@ -58,12 +58,12 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
                 if (state.Table.CurrentTrickCard != null)
                     trickComponent?.AddCard(state.Table.CurrentTrickCard);
                 InvokeAsync(StateHasChanged);
-                ShowModals();
                 if (GameGuid == Guid.Empty)
                 {
                     GameGuid = publicGameState.Table.Guid;
                     OnGuidSet.InvokeAsync(GameGuid);
                 }
+                ShowModals();
             });
 
         hubConnection.Reconnecting += error =>
