@@ -73,11 +73,21 @@ public static class PublicGameStateExtensions
 
         if (gameType == GameType.Ruf)
         {
-            var nonTrumpCards = hand.Where(s => !s.IsTrump(GameType.Ruf, Suit.Herz));
-            var aces = nonTrumpCards.Where(x => x.Rank == Rank.Ace).Select(s => s.Suit).ToHashSet();
-            var callableSuits = nonTrumpCards.Select(s => s.Suit).ToHashSet();
-            callableSuits.RemoveWhere(x => !aces.Contains(x));
-            return callableSuits.ToList();
+            var nonTrumpCards = hand
+                .Where(c => !c.IsTrump(GameType.Ruf, Suit.Herz))
+                .ToList();
+
+            var suitsInHand = nonTrumpCards
+                .Select(c => c.Suit)
+                .ToHashSet();
+
+            var aceSuitsInHand = nonTrumpCards
+                .Where(c => c.Rank == Rank.Ace)
+                .Select(c => c.Suit)
+                .ToHashSet();
+
+            suitsInHand.ExceptWith(aceSuitsInHand);
+            return suitsInHand.ToList();
         }
 
         List<Suit> validSuits = [

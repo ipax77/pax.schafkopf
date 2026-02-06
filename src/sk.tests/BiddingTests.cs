@@ -136,4 +136,34 @@ public sealed class BiddingTests
         var validCards = publicState.GetValidCards();
         Assert.HasCount(8, validCards);
     }
+
+    [TestMethod]
+    public void CanSelectSuitForBidding2()
+    {
+        Game game = new();
+        game.GameState = GameState.Bidding1;
+
+        game.SetBidding1(0, new() { WouldPlay = true });
+        game.SetBidding1(1, new() { WouldPlay = false });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        Assert.AreEqual(GameState.Bidding2, game.GameState);
+
+        var publicState = game.ToPublicGameState(0);
+        publicState.Table.Players[0].Hand = [
+            new() { Rank = Rank.Ober, Suit = Suit.Gras },
+            new() { Rank = Rank.Ober, Suit = Suit.Herz },
+            new() { Rank = Rank.Ober, Suit = Suit.Schellen },
+            new() { Rank = Rank.Ace, Suit = Suit.Herz },
+            new() { Rank = Rank.Ten, Suit = Suit.Herz },
+            new() { Rank = Rank.Ten, Suit = Suit.Eichel },
+            new() { Rank = Rank.King, Suit = Suit.Gras },
+            new() { Rank = Rank.Eight, Suit = Suit.Gras },
+        ];
+        var validSuits = publicState.GetValidSuits(GameType.Ruf);
+
+        Assert.Contains(Suit.Eichel, validSuits);
+        Assert.Contains(Suit.Gras, validSuits);
+    }
 }

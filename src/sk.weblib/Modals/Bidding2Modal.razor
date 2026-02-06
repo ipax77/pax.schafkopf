@@ -6,6 +6,9 @@
      aria-labelledby="@modalId" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ansagen</h5>
+            </div>
             <div class="modal-body">
                 <div class="btn-group" role="group">
                     @foreach (var ent in validGameTypes)
@@ -15,24 +18,26 @@
                         </button>
                     }
                 </div>
-                @if (gameType != GameType.None)
-                {
-                    @if (gameType != GameType.Ruf)
+                <div>
+                    @if (gameType != GameType.None)
                     {
-                        <div>
-                            <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
-                            <label class="btn btn-outline-warning" for="toutCheck">Tout</label>
+                        @if (gameType != GameType.Ruf)
+                        {
+                            <div>
+                                <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
+                                <label class="btn btn-outline-warning" for="toutCheck">Tout</label>
+                            </div>
+                        }
+                        <div class="btn-group" role="group">
+                            @foreach (var ent in validSuits)
+                            {
+                                <button type="button" class="btn btn-outline-secondary" @onclick="() => SelectSuit(ent)">
+                                    @ent
+                                </button>
+                            }
                         </div>
                     }
-                    <div class="btn-group" role="group">
-                        @foreach (var ent in validSuits)
-                        {
-                            <button type="button" class="btn btn-outline-secondary" @onclick="() => SelectSuit(ent)">
-                                @ent
-                            </button>
-                        }
-                    </div>
-                }
+                </div>
             </div>
         </div>
     </div>

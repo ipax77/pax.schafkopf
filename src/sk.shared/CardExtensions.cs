@@ -40,6 +40,11 @@ public static class CardExtensions
 
     public static int GetCardOrder(this Card card, GameType mode, Suit trump)
     {
+        if (mode == GameType.Ruf)
+        {
+            trump = Suit.Herz;
+        }
+
         return mode switch
         {
             GameType.Wenz => card.Rank switch
@@ -62,6 +67,11 @@ public static class CardExtensions
 
     public static bool IsTrump(this Card card, GameType mode, Suit trump)
     {
+        if (mode == GameType.Ruf)
+        {
+            trump = Suit.Herz;
+        }
+
         return mode switch
         {
             GameType.Wenz => card.Rank == Rank.Unter,
@@ -72,6 +82,11 @@ public static class CardExtensions
 
     public static bool CanOperate(this Card card, Card firstCard, GameType mode, Suit trump)
     {
+        if (mode == GameType.Ruf)
+        {
+            trump = Suit.Herz;
+        }
+
         if (firstCard.IsTrump(mode, trump))
             return card.IsTrump(mode, trump);
 
