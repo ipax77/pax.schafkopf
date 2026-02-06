@@ -21,27 +21,31 @@
         <button class="btn btn-primary btn-lg" @onclick="ShowConnect">Set Nickname</button>
     </div>
 }
-else if (GameHubClient.GameState == null)
+else
 {
-    @* Step 2: User is identified but not in a game *@
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card card-body">
-                <h4>Start Fresh</h4>
-                <button class="btn btn-success" @onclick="CreateGame">Create New Table</button>
-            </div>
-        </div>
-        @if (!string.IsNullOrEmpty(TableGuid))
-        {
-            <div class="col-md-6">
-                <div class="card card-body border-primary">
-                    <h4>Invitation Found</h4>
-                    <p>You've been invited to a game!</p>
-                    <button class="btn btn-primary" @onclick="() => JoinGame(Guid.Parse(TableGuid))">Join Invited
-                        Game</button>
+    @if (GameHubClient.GameState == null)
+    {
+        <div>
+            @* Step 2: User is identified but not in a game *@
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-body">
+                        <h4>Start Fresh</h4>
+                        <button class="btn btn-success" @onclick="CreateGame">Create New Table</button>
                     </div>
                 </div>
-            }
+                @if (!string.IsNullOrEmpty(TableGuid))
+                {
+                    <div class="col-md-6">
+                        <div class="card card-body border-primary">
+                            <h4>Invitation Found</h4>
+                            <p>You've been invited to a game!</p>
+                            <button class="btn btn-primary" @onclick="() => JoinGame()">Join Invited
+                                Game</button>
+                            </div>
+                        </div>
+                    }
+                </div>
         </div>
     }
     else
@@ -49,14 +53,12 @@ else if (GameHubClient.GameState == null)
         @* Step 3: Active Game *@
         <TableComponent Player="CurrentPlayer" />
     }
-
+}
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
 
 @code {
     [SupplyParameterFromQuery]
     public string? TableGuid { get; set; }
-
-    Guid tableGuid = Guid.Empty;
 
     ConnectModal? connectModal;
 
@@ -68,25 +70,17 @@ else if (GameHubClient.GameState == null)
 
     protected override async Task OnInitializedAsync()
     {
-        if (Guid.TryParse(TableGuid, out var guid))
-            tableGuid = guid;
-
         await ConnectState.LoadAsync();
 
         if (ConnectState.Current == null)
         {
-            connectModal?.Show(new() { TableGuid = tableGuid });
-        }
-        else if (tableGuid == Guid.Empty && ConnectState.Current.TableGuid != Guid.Empty)
-        {
-            connectModal?.Show(ConnectState.Current);
+            connectModal?.Show(new());
         }
     }
 
     private async Task Connect(ConnectInfo info)
     {
         await ConnectState.SaveAsync(info);
-        tableGuid = info.TableGuid;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -95,17 +89,20 @@ else if (GameHubClient.GameState == null)
         await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, Guid.Empty);
         if (GameHubClient.GameState != null)
         {
-            var newId = GameHubClient.GameState.Table.Guid;
+            var newId = GameHubClient.GameState.ShortCode;
             NavigationManager.NavigateTo($"?TableGuid={newId}", replace: false);
         }
     }
 
-    async Task JoinGame(Guid id)
+    async Task JoinGame()
     {
-        await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, id);
-        if (GameHubClient.GameState != null)
+        if (Guid.TryParse(TableGuid, out var id))
         {
-            NavigationManager.NavigateTo($"?TableGuid={id}", replace: false);
+            await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, id);
+        }
+        else if (!string.IsNullOrEmpty(TableGuid))
+        {
+            await GameHubClient.JoinByCode(GetBaseAddress(), CurrentPlayer, TableGuid);
         }
     }
 
@@ -131,5 +128,5 @@ else if (GameHubClient.GameState == null)
         return new Uri(baseUri, "/gameHub");
     }
 
-    private void ShowConnect() => connectModal?.Show(new() { TableGuid = tableGuid });
+    private void ShowConnect() => connectModal?.Show(new());
 }

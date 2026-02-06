@@ -2,6 +2,7 @@ namespace sk.shared;
 
 public class PublicGameState
 {
+    public string ShortCode { get; set; } = string.Empty;
     public GameState GameState { get; set; }
     public int ActivePlayer { get; set; }
     public int? YourPosition { get; set; }

@@ -61,6 +61,7 @@ public static class GameExtensions
 
         return new PublicGameState
         {
+            ShortCode = game.ShortCode,
             GameState = game.GameState,
             ActivePlayer = game.ActivePlayer,
             YourPosition = forPlayer,

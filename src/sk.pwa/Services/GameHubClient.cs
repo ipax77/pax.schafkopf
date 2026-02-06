@@ -38,6 +38,31 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
             await _hubConnection.InvokeAsync("JoinGame", gameId, player);
     }
 
+    public async Task JoinByCode(Uri uri, Player player, string code)
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(uri)
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
+        {
+            GameState = state;
+            OnStateChanged?.Invoke();
+        });
+
+        // Robust Reconnect: Always tell the server who we are when we come back online
+        _hubConnection.Reconnected += async (connectionId) =>
+        {
+            await _hubConnection.InvokeAsync("RejoinGame", GameState?.Table.Guid ?? Guid.Empty, player);
+        };
+
+        await _hubConnection.StartAsync();
+
+        // Initial Entry
+        await _hubConnection.InvokeAsync("JoinByCode", code, player);
+    }
+
     public async Task SubmitBidding1(bool wouldPlay)
     {
         if (_hubConnection is null) return;

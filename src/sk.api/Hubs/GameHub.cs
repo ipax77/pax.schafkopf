@@ -17,6 +17,15 @@ public class GameHub(GameHubService service) : Hub
         return gameId;
     }
 
+    public async Task JoinByCode(string shortCode, Player player)
+    {
+        Context.Items["playerId"] = player.Guid;
+        var gameId = service.JoinGame(shortCode, player);
+        Context.Items["gameId"] = gameId;
+        player.ConnectionId = Context.ConnectionId;
+        await service.BroadcastGame(gameId);
+    }
+
     public async Task JoinGame(Guid gameId, Player player)
     {
         Context.Items["playerId"] = player.Guid;

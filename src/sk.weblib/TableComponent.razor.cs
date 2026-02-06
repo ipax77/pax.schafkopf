@@ -12,6 +12,9 @@ public partial class TableComponent() : ComponentBase
     public IGameHubClient GameHubClient { get; set; } = default!;
 
     [Inject]
+    public NavigationManager NavigationManager { get; set; } = default!;
+
+    [Inject]
     public IJSRuntime JSRuntime { get; set; } = default!;
 
     [Parameter, EditorRequired]
@@ -57,6 +60,11 @@ public partial class TableComponent() : ComponentBase
 
             StateHasChanged();
         });
+    }
+
+    async Task CopyLink() {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", NavigationManager.Uri);
+        // Optional: Trigger a "Copied!" toast
     }
 
     private List<PlayerViewInfo> GetPlayersByView()

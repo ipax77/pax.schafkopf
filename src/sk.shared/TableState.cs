@@ -3,6 +3,7 @@ namespace sk.shared;
 
 public sealed class Game
 {
+    public string ShortCode { get; set; } = string.Empty;
     public Table Table { get; set; } = new();
     public GameState GameState { get; set; }
     public int ActivePlayer { get; set; }

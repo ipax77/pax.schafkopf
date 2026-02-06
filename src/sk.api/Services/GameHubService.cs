@@ -10,6 +10,7 @@ public class GameHubService(IHubContext<GameHub> hub)
 {
     private readonly IHubContext<GameHub> _hub = hub;
     private readonly ConcurrentDictionary<Guid, Game> _games = [];
+    private readonly ConcurrentDictionary<string, Guid> _joinCodeMap = new();
 
     public Guid CreateNewGame(Player player)
     {
@@ -18,7 +19,20 @@ public class GameHubService(IHubContext<GameHub> hub)
         game.Table.Guid = guid;
         game.TryAssignEmptySeat(player);
         _games[game.Table.Guid] = game;
+        var shortCode = GenerateShortCode(); // e.g., "K7RW"
+        _joinCodeMap[shortCode] = game.Table.Guid;
+        game.ShortCode = shortCode;
         return game.Table.Guid;
+    }
+
+    public Guid JoinGame(string gameCode, Player player)
+    {
+        if (_joinCodeMap.TryGetValue(gameCode, out var guid))
+        {
+            JoinGame(guid, player);
+            return guid;
+        }
+        return Guid.Empty;
     }
 
     public void JoinGame(Guid gameId, Player player)
@@ -125,4 +139,11 @@ public class GameHubService(IHubContext<GameHub> hub)
         }
     }
 
+    private static string GenerateShortCode()
+    {
+        // Generate a 4-5 character string (avoiding confusing letters like O vs 0 or I vs 1)
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        return new string(Enumerable.Repeat(chars, 4)
+            .Select(s => s[Random.Shared.Next(s.Length)]).ToArray());
+    }
 }

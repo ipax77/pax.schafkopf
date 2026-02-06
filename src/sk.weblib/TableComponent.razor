@@ -10,8 +10,10 @@
             <div class="d-inline-flex vw-100" style="height: 20vh;">
                 <div class="d-flex bg-transparent" style="width: 37.5%;">
                     <div class="btn-block">
-                        <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle" value="Display aus" />
-                        <button type="button" class="btn btn-sm btn-outline-light" @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
+                        <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle"
+                               value="Display aus" />
+                        <button type="button" class="btn btn-sm btn-outline-light"
+                                @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
                     </div>
                 </div>
 
@@ -33,9 +35,21 @@
                     <OppPlayerComponent PlayerViewInfo="players[1]" />
                 </div>
                 <div class="d-flex align-items-center justify-content-center w-50 bg-secondary rounded">
-                    <div id="trick" class="w-100 h-100" style="z-index: 10;">
-                        <TrickComponent @ref="trickComponent"></TrickComponent>
-                    </div>
+                    @if (publicGameState.Table.Players.Any(a => a.Player.Guid == Guid.Empty))
+                    {
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" value="@NavigationManager.Uri" readonly />
+                            <button class="btn btn-primary" @onclick="CopyLink">
+                                <i class="bi bi-share"></i> Copy Invite Link
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div id="trick" class="w-100 h-100" style="z-index: 10;">
+                            <TrickComponent @ref="trickComponent"></TrickComponent>
+                        </div>
+                    }
                 </div>
                 <div class="d-flex position-relative w-25">
                     <OppPlayerComponent PlayerViewInfo="players[3]" />
@@ -48,9 +62,9 @@
                     <div class="text-center">
                         <div>
                             @if (publicGameState.GameState == GameState.Playing
-                                                                && publicGameState.YourPosition.HasValue
-                                                                && publicGameState.Bidding2Result != null
-                                                                && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
+                                                                                                                        && publicGameState.YourPosition.HasValue
+                                                                                                                        && publicGameState.Bidding2Result != null
+                                                                                                                        && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
                             {
                                 <span class="small">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
                             }

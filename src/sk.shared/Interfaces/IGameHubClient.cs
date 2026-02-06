@@ -8,6 +8,7 @@ public interface IGameHubClient
     event Action? OnStateChanged;
 
     ValueTask DisposeAsync();
+    Task JoinByCode(Uri uri, Player player, string code);
     Task PlayCard(Card card);
     Task StartAsync(Uri uri, Player player, Guid gameId);
     Task SubmitBidding1(bool wouldPlay);
