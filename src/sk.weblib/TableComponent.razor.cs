@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 using sk.shared;
 using sk.weblib.Modals;
 
@@ -7,6 +8,9 @@ namespace sk.weblib;
 
 public partial class TableComponent(IHttpClientFactory httpClientFactory) : ComponentBase, IAsyncDisposable
 {
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; } = default!;
+
     [Parameter, EditorRequired]
     public Player Player { get; set; } = default!;
 
@@ -37,6 +41,7 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     private TrickComponent? trickComponent;
     private Bidding1Modal? bidding1Modal;
     private Bidding2Modal? bidding2Modal;
+    private LastTrickModal? lastTrickModal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -122,13 +127,14 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
         }
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await JSRuntime.InvokeVoidAsync("screenSleep");
             ShowModals();
         }
-        base.OnAfterRender(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private void ShowModals()
@@ -186,6 +192,12 @@ public partial class TableComponent(IHttpClientFactory httpClientFactory) : Comp
     private void PlayTestCard(int index)
     {
         trickComponent?.AddCard(new() { Card = new() { Rank = (Rank)(index + 1), Suit = Suit.Eichel }, Position = index }, playersByView);
+    }
+
+    private async Task LeaveTable()
+    {
+        if (hubConnection is null) return;
+        await hubConnection.SendAsync("LeaveGame");
     }
 
     public async ValueTask DisposeAsync()

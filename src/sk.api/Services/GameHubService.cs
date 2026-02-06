@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using sk.api.Hubs;
 using sk.shared;
 using System.Collections.Concurrent;
+using System.Diagnostics.Tracing;
 
 namespace sk.api.Services;
 
@@ -48,6 +49,15 @@ public class GameHubService(IHubContext<GameHub> hub)
     {
         var seat = GetGame(gameId).GetTablePlayer(playerId);
         seat?.IsConnected = false;
+    }
+
+    public void LeaveGame(Guid gameId, Guid playerId)
+    {
+        var seat = GetGame(gameId).GetTablePlayer(playerId);
+        seat?.IsConnected = false;
+        seat?.Player.Name = string.Empty;
+        seat?.Player.Guid = Guid.Empty;
+        seat?.Player.ConnectionId = null;
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)

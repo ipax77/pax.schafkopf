@@ -1,14 +1,17 @@
-﻿@using sk.weblib.Modals
+﻿@using sk.shared
+@using sk.weblib.Modals
 <div class="container-fluid vh-100 p-0 cardtable overflow-hidden">
     <div class="schafkopf-table h-100 w-100">
-        @{var players = GetPlayersByView(); }
+        @{
+            var players = GetPlayersByView();
+        }
         <CascadingValue Value="publicGameState">
             @* top *@
             <div class="d-inline-flex vw-100" style="height: 20vh;">
                 <div class="d-flex bg-transparent" style="width: 37.5%;">
                     <div class="btn-block">
-                        <button type="button" class="btn btn-sm btn-outline-warning">Display an</button>
-                        <button type="button" class="btn btn-sm btn-outline-light">Letzter Stich</button>
+                        <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle" value="Display aus" />
+                        <button type="button" class="btn btn-sm btn-outline-light" @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
                     </div>
                     <div>
                         <p>@publicGameState.GameState</p>
@@ -17,7 +20,8 @@
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(1)">Play2</button>
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(2)">Play3</button>
                         <button class="btn btn-sm" @onclick="() => PlayTestCard(3)">Play4</button>
-                        <button class="btn btn-sm" @onclick="() => trickComponent?.Clear(0, playersByView)">Clear</button>
+                        <button class="btn btn-sm"
+                                @onclick="() => trickComponent?.Clear(0, playersByView)">Clear</button>
                     </div>
                 </div>
 
@@ -27,7 +31,8 @@
 
                 <div class="d-flex align-items-end justify-content-end bg-transparent" style="width: 37.5%;">
                     <div class="align-self-start">
-                        <button type="button" class="btn btn-sm btn-outline-danger">Verlassen</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                @onclick="LeaveTable">Verlassen</button>
                     </div>
                 </div>
             </div>
@@ -48,13 +53,45 @@
             </div>
 
             @* bottom *@
-            <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"        
-                style="height: 30vh;">
-                <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
+            <div class="d-inline-flex vw-100" style="height: 30vh;">
+                <div class="bg-transparent overflow-hidden" style="width: 20%;">
+                    <div class="text-center">
+                        <div>
+                            @if (publicGameState.GameState == GameState.Playing
+                                                                && publicGameState.YourPosition.HasValue
+                                                                && publicGameState.Bidding2Result != null
+                                                                && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
+                            {
+                                <span class="small">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
+                            }
+                        </div>
+                        <div>
+                            @if (IsMyTurn)
+                            {
+                                <span class="small">Du bist am Zug!</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"
+                     style="width: 80%">
+                    <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
+                </div>
+
+                <div class="bg-transparent" style="width: 20%;">
+                    
+                </div>
             </div>
+            
+            @* <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"
+                 style="height: 30vh;">
+                <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
+            </div> *@
         </CascadingValue>
     </div>
 </div>
 
 <Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
 <Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
+<LastTrickModal @ref="lastTrickModal" />

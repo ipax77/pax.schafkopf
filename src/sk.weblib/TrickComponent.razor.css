@@ -45,28 +45,6 @@
     overflow: visible;   /* THIS is critical */
 }
 
-.top-card {
-    top: calc(var(--cardheight) * -1 + 5vh);
-    left: calc(var(--cardwidth) / -2);
-}
-
-.bottom-card {
-    top: -5vh;
-    left: calc(var(--cardwidth) / -2);
-}
-
-.left-card {
-    top: calc(var(--cardheight) / -2);
-    left: calc(var(--cardheight) * -1 + 5vh);
-    transform: rotate(90deg);
-}
-
-.right-card {
-    top: calc(var(--cardheight) / -2);
-    left: calc(var(--cardwidth) - 5vh);
-    transform: rotate(90deg);
-}
-
 /* Clear Animations */
 .clear-to-pos0-from-bottom,
 .clear-to-pos0-from-left,

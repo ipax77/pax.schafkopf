@@ -68,6 +68,17 @@ public class GameHub(GameHubService service) : Hub
         }
     }
 
+    public async Task LeaveGame()
+    {
+        if (Context.Items.TryGetValue("playerId", out var p) &&
+            Context.Items.TryGetValue("gameId", out var g)
+            && p is Guid pGuid && g is Guid gGuid)
+        {
+            service.LeaveGame(gGuid, pGuid);
+            await service.BroadcastGame((Guid)g);
+        }
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         if (Context.Items.TryGetValue("playerId", out var p) &&
