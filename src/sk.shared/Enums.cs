@@ -40,11 +40,10 @@ public enum GameState
     Finished = 4
 }
 
-public enum Bidding1Bid
+public enum Bidding1Decision
 {
-    None = 0,
-    WouldPlay = 1,
-    WouldPlayToo = 2
+    No,
+    Yes
 }
 
 [Flags]

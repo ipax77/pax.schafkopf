@@ -11,9 +11,8 @@ public sealed class Game
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
 
-    private readonly List<int> _bidding1Interested = [];
-    private int _bidding1Count;
-    private int _firstPlayer;
+    private int leadingPlayer;
+    private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
     private readonly List<(int, BiddingState)> _bidding2States = [];
 
     public Bidding1Result? GetPublicBidding1Result()
@@ -22,27 +21,33 @@ public sealed class Game
         {
             return Bidding1Result;
         }
+        else if (GameState == GameState.Bidding1)
+        {
+            return GetBidding1Result();
+        }
         else
         {
-            if (GameState == GameState.Bidding1)
-            {
-                return new()
-                {
-                    InterestedPlayers = _bidding1Interested
-                };
-            }
-            else if (GameState == GameState.Bidding2)
-            {
-                return new()
-                {
-                    InterestedPlayers = _bidding2States
-                        .Where(x => x.Item2.WouldPlay)
-                        .Select(s => s.Item1)
-                        .ToList()
-                };
-            }
+            return null;
         }
-        return Bidding1Result;
+    }
+
+    private Bidding1Result GetBidding1Result()
+    {
+        var interested = new List<int>();
+        var declined = new List<int>();
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (_bidding1Decisions[i] == Bidding1Decision.Yes)
+                interested.Add(i);
+            else
+                declined.Add(i);
+        }
+        return new()
+        {
+            InterestedPlayers = interested,
+            DeclinedPlayers = declined
+        };
     }
 
     public Bidding2Result? GetPublicBidding2Result()
@@ -72,34 +77,38 @@ public sealed class Game
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
 
-        if (_bidding1Count == 0)
+        if (_bidding1Decisions[playerIndex].HasValue)
+            throw new InvalidOperationException("Player already acted.");
+
+        if (!_bidding1Decisions.Any(a => a.HasValue))
         {
-            _firstPlayer = playerIndex;
+            leadingPlayer = playerIndex;
         }
 
-        _bidding1Count++;
+        var decision = command.WouldPlay
+            ? Bidding1Decision.Yes
+            : Bidding1Decision.No;
 
-        if (command.WouldPlay)
-            _bidding1Interested.Add(playerIndex);
+        _bidding1Decisions[playerIndex] = decision;
 
-        AdvanceTurn();
-
-        // phase complete
-        if (_bidding1Count == 4)
+        if (!_bidding1Decisions.All(a => a.HasValue))
         {
-            if (_bidding1Interested.Count == 0)
-            {
-                GameState = GameState.Finished;
-                return;
-            }
-            Bidding1Result = new()
-            {
-                FirstPlayer = _firstPlayer,
-                InterestedPlayers = _bidding1Interested,
-                LastInterestedPlayer = _bidding1Interested.Last()
-            };
-            ActivePlayer = Bidding1Result.InterestedPlayers[0];
-            GameState = GameState.Bidding2;
+            AdvanceTurn();
+            return;
+        }
+
+        if (_bidding1Decisions.All(a => a == Bidding1Decision.No))
+        {
+            GameState = GameState.Finished;
+            return;
+        }
+
+        Bidding1Result = GetBidding1Result();
+        GameState = GameState.Bidding2;
+        ActivePlayer = leadingPlayer;
+        if (_bidding1Decisions[ActivePlayer] != Bidding1Decision.Yes)
+        {
+            AdvanceBidding2Turn();
         }
     }
 
@@ -130,7 +139,7 @@ public sealed class Game
                 Sie = highestBid.Item2.Sie,
                 Tout = highestBid.Item2.Tout
             };
-            ActivePlayer = Bidding1Result.FirstPlayer;
+            ActivePlayer = leadingPlayer;
             GameState = GameState.Playing;
         }
         else
@@ -166,14 +175,12 @@ public sealed class Game
 
     private void AdvanceBidding2Turn()
     {
-        ArgumentNullException.ThrowIfNull(Bidding1Result);
         do
         {
             ActivePlayer = (ActivePlayer + 1) % 4;
         }
-        while (!Bidding1Result.InterestedPlayers.Contains(ActivePlayer));
+        while (_bidding1Decisions[ActivePlayer] != Bidding1Decision.Yes);
     }
-
 
     public void Reset()
     {
@@ -181,9 +188,7 @@ public sealed class Game
         {
             player.Reset();
         }
-        _bidding1Count = 0;
-        _firstPlayer = 0;
-        _bidding1Interested.Clear();
+        Array.Fill(_bidding1Decisions, null);
         _bidding2States.Clear();
         Bidding1Result = null;
         Bidding2Result = null;
@@ -195,9 +200,8 @@ public sealed class Game
 
 public sealed class Bidding1Result
 {
-    public int FirstPlayer { get; init; }
     public IReadOnlyList<int> InterestedPlayers { get; init; } = [];
-    public int LastInterestedPlayer { get; init; }
+    public IReadOnlyList<int> DeclinedPlayers { get; init; } = [];
 }
 
 public sealed class Bidding2Result
