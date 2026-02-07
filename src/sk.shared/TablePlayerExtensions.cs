@@ -56,13 +56,13 @@ public static class TablePlayerExtensions
             return player.Hand;
         }
 
-        var firstPlayer = (game.ActivePlayer - playedCards + 4) % 4;
+        var firstPlayer = game.leadingPlayer;
         var firstCard = game.Table.CurrentTrick[firstPlayer];
         ArgumentNullException.ThrowIfNull(firstCard);
         var mustFollow = player.Hand
             .Where(c => c.CanOperate(firstCard,
                 game.Bidding2Result.GameType,
-                game.Bidding2Result.Suit))
+                game.Bidding2Result.Suit, player.Hand))
             .ToList();
 
         // if player cannot follow suit / trump → free choice

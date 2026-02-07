@@ -84,18 +84,28 @@ public static class CardExtensions
         };
     }
 
-    public static bool CanOperate(this Card card, Card firstCard, GameType mode, Suit trump)
+    public static bool CanOperate(this Card card, Card firstCard, GameType mode, Suit trump, List<Card> hand)
     {
         if (mode == GameType.Ruf)
         {
             trump = Suit.Herz;
         }
 
-        if (firstCard.IsTrump(mode, trump))
+        if (firstCard.IsTrump(mode, trump)) {
+            if (!hand.Any(a => a.IsTrump(mode, trump)))
+            {
+                return true;
+            }
             return card.IsTrump(mode, trump);
+        }
 
-        if (!card.IsTrump(mode, trump))
+        if (!card.IsTrump(mode, trump)) {
+            if (!hand.Any(a => !a.IsTrump(mode, trump) && a.Suit == firstCard.Suit))
+            {
+                return true;
+            }
             return card.Suit == firstCard.Suit;
+        }
 
         return true;
     }

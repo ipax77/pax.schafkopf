@@ -114,16 +114,17 @@ public static class PublicGameStateExtensions
             return [];
         }
 
-        var firstPlayer = (publicGameState.ActivePlayer + publicGameState.Table.CurrentTrick.Count(c => c != null)) % 4;
+        var firstPlayer = publicGameState.LeadingPlayer;
         var firstCard = publicGameState.Table.CurrentTrick[firstPlayer];
+        var hand = publicGameState.Table.Players[publicGameState.ActivePlayer].Hand;
 
         if (firstCard == null)
         {
-            return publicGameState.Table.Players[publicGameState.ActivePlayer].Hand;
+            return hand;
         }
 
         return publicGameState.Table.Players[publicGameState.ActivePlayer].Hand
-            .Where(x => x.CanOperate(firstCard, publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit))
+            .Where(x => x.CanOperate(firstCard, publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit, hand))
             .ToList();
     }
 
@@ -161,7 +162,7 @@ public static class PublicGameStateExtensions
 
     public static int? GetTrickWinner(this PublicGameState publicGameState)
     {
-        if (publicGameState.Bidding2Result is null)
+        if (publicGameState.Bidding2Result is null || publicGameState.Table.PreviouseTrick is null)
         {
             return null;
         }
@@ -172,7 +173,7 @@ public static class PublicGameStateExtensions
 
         for (int i = 0; i < 4; i++)
         {
-            var card = publicGameState.Table.CurrentTrick[player];
+            var card = publicGameState.Table.PreviouseTrick[player];
             if (card is null)
             {
                 return null;

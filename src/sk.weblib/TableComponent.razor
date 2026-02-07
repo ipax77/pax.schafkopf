@@ -62,9 +62,9 @@
                     <div class="text-center">
                         <div>
                             @if (publicGameState.GameState == GameState.Playing
-                                                                                                                        && publicGameState.YourPosition.HasValue
-                                                                                                                        && publicGameState.Bidding2Result != null
-                                                                                                                        && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
+                                && publicGameState.YourPosition.HasValue
+                                && publicGameState.Bidding2Result != null
+                                && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
                             {
                                 <span class="small">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
                             }

@@ -6,6 +6,7 @@ public interface IGameHubClient
     PublicGameState? GameState { get; }
 
     event Action? OnStateChanged;
+    event Action? OnGameInitialized;
 
     ValueTask DisposeAsync();
     Task JoinByCode(Uri uri, Player player, string code);

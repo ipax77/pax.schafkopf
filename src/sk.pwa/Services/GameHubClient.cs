@@ -9,9 +9,11 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
     private HubConnection? _hubConnection;
     public PublicGameState? GameState { get; private set; }
     public event Action? OnStateChanged;
+    public event Action? OnGameInitialized;
 
     public async Task StartAsync(Uri uri, Player player, Guid gameId)
     {
+        GameState = null;
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(uri)
             .WithAutomaticReconnect()
@@ -19,6 +21,10 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
 
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {
+            if (GameState is null)
+            {
+                OnGameInitialized?.Invoke();
+            }
             GameState = state;
             OnStateChanged?.Invoke();
         });
@@ -40,6 +46,7 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
 
     public async Task JoinByCode(Uri uri, Player player, string code)
     {
+        GameState = null;
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(uri)
             .WithAutomaticReconnect()
@@ -47,6 +54,10 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
 
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {
+            if (GameState is null)
+            {
+                OnGameInitialized?.Invoke();
+            }
             GameState = state;
             OnStateChanged?.Invoke();
         });

@@ -10,6 +10,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
 @inject ILogger<Home> Logger
+@implements IDisposable
 
 <PageTitle>pax.schafkopf</PageTitle>
 
@@ -31,7 +32,9 @@ else
                 <div class="col-md-6">
                     <div class="card card-body">
                         <h4>Start Fresh</h4>
-                        <button class="btn btn-success" @onclick="CreateGame">Create New Table</button>
+                        <button class="btn btn-success" disabled="@starting" @onclick="CreateGame">
+                            Create New Table
+                        </button>
                     </div>
                 </div>
                 @if (!string.IsNullOrEmpty(TableGuid))
@@ -40,12 +43,13 @@ else
                         <div class="card card-body border-primary">
                             <h4>Invitation Found</h4>
                             <p>You've been invited to a game!</p>
-                            <button class="btn btn-primary" @onclick="() => JoinGame()">Join Invited
-                                Game</button>
-                            </div>
+                            <button class="btn btn-primary" disabled="@starting" @onclick="() => JoinGame()">
+                                Join Invited Game
+                            </button>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
+            </div>
         </div>
     }
     else
@@ -61,6 +65,7 @@ else
     public string? TableGuid { get; set; }
 
     ConnectModal? connectModal;
+    private bool starting;
 
     private Player CurrentPlayer => new()
     {
@@ -70,6 +75,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        GameHubClient.OnGameInitialized += GameReady;
         await ConnectState.LoadAsync();
 
         if (ConnectState.Current == null)
@@ -84,8 +90,28 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
+    private void GameReady()
+    {
+        if (!starting)
+        {
+            return;
+        }
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.ShortCode;
+            NavigationManager.NavigateTo($"?TableGuid={newId}", replace: false);
+        }
+        starting = false;
+        InvokeAsync(StateHasChanged);
+    }
+
     async Task CreateGame()
     {
+        if (starting)
+        {
+            return;
+        }
+        starting = true;
         await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, Guid.Empty);
         if (GameHubClient.GameState != null)
         {
@@ -96,6 +122,11 @@ else
 
     async Task JoinGame()
     {
+        if (starting)
+        {
+            return;
+        }
+        starting = true;
         if (Guid.TryParse(TableGuid, out var id))
         {
             await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, id);
@@ -129,4 +160,9 @@ else
     }
 
     private void ShowConnect() => connectModal?.Show(new());
+
+    public void Dispose()
+    {
+        GameHubClient.OnGameInitialized -= GameReady;
+    }
 }

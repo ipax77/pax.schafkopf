@@ -1,4 +1,6 @@
+@using Microsoft.Extensions.Logging
 @using sk.shared
+@inject ILogger<TrickComponent> Logger
 
 <div class="position-relative" style="left: 50%; top: 50%;">
     <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
@@ -104,11 +106,14 @@
 
         if (bottomCard != null && leftCard != null && topCard != null && rightCard != null)
         {
+            Logger.LogWarning("Trying to collect trick");
             // All positions filled, clear after a delay
             var winner = PublicGameState.GetTrickWinner();
+            Logger.LogWarning("Winner is: {num}", winner);
             if (winner.HasValue)
             {
                 var winnerPlayer = playersByView.FirstOrDefault(f => f.ServerIndex == winner.Value);
+                Logger.LogWarning("Winner player is: {num}", winnerPlayer?.TablePlayer.Position);
                 if (winnerPlayer != null)
                 {
                     await Task.Delay(800);
