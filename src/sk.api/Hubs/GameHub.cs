@@ -8,9 +8,8 @@ public class GameHub(GameHubService service) : Hub
 {
     public async Task<Guid> CreateNewGame(Player player)
     {
-        Context.Items["playerId"] = player.Guid;
         player.ConnectionId = Context.ConnectionId;
-
+        Context.Items["playerId"] = player.Guid;
         var gameId = service.CreateNewGame(player);
         Context.Items["gameId"] = gameId;
         await service.BroadcastGame(gameId);
@@ -19,27 +18,27 @@ public class GameHub(GameHubService service) : Hub
 
     public async Task JoinByCode(string shortCode, Player player)
     {
+        player.ConnectionId = Context.ConnectionId;
         Context.Items["playerId"] = player.Guid;
         var gameId = service.JoinGame(shortCode, player);
         Context.Items["gameId"] = gameId;
-        player.ConnectionId = Context.ConnectionId;
         await service.BroadcastGame(gameId);
     }
 
     public async Task JoinGame(Guid gameId, Player player)
     {
+        player.ConnectionId = Context.ConnectionId;
         Context.Items["playerId"] = player.Guid;
         Context.Items["gameId"] = gameId;
-        player.ConnectionId = Context.ConnectionId;
         service.JoinGame(gameId, player);
         await service.BroadcastGame(gameId);
     }
 
     public async Task RejoinGame(Guid gameId, Player player)
     {
+        player.ConnectionId = Context.ConnectionId;
         Context.Items["playerId"] = player.Guid;
         Context.Items["gameId"] = gameId;
-        player.ConnectionId = Context.ConnectionId;
         service.RejoinGame(gameId, player);
         await service.BroadcastGame(gameId);
     }

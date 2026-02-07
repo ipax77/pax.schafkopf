@@ -11,6 +11,7 @@ public class GameHubService(IHubContext<GameHub> hub)
     private readonly IHubContext<GameHub> _hub = hub;
     private readonly ConcurrentDictionary<Guid, Game> _games = [];
     private readonly ConcurrentDictionary<string, Guid> _joinCodeMap = new();
+    private readonly Lock joinLock = new();
 
     public Guid CreateNewGame(Player player)
     {
@@ -37,18 +38,21 @@ public class GameHubService(IHubContext<GameHub> hub)
 
     public void JoinGame(Guid gameId, Player player)
     {
-        var game = GetGame(gameId);
-
-        if (game.HasPlayer(player))
+        lock (joinLock)
         {
-            RejoinGame(gameId, player);
-            return;
+            var game = GetGame(gameId);
+
+            if (game.HasPlayer(player))
+            {
+                RejoinGame(gameId, player);
+                return;
+            }
+
+            if (!game.TryAssignEmptySeat(player))
+                throw new InvalidOperationException("Game is full");
+
+            game.TryStartGame();
         }
-
-        if (!game.TryAssignEmptySeat(player))
-            throw new InvalidOperationException("Game is full");
-
-        game.TryStartGame();
     }
 
     public void RejoinGame(Guid gameId, Player player)

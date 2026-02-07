@@ -56,8 +56,7 @@ public sealed class PlayTests
         }
 
         var publicGameState = game.ToPublicGameState(0);
-        var winner = publicGameState.GetTrickWinner();
-        Assert.IsTrue(winner.HasValue);
+        Assert.IsTrue(publicGameState.Table.CurrentTrick.All(a => a == null));
     }
 
     [TestMethod]

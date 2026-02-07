@@ -1,6 +1,5 @@
 @using Microsoft.Extensions.Logging
 @using sk.shared
-@inject ILogger<TrickComponent> Logger
 
 <div class="position-relative" style="left: 50%; top: 50%;">
     <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
@@ -42,7 +41,8 @@
     private bool _isClearing; // New flag for clearing status
 
 
-    string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch {
+    string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch
+    {
         0 => "playbottomcard",
         1 => "playleftcard",
         2 => "playtopcard",
@@ -92,7 +92,8 @@
             // Move card to static position and clear animated card
             await InvokeAsync(() =>
             {
-                _ = playerCard.Position switch {
+                _ = playerCard.Position switch
+                {
                     0 => bottomCard = playerCard.Card,
                     1 => leftCard = playerCard.Card,
                     2 => topCard = playerCard.Card,
@@ -106,27 +107,15 @@
 
         if (bottomCard != null && leftCard != null && topCard != null && rightCard != null)
         {
-            Logger.LogWarning("Trying to collect trick");
-            // All positions filled, clear after a delay
-            var winner = PublicGameState.GetTrickWinner();
-            Logger.LogWarning("Winner is: {num}", winner);
-            if (winner.HasValue)
-            {
-                var winnerPlayer = playersByView.FirstOrDefault(f => f.ServerIndex == winner.Value);
-                Logger.LogWarning("Winner player is: {num}", winnerPlayer?.TablePlayer.Position);
-                if (winnerPlayer != null)
-                {
-                    await Task.Delay(800);
-                    await Clear(winnerPlayer.ViewIndex, playersByView); // Pass playersByView here
-                }
-            }
+            await Task.Delay(800);
+            await Clear(PublicGameState.ActivePlayer, playersByView); // Pass playersByView here
         }
         _isProcessingQueue = false;
 
         // If cards were added to the queue while clearing, and clearing is now done, restart processing
         if (_cardAnimationQueue.Any() && !_isClearing)
         {
-             _ = ProcessCardQueue(playersByView);
+            _ = ProcessCardQueue(playersByView);
         }
     }
 
@@ -167,4 +156,5 @@
         {
             _ = ProcessCardQueue(playersByView); // Pass playersByView here
         }
-    }}
+    }
+}
