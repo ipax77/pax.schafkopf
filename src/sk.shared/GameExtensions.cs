@@ -126,6 +126,94 @@ public static class GameExtensions
         game.ActivePlayer = winner.Player;
     }
 
+    public static void CreateGameResult(this Game game)
+    {
+        var bidding = game.Bidding2Result;
+        if (bidding is null)
+            return;
+
+        var gameType = bidding.GameType;
+        var suit = bidding.Suit;
+
+        var declarer = game.Table.Players[bidding.PlayerIndex];
+        var hand = new List<Card>(declarer.StartingHand);
+
+        TablePlayer? partner = null;
+
+        if (gameType == GameType.Ruf)
+        {
+            var rufAce = new Card { Rank = Rank.Ace, Suit = suit };
+            partner = game.Table.Players
+                .FirstOrDefault(p => p.StartingHand.Contains(rufAce));
+
+            if (partner is not null)
+                hand.AddRange(partner.StartingHand);
+        }
+
+        var runnerCards = gameType == GameType.Wenz
+            ? wenzRunnerCards
+            : stdRunnerCards;
+
+        // Sort once by trump order
+        hand.Sort((a, b) =>
+            b.GetCardOrder(gameType, suit)
+             .CompareTo(a.GetCardOrder(gameType, suit)));
+
+        int runners = 0;
+        for (int i = 0; i < runnerCards.Count && i < hand.Count; i++)
+        {
+            if (runnerCards[i].Equals(hand[i]))
+                runners++;
+            else
+                break;
+        }
+
+        int playerPoints = hand.Sum(c => c.GetValue());
+        bool declarerWins = bidding.Tout ? playerPoints == 120 : playerPoints > 60;
+
+        var result = new GameResult
+        {
+            GameType = gameType,
+            Suit = suit,
+            Tout = bidding.Tout,
+            Player = declarer.Player,
+            Player2 = partner?.Player,
+            Runners = runners,
+            PlayerPoints = playerPoints
+        };
+
+        result.SetGameCost();
+
+        List<TablePlayer> declarers = partner is null
+            ? [declarer]
+            : [declarer, partner];
+
+        var defenders = game.Table.Players
+            .Except(declarers)
+            .ToList();
+
+        if (partner is null)
+        {
+            foreach (var d in defenders)
+                d.Cash += declarerWins ? -result.Cost : result.Cost;
+
+            declarer.Cash += declarerWins ? 3 * result.Cost : -3 * result.Cost;
+        }
+        else
+        {
+            // Ruf: 2 vs 2
+            foreach (var p in declarers)
+                p.Cash += declarerWins ? result.Cost : -result.Cost;
+
+            foreach (var d in defenders)
+                d.Cash += declarerWins ? -result.Cost : result.Cost;
+        }
+
+        game.GameResults.Add(result);
+        game.GameState = GameState.Finished;
+    }
+
+
     public static void DealCards(this Game game)
     {
         var deck = CreateDeck().Shuffle();
@@ -134,7 +222,7 @@ public static class GameExtensions
         for (int i = 0; i < 4; i++)
         {
             game.Table.Players[i].Hand = [.. hands[i]];
-
+            game.Table.Players[i].StartingHand = [.. hands[i]];
         }
     }
 
@@ -149,4 +237,60 @@ public static class GameExtensions
 
         return deck;
     }
+
+    private static readonly List<Card> stdRunnerCards = [
+        new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
+        new Card() { Rank = Rank.Ober, Suit = Suit.Gras },
+        new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
+        new Card() { Rank = Rank.Ober, Suit = Suit.Schellen },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Gras },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Herz },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Schellen },
+    ];
+
+    private static readonly List<Card> wenzRunnerCards = [
+        new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Gras },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Herz },
+        new Card() { Rank = Rank.Unter, Suit = Suit.Schellen },
+    ];
+}
+
+public static class GameResultExtensions
+{
+    private static readonly int rufCost = 10;
+    private static readonly int soloCost = 20;
+    private static readonly int runnerCost = 10;
+    private static readonly int schneiderCost = 10;
+    private static readonly int schwarzCost = 10;
+
+    public static void SetGameCost(this GameResult gameResult)
+    {
+        int cost = gameResult.GameType == GameType.Ruf
+            ? rufCost
+            : soloCost;
+
+        bool hasRunnerBonus =
+            gameResult.Runners >= 3 ||
+            (gameResult.GameType == GameType.Wenz && gameResult.Runners >= 2);
+
+        if (hasRunnerBonus)
+            cost += gameResult.Runners * runnerCost;
+
+        if (gameResult.PlayerPoints is < 30 or > 90)
+            cost += schneiderCost;
+
+        if (gameResult.PlayerPoints is 0 or 120)
+            cost += schwarzCost;
+
+        if (gameResult.Tout)
+            cost *= 2;
+
+        if (gameResult.GameType == GameType.Sie)
+            cost *= 2;
+
+        gameResult.Cost = cost;
+    }
+
 }

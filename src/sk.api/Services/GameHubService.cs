@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using sk.api.Hubs;
 using sk.shared;
 using System.Collections.Concurrent;
-using System.Diagnostics.Tracing;
 
 namespace sk.api.Services;
 
@@ -123,9 +122,9 @@ public class GameHubService(IHubContext<GameHub> hub)
                 .SendAsync("ReceiveGameState", game.ToPublicGameState(seat.Position));
         }
 
-        await _hub.Clients
-            .AllExcept(connectionIds)
-            .SendAsync("ReceiveGameState", game.ToPublicGameState(-1));
+        // await _hub.Clients
+        //     .AllExcept(connectionIds)
+        //     .SendAsync("ReceiveGameState", game.ToPublicGameState(-1));
     }
 
     private Game GetGame(Guid id) =>

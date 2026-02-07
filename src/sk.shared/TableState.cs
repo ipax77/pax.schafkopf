@@ -6,6 +6,7 @@ public sealed class Game
     public string ShortCode { get; set; } = string.Empty;
     public Table Table { get; set; } = new();
     public GameState GameState { get; set; }
+    public int Dealer { get; set; } = 3;
     public int ActivePlayer { get; set; }
     public int Turn { get; set; }
 
@@ -15,6 +16,7 @@ public sealed class Game
     public int leadingPlayer;
     private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
     private readonly List<(int, BiddingState)> _bidding2States = [];
+    public readonly List<GameResult> GameResults = [];
 
     public Bidding1Result? GetPublicBidding1Result()
     {
@@ -190,6 +192,7 @@ public sealed class Game
 
     public void Reset()
     {
+        Turn = 0;
         foreach (var player in Table.Players)
         {
             player.Reset();
@@ -223,9 +226,11 @@ public sealed class TablePlayer
 {
     public Player Player { get; set; } = new();
     public byte Position { get; init; }
+    public List<Card> StartingHand { get; set; } = [];
     public List<Card> Hand { get; set; } = [];
     public List<Card> Tricks { get; set; } = [];
     public bool IsConnected { get; set; }
+    public int Cash { get; set; }
 
 }
 
@@ -275,6 +280,18 @@ public sealed class PlayerCard
 {
     public int Position { get; init; }
     public Card Card { get; init; } = new();
+}
+
+public sealed class GameResult
+{
+    public GameType GameType { get; init; }
+    public Suit Suit { get; init; }
+    public bool Tout { get; init; }
+    public Player Player { get; init; } = default!;
+    public Player? Player2 { get; init; }
+    public int Runners { get; init; }
+    public int PlayerPoints { get; init; }
+    public int Cost { get; set; }
 }
 
 public record PlayerViewInfo(TablePlayer TablePlayer, int ServerIndex, int ViewIndex);

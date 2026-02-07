@@ -81,6 +81,92 @@ public sealed class PlayTests
         Assert.AreEqual(0, firstViewPlayer.ViewIndex);
     }
 
+    [TestMethod]
+    public void CanCreateResult()
+    {
+        Game game = new();
+
+        var testPlayers = GetTestPlayers();
+        game.TryAssignEmptySeat(testPlayers[0]);
+        game.TryAssignEmptySeat(testPlayers[1]);
+        game.TryAssignEmptySeat(testPlayers[2]);
+        game.TryAssignEmptySeat(testPlayers[3]);
+
+        game.TryStartGame();
+
+        game.SetBidding1(0, new() { WouldPlay = true });
+        game.SetBidding1(1, new() { WouldPlay = false });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Herz });
+
+        for (int t = 0; t < 8; t++)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                int current = game.ActivePlayer;
+                var player = game.Table.Players[current];
+                var card = player.GetValidCards(game).First();
+                game.PlayCard(current, card);
+            }
+        }
+        game.CreateGameResult();
+        Assert.HasCount(1, game.GameResults);
+        var result = game.GameResults[0];
+        Assert.AreEqual(GameType.Solo, result.GameType);
+        Assert.AreEqual(Suit.Herz, result.Suit);
+        Assert.IsNotNull(result.Player);
+        Assert.IsTrue(result.PlayerPoints is >= 0 and <= 120);
+        Assert.IsGreaterThan(0, result.Cost);
+        var totalCashChange = game.Table.Players.Sum(p => p.Cash);
+        Assert.AreEqual(0, totalCashChange, "Cash must balance to zero.");
+    }
+
+    [TestMethod]
+    public void CanCreateResult2()
+    {
+        Game game = new();
+
+        var testPlayers = GetTestPlayers();
+        game.TryAssignEmptySeat(testPlayers[0]);
+        game.TryAssignEmptySeat(testPlayers[1]);
+        game.TryAssignEmptySeat(testPlayers[2]);
+        game.TryAssignEmptySeat(testPlayers[3]);
+
+        game.TryStartGame();
+        DealTestHand(game);
+
+        game.SetBidding1(0, new() { WouldPlay = true });
+        game.SetBidding1(1, new() { WouldPlay = false });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Herz });
+
+        for (int t = 0; t < 8; t++)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                int current = game.ActivePlayer;
+                var player = game.Table.Players[current];
+                var card = player.GetValidCards(game).First();
+                game.PlayCard(current, card);
+            }
+        }
+        game.CreateGameResult();
+        Assert.HasCount(1, game.GameResults);
+        var result = game.GameResults[0];
+        Assert.AreEqual(GameType.Solo, result.GameType);
+        Assert.AreEqual(Suit.Herz, result.Suit);
+        Assert.IsNotNull(result.Player);
+        Assert.IsTrue(result.PlayerPoints is >= 0 and <= 120);
+        Assert.IsGreaterThan(0, result.Cost);
+        Assert.AreEqual(3, result.Runners);
+        var totalCashChange = game.Table.Players.Sum(p => p.Cash);
+        Assert.AreEqual(0, totalCashChange, "Cash must balance to zero.");
+    }
+
     private static Player[] GetTestPlayers()
     {
         return [
@@ -108,4 +194,64 @@ public sealed class PlayTests
                 .ToList();
         }
     }
+
+    private static void DealTestHand(Game game)
+    {
+        var soloHand = GetStrongHerzSoloHand();
+        var otherCards = GetOtherCards(soloHand).Shuffle().Chunk(8).ToList();
+
+        game.Table.Players[0].Hand = soloHand;
+        game.Table.Players[1].Hand = otherCards[0].ToList();
+        game.Table.Players[2].Hand = otherCards[1].ToList();
+        game.Table.Players[3].Hand = otherCards[2].ToList();
+
+        game.Table.Players[0].StartingHand = [.. game.Table.Players[0].Hand];
+        game.Table.Players[1].StartingHand = [.. game.Table.Players[1].Hand];
+        game.Table.Players[2].StartingHand = [.. game.Table.Players[2].Hand];
+        game.Table.Players[3].StartingHand = [.. game.Table.Players[3].Hand];
+    }
+
+    private static List<Card> GetStrongHerzSoloHand()
+    {
+        return [
+            new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Gras },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
+            new Card() { Rank = Rank.Unter, Suit = Suit.Gras },
+            new Card() { Rank = Rank.Ace, Suit = Suit.Herz },
+            new Card() { Rank = Rank.Ten, Suit = Suit.Herz },
+            new Card() { Rank = Rank.Ace, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Seven, Suit = Suit.Schellen },
+        ];
+    }
+
+    private static List<Card> GetOtherCards(List<Card> cards)
+    {
+        var deck = CreateDeck();
+        return deck.Except(cards).ToList();
+    }
+
+    private static Card[] CreateDeck()
+    {
+        var deck = new Card[32];
+        int i = 0;
+
+        foreach (var suit in Suits)
+            foreach (var rank in Ranks)
+                deck[i++] = new Card { Rank = rank, Suit = suit };
+
+        return deck;
+    }
+
+    private static readonly Rank[] Ranks =
+[
+    Rank.Seven, Rank.Eight, Rank.Nine,
+            Rank.Unter, Rank.Ober,
+            Rank.King, Rank.Ten, Rank.Ace
+];
+
+    private static readonly Suit[] Suits =
+        [
+        Suit.Schellen, Suit.Herz, Suit.Gras, Suit.Eichel
+        ];
 }
