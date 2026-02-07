@@ -11,6 +11,14 @@ public class PublicGameState
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
     public Table Table { get; set; } = new();
+    public PublicGameResult? PublicGameResult { get; set; }
+}
+
+public sealed class PublicGameResult
+{
+    public List<List<Card>> StartingHands { get; set; } = [];
+    public List<int> PlayerCashes { get; set; } = [];
+    public GameResult GameResult { get; set; } = new();
 }
 
 public static class PublicGameStateExtensions

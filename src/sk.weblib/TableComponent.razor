@@ -51,7 +51,7 @@
                     else
                     {
                         <div id="trick" class="w-100 h-100" style="z-index: 10;">
-                            <TrickComponent @ref="trickComponent"></TrickComponent>
+                            <TrickComponent @ref="trickComponent" OnReady="() => GameHubClient.Ready()" />
                         </div>
                     }
                 </div>

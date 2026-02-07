@@ -55,7 +55,18 @@ public static class GameExtensions
                 Position = originalPlayer.Position,
                 Tricks = originalPlayer.Tricks,
                 Hand = i == forPlayer ? originalPlayer.Hand : GetPrivateHand(originalPlayer.Hand),
-                IsConnected = originalPlayer.IsConnected
+                IsConnected = originalPlayer.IsConnected,
+            };
+        }
+
+        PublicGameResult? publicGameResult = null;
+        if (game.GameState == GameState.Finished)
+        {
+            publicGameResult = new()
+            {
+                StartingHands = game.Table.Players.OrderBy(o => o.Position).Select(s => s.StartingHand).ToList(),
+                PlayerCashes = game.Table.Players.OrderBy(o => o.Position).Select(s => s.Cash).ToList(),
+                GameResult = game.GameResults.LastOrDefault() ?? new(),  
             };
         }
 
@@ -69,7 +80,8 @@ public static class GameExtensions
             Turn = game.Turn,
             Bidding1Result = game.GetPublicBidding1Result(),
             Bidding2Result = game.GetPublicBidding2Result(),
-            Table = publicTable
+            Table = publicTable,
+            PublicGameResult = publicGameResult,
         };
     }
 

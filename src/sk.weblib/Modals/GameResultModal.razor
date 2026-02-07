@@ -1,0 +1,162 @@
+@using Microsoft.JSInterop
+@using sk.shared
+@inject IJSRuntime JSRuntime
+
+<div class="modal fade" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
+     aria-labelledby="@modalId" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Spielergebnis</h5>
+            </div>
+
+            <div class="modal-body">
+                @if (publicGameState.PublicGameResult != null)
+                {
+                    <!-- Game summary -->
+                    <div class="mb-3 p-3 bg-info rounded">
+                        <div class="mb-1">
+                            <span class="text-muted">Augen:</span>
+                            <span class="fw-bold ms-1">
+                                @publicGameState.PublicGameResult.GameResult.PlayerPoints
+                            </span>
+                        </div>
+
+                        <div class="mb-1">
+                            @if (isSchneider)
+                            {
+                                <span class="badge bg-secondary me-1">Schneider</span>
+                            }
+                            @if (isSchwarz)
+                            {
+                                <span class="badge bg-dark me-1">Schwarz</span>
+                            }
+                            @if (hasRunners)
+                            {
+                                <span class="text-muted">
+                                    mit <span class="fw-bold">
+                                    @publicGameState.PublicGameResult.GameResult.Runners
+                                </span> Läufern
+                            </span>
+                        }
+                    </div>
+
+                    <div>
+                        <span class="text-muted">Spielpreis:</span>
+                        <span class="fw-bold ms-1">
+                            @publicGameState.PublicGameResult.GameResult.Cost
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Result table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Spieler</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end">Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
+                            {
+                                @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
+                                {
+                                    var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
+                                    var change = GetChange(player.TablePlayer.Player);
+
+                                    <tr>
+                                        <td>@player.TablePlayer.Player.Name</td>
+                                        <td class="text-end">
+                                            <span class="@(cash > 0 ? "text-success" : "text-danger")">
+                                                @cash
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="@(change > 0 ? "text-success" : "text-danger")">
+                                                @change
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-primary" @onclick="Next">
+                Weiter
+            </button>
+        </div>
+
+    </div>
+</div>
+</div>
+
+
+@code {
+    private string modalId = "gameResultModal";
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    private PublicGameState publicGameState = new();
+    private List<PlayerViewInfo> playerViewInfos = [];
+    bool isSchneider => publicGameState.PublicGameResult?.GameResult.PlayerPoints is < 30 or > 90;
+    bool isSchwarz => publicGameState.PublicGameResult?.GameResult.PlayerPoints is 0 or 120;
+    bool hasRunners => publicGameState.Bidding2Result?.GameType == GameType.Wenz ?
+        publicGameState.PublicGameResult?.GameResult.Runners >= 2 : publicGameState.PublicGameResult?.GameResult.Runners >= 3;
+
+    public void Show(PublicGameState publicGameState, List<PlayerViewInfo> playerViewInfos)
+    {
+        this.publicGameState = publicGameState;
+        this.playerViewInfos = playerViewInfos;
+        InvokeAsync(StateHasChanged);
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+
+    private int GetChange(Player player)
+    {
+        if (publicGameState.PublicGameResult is null)
+        {
+            return 0;
+        }
+        var isPlayer = publicGameState.PublicGameResult.GameResult.Player.Guid == player.Guid
+            || publicGameState.PublicGameResult?.GameResult.Player2?.Guid == player.Guid;
+        bool playersAreWinners = publicGameState.PublicGameResult!.GameResult.Tout ?
+            publicGameState.PublicGameResult.GameResult.PlayerPoints == 120
+            : publicGameState.PublicGameResult.GameResult.PlayerPoints > 60;
+        bool isSolo = publicGameState.PublicGameResult.GameResult.GameType != GameType.Ruf;
+        var change = publicGameState.PublicGameResult.GameResult.Cost;
+        if (isPlayer)
+        {
+            if (isSolo)
+            {
+                change *= 3;
+            }
+            return playersAreWinners ? change : -change;
+        }
+        else
+        {
+            return playersAreWinners ? -change : change;
+        }
+    }
+
+    private void Next()
+    {
+        OnReady.InvokeAsync();
+        Close();
+    }
+}

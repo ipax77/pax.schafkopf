@@ -9,6 +9,7 @@ public sealed class Game
     public int Dealer { get; set; } = 3;
     public int ActivePlayer { get; set; }
     public int Turn { get; set; }
+    public int ReadyCheck { get; set; }
 
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
@@ -17,6 +18,8 @@ public sealed class Game
     private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
     private readonly List<(int, BiddingState)> _bidding2States = [];
     public readonly List<GameResult> GameResults = [];
+    public readonly Lock readyLock = new();
+    public readonly Lock joinLock = new();
 
     public Bidding1Result? GetPublicBidding1Result()
     {
@@ -168,6 +171,10 @@ public sealed class Game
         {
             this.CollectTrick();
             Turn++;
+            if (Turn == 8)
+            {
+                this.CreateGameResult();
+            }
         }
         else
         {
@@ -193,6 +200,7 @@ public sealed class Game
     public void Reset()
     {
         Turn = 0;
+        ReadyCheck = 0;
         foreach (var player in Table.Players)
         {
             player.Reset();

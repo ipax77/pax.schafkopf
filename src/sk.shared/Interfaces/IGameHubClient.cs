@@ -15,4 +15,5 @@ public interface IGameHubClient
     Task SubmitBidding1(bool wouldPlay);
     Task SubmitBidding2(Bidding2Result? result);
     Task LeaveTable();
+    Task Ready();
 }

@@ -10,7 +10,6 @@ public class GameHubService(IHubContext<GameHub> hub)
     private readonly IHubContext<GameHub> _hub = hub;
     private readonly ConcurrentDictionary<Guid, Game> _games = [];
     private readonly ConcurrentDictionary<string, Guid> _joinCodeMap = new();
-    private readonly Lock joinLock = new();
 
     public Guid CreateNewGame(Player player)
     {
@@ -37,10 +36,9 @@ public class GameHubService(IHubContext<GameHub> hub)
 
     public void JoinGame(Guid gameId, Player player)
     {
-        lock (joinLock)
+        var game = GetGame(gameId);
+        lock (game.joinLock)
         {
-            var game = GetGame(gameId);
-
             if (game.HasPlayer(player))
             {
                 RejoinGame(gameId, player);
@@ -75,6 +73,20 @@ public class GameHubService(IHubContext<GameHub> hub)
         seat?.Player.Name = string.Empty;
         seat?.Player.Guid = Guid.Empty;
         seat?.Player.ConnectionId = null;
+    }
+
+    public async Task Ready(Guid gameId, Guid playerId)
+    {
+        var game = GetGame(gameId);
+        lock (game.readyLock)
+        {
+            game.ReadyCheck++;
+        }
+        if (game.ReadyCheck >= 4)
+        {
+            game.Reset();
+            await BroadcastGame(game.Table.Guid);
+        }
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)

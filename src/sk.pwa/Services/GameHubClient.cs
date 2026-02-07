@@ -74,6 +74,12 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
         await _hubConnection.InvokeAsync("JoinByCode", code, player);
     }
 
+    public async Task Ready()
+    {
+        if (_hubConnection is null) return;
+        await _hubConnection.SendAsync("Ready");
+    }
+
     public async Task SubmitBidding1(bool wouldPlay)
     {
         if (_hubConnection is null) return;

@@ -1,5 +1,6 @@
 @using Microsoft.Extensions.Logging
 @using sk.shared
+@using sk.weblib.Modals
 
 <div class="position-relative" style="left: 50%; top: 50%;">
     <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
@@ -17,9 +18,16 @@
     </div>
 }
 
+<GameResultModal @ref="gameResultModal" OnReady="OnReady" />
+
 @code {
     [CascadingParameter]
     public PublicGameState PublicGameState { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnReady { get; set; }
+
+    GameResultModal? gameResultModal;
 
     protected override void OnInitialized()
     {
@@ -120,7 +128,7 @@
     }
 
 
-    public async Task Clear(int position, List<PlayerViewInfo> playersByView) // Add playersByView parameter
+    private async Task Clear(int position, List<PlayerViewInfo> playersByView) // Add playersByView parameter
     {
         _isClearing = true; // Set clearing flag
 
@@ -155,6 +163,11 @@
         if (_cardAnimationQueue.Any() && !_isProcessingQueue)
         {
             _ = ProcessCardQueue(playersByView); // Pass playersByView here
+        }
+
+        if (PublicGameState.PublicGameResult != null)
+        {
+            gameResultModal?.Show(PublicGameState, playersByView);
         }
     }
 }

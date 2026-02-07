@@ -43,6 +43,16 @@ public class GameHub(GameHubService service) : Hub
         await service.BroadcastGame(gameId);
     }
 
+    public async Task Ready()
+    {
+        if (Context.Items.TryGetValue("gameId", out var gameIdObj)
+            && Context.Items.TryGetValue("playerId", out var playerIdObj)
+            && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
+        {
+            await service.Ready(gameId, playerId);
+        }
+    }
+
     public async Task SubmitBidding1(BiddingState request)
     {
         if (Context.Items.TryGetValue("gameId", out var gameIdObj)
