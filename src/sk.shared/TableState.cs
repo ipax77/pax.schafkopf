@@ -12,7 +12,7 @@ public sealed class Game
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
 
-    private int leadingPlayer;
+    public int leadingPlayer;
     private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
     private readonly List<(int, BiddingState)> _bidding2States = [];
 
@@ -153,6 +153,11 @@ public sealed class Game
     {
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
+        
+        if (Table.CurrentTrick.All(a => a == null))
+        {
+            leadingPlayer = playerIndex;
+        }
 
         Table.Players[playerIndex].Hand.Remove(card);
         Table.CurrentTrick[playerIndex] = card;

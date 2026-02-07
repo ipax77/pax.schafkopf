@@ -4,6 +4,7 @@ public class PublicGameState
 {
     public string ShortCode { get; set; } = string.Empty;
     public GameState GameState { get; set; }
+    public int LeadingPlayer { get; set; }
     public int ActivePlayer { get; set; }
     public int? YourPosition { get; set; }
     public int Turn { get; set; }
@@ -167,7 +168,7 @@ public static class PublicGameStateExtensions
 
         var trick = new List<(int Player, Card Card)>();
 
-        int player = publicGameState.ActivePlayer;
+        int player = publicGameState.LeadingPlayer;
 
         for (int i = 0; i < 4; i++)
         {

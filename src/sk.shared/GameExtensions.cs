@@ -63,6 +63,7 @@ public static class GameExtensions
         {
             ShortCode = game.ShortCode,
             GameState = game.GameState,
+            LeadingPlayer = game.leadingPlayer,
             ActivePlayer = game.ActivePlayer,
             YourPosition = forPlayer,
             Turn = game.Turn,
@@ -100,7 +101,7 @@ public static class GameExtensions
 
         var trick = new List<(int Player, Card Card)>();
 
-        int player = game.ActivePlayer;
+        int player = game.leadingPlayer;
 
         for (int i = 0; i < 4; i++)
         {
