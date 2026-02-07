@@ -57,39 +57,35 @@ public partial class PlayerComponent
         }
     }
 
-    private void OnDragMove(MouseEventArgs e)
-    {
-        if (draggedCard != null && e.Buttons == 1) // Left button pressed
-        {
-            var dragDistance = dragStartY - e.ClientY; // Positive when dragging up
-            if (dragDistance > DragThreshold)
-            {
-                PlayCard(draggedCard);
-                draggedCard = null;
-            }
-        }
-    }
-
-    private void OnDragMove(TouchEventArgs e)
-    {
-        if (draggedCard != null && e.Touches.Length > 0)
-        {
-            var dragDistance = dragStartY - e.Touches[0].ClientY;
-            if (dragDistance > DragThreshold)
-            {
-                PlayCard(draggedCard);
-                draggedCard = null;
-            }
-        }
-    }
-
     private void OnDragEnd(MouseEventArgs e)
     {
-        draggedCard = null;
+        if (draggedCard != null)
+        {
+            var currentDragDistance = Math.Abs(dragStartY - e.ClientY);
+            // Only play if the final position is past the threshold
+            if (currentDragDistance > DragThreshold)
+            {
+                PlayCard(draggedCard);
+            }
+
+            // Reset state
+            draggedCard = null;
+        }
     }
 
     private void OnDragEnd(TouchEventArgs e)
     {
-        draggedCard = null;
+        if (draggedCard != null)
+        {
+            var currentDragDistance = Math.Abs(dragStartY - e.Touches[0].ClientY);
+            // Only play if the final position is past the threshold
+            if (currentDragDistance > DragThreshold)
+            {
+                PlayCard(draggedCard);
+            }
+
+            // Reset state
+            draggedCard = null;
+        }
     }
 }

@@ -142,7 +142,12 @@ public static class GameExtensions
     {
         var bidding = game.Bidding2Result;
         if (bidding is null)
+        {
+            game.GameResults.Add(new()
+            {
+            });
             return;
+        }
 
         var gameType = bidding.GameType;
         var suit = bidding.Suit;

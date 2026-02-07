@@ -15,78 +15,85 @@
             <div class="modal-body">
                 @if (publicGameState.PublicGameResult != null)
                 {
-                    <!-- Game summary -->
-                    <div class="mb-3 p-3 bg-transparent rounded">
-                        <div class="mb-1">
-                            <span class="text-muted">Augen:</span>
-                            <span class="fw-bold ms-1">
-                                @publicGameState.PublicGameResult.GameResult.PlayerPoints
-                            </span>
+                    @if (publicGameState.PublicGameResult.GameResult.GameType == GameType.None)
+                    {
+                        <p>Kein Spieler.</p>
+                    }
+                    else
+                    {
+                        <!-- Game summary -->
+                        <div class="mb-3 p-3 bg-transparent rounded">
+                            <div class="mb-1">
+                                <span class="text-muted">Augen:</span>
+                                <span class="fw-bold ms-1">
+                                    @publicGameState.PublicGameResult.GameResult.PlayerPoints
+                                </span>
+                            </div>
+
+                            <div class="mb-1">
+                                @if (isSchneider)
+                                {
+                                    <span class="badge bg-secondary me-1">Schneider</span>
+                                }
+                                @if (isSchwarz)
+                                {
+                                    <span class="badge bg-dark me-1">Schwarz</span>
+                                }
+                                @if (hasRunners)
+                                {
+                                    <span class="text-muted">
+                                        mit <span class="fw-bold">
+                                        @publicGameState.PublicGameResult.GameResult.Runners
+                                    </span> Läufern
+                                </span>
+                            }
                         </div>
 
-                        <div class="mb-1">
-                            @if (isSchneider)
-                            {
-                                <span class="badge bg-secondary me-1">Schneider</span>
-                            }
-                            @if (isSchwarz)
-                            {
-                                <span class="badge bg-dark me-1">Schwarz</span>
-                            }
-                            @if (hasRunners)
-                            {
-                                <span class="text-muted">
-                                    mit <span class="fw-bold">
-                                    @publicGameState.PublicGameResult.GameResult.Runners
-                                </span> Läufern
+                        <div>
+                            <span class="text-muted">Spielpreis:</span>
+                            <span class="fw-bold ms-1">
+                                @publicGameState.PublicGameResult.GameResult.Cost
                             </span>
-                        }
+                        </div>
                     </div>
 
-                    <div>
-                        <span class="text-muted">Spielpreis:</span>
-                        <span class="fw-bold ms-1">
-                            @publicGameState.PublicGameResult.GameResult.Cost
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Result table -->
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Spieler</th>
-                                <th class="text-end">Total</th>
-                                <th class="text-end">Change</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
-                            {
-                                @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
+                    <!-- Result table -->
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Spieler</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
                                 {
-                                    var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
-                                    var change = GetChange(player.TablePlayer.Player);
+                                    @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
+                                    {
+                                        var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
+                                        var change = GetChange(player.TablePlayer.Player);
 
-                                    <tr>
-                                        <td>@player.TablePlayer.Player.Name</td>
-                                        <td class="text-end">
-                                            <span class="@(cash > 0 ? "text-success" : "text-danger")">
-                                                @cash
-                                            </span>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="@(change > 0 ? "text-success" : "text-danger")">
-                                                @change
-                                            </span>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>@player.TablePlayer.Player.Name</td>
+                                            <td class="text-end">
+                                                <span class="@(cash > 0 ? "text-success" : "text-danger")">
+                                                    @cash
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="@(change > 0 ? "text-success" : "text-danger")">
+                                                    @change
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
                                 }
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
+                }
             }
         </div>
 
@@ -99,7 +106,6 @@
     </div>
 </div>
 </div>
-
 
 @code {
     private string modalId = "gameResultModal";

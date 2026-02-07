@@ -19,11 +19,10 @@
                          draggable="true"
                          @onclick="() => PlayCard(card)"
                          @ontouchstart="(e) => OnDragStart(e, card)"
-                         @ontouchmove="OnDragMove"
                          @ontouchend="OnDragEnd"
-                         @onmousedown="(e) => OnDragStart(e, card)"
-                         @onmousemove="OnDragMove"
-                         @onmouseup="OnDragEnd">
+                         @ondragenter="(e) => OnDragStart(e, card)"
+                         @ondragend="OnDragEnd"
+                         @ontouchcancel="() => draggedCard = null">
                     </div>
                 </div>
             }

@@ -106,6 +106,7 @@ public sealed class Game
         if (_bidding1Decisions.All(a => a == Bidding1Decision.No))
         {
             GameState = GameState.Finished;
+            this.CreateGameResult();
             return;
         }
 

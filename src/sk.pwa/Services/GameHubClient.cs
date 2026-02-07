@@ -21,11 +21,13 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
 
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {
-            if (GameState is null)
+            var isInitial = GameState is null;
+            GameState = state;
+
+            if (isInitial)
             {
                 OnGameInitialized?.Invoke();
             }
-            GameState = state;
             OnStateChanged?.Invoke();
         });
 
@@ -54,11 +56,13 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
 
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {
-            if (GameState is null)
+            var isInitial = GameState is null;
+            GameState = state;
+
+            if (isInitial)
             {
                 OnGameInitialized?.Invoke();
             }
-            GameState = state;
             OnStateChanged?.Invoke();
         });
 
