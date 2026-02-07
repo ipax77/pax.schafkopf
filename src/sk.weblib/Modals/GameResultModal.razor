@@ -2,7 +2,7 @@
 @using sk.shared
 @inject IJSRuntime JSRuntime
 
-<div class="modal fade" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
+<div class="modal" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
      aria-labelledby="@modalId" tabindex="-1">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -16,7 +16,7 @@
                 @if (publicGameState.PublicGameResult != null)
                 {
                     <!-- Game summary -->
-                    <div class="mb-3 p-3 bg-info rounded">
+                    <div class="mb-3 p-3 bg-transparent rounded">
                         <div class="mb-1">
                             <span class="text-muted">Augen:</span>
                             <span class="fw-bold ms-1">

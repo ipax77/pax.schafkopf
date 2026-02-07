@@ -46,7 +46,7 @@ public sealed class Game
         {
             if (_bidding1Decisions[i] == Bidding1Decision.Yes)
                 interested.Add(i);
-            else
+            else if (_bidding1Decisions[i] == Bidding1Decision.No)
                 declined.Add(i);
         }
         return new()
@@ -205,12 +205,17 @@ public sealed class Game
         {
             player.Reset();
         }
-        Array.Fill(_bidding1Decisions, null);
+        _bidding1Decisions[0] = null;
+        _bidding1Decisions[1] = null;
+        _bidding1Decisions[2] = null;
+        _bidding1Decisions[3] = null;
         _bidding2States.Clear();
         Bidding1Result = null;
         Bidding2Result = null;
         Table.Reset();
-        AdvanceTurn();
+        Dealer = (Dealer + 1) % 4;
+        ActivePlayer = (Dealer + 1) % 4;
+        this.DealCards();
         GameState = GameState.Bidding1;
     }
 }

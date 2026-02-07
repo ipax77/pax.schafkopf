@@ -18,16 +18,13 @@
     </div>
 }
 
-<GameResultModal @ref="gameResultModal" OnReady="OnReady" />
 
 @code {
     [CascadingParameter]
     public PublicGameState PublicGameState { get; set; } = default!;
 
     [Parameter]
-    public EventCallback OnReady { get; set; }
-
-    GameResultModal? gameResultModal;
+    public EventCallback OnGameFinished { get; set; }
 
     protected override void OnInitialized()
     {
@@ -60,7 +57,8 @@
 
     public void AddCard(PlayerCard playerCard, List<PlayerViewInfo> playersByView)
     {
-        _cardAnimationQueue.Enqueue(playerCard);
+        var tableCard = new PlayerCard() { Card = playerCard.Card, Position = GetViewPosition(playerCard.Position, playersByView) };
+        _cardAnimationQueue.Enqueue(tableCard);
         // Only start processing if not already processing AND not currently clearing
         if (!_isProcessingQueue && !_isClearing)
         {
@@ -78,7 +76,7 @@
             await Task.Delay(50); // Small delay to avoid busy-waiting
         }
 
-        while (_cardAnimationQueue.Any())
+        while (_cardAnimationQueue.Count > 0)
         {
             // Re-check if clearing started while waiting for next card
             if (_isClearing)
@@ -100,14 +98,7 @@
             // Move card to static position and clear animated card
             await InvokeAsync(() =>
             {
-                _ = playerCard.Position switch
-                {
-                    0 => bottomCard = playerCard.Card,
-                    1 => leftCard = playerCard.Card,
-                    2 => topCard = playerCard.Card,
-                    3 => rightCard = playerCard.Card,
-                    _ => null,
-                };
+                AssignCard(playerCard);
                 currentCard = null;
                 StateHasChanged();
             });
@@ -116,7 +107,7 @@
         if (bottomCard != null && leftCard != null && topCard != null && rightCard != null)
         {
             await Task.Delay(800);
-            await Clear(PublicGameState.ActivePlayer, playersByView); // Pass playersByView here
+            await Clear(GetViewPosition(PublicGameState.ActivePlayer, playersByView), playersByView);
         }
         _isProcessingQueue = false;
 
@@ -124,6 +115,33 @@
         if (_cardAnimationQueue.Any() && !_isClearing)
         {
             _ = ProcessCardQueue(playersByView);
+        }
+    }
+
+    private int GetViewPosition(int serverIndex, List<PlayerViewInfo> playerViewInfos)
+    {
+        var player = playerViewInfos.FirstOrDefault(f => f.ServerIndex == serverIndex);
+        return player?.ViewIndex ?? 0;
+    }
+
+    private void AssignCard(PlayerCard card)
+    {
+        int cardIndex = card.Position;
+        if (cardIndex == 0)
+        {
+            bottomCard = card.Card;
+        }
+        else if (cardIndex == 1)
+        {
+            leftCard = card.Card;
+        }
+        else if (cardIndex == 2)
+        {
+            topCard = card.Card;
+        }
+        else if (cardIndex == 3)
+        {
+            rightCard = card.Card;
         }
     }
 
@@ -167,7 +185,7 @@
 
         if (PublicGameState.PublicGameResult != null)
         {
-            gameResultModal?.Show(PublicGameState, playersByView);
+            await OnGameFinished.InvokeAsync();
         }
     }
 }

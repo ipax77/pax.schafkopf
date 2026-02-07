@@ -99,7 +99,10 @@ else
         if (GameHubClient.GameState != null)
         {
             var newId = GameHubClient.GameState.ShortCode;
-            NavigationManager.NavigateTo($"?TableGuid={newId}", replace: false);
+            var url = NavigationManager.GetUriWithQueryParameters(
+    new Dictionary<string, object?> { ["TableGuid"] = newId });
+
+            JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
         }
         starting = false;
         InvokeAsync(StateHasChanged);
@@ -116,7 +119,10 @@ else
         if (GameHubClient.GameState != null)
         {
             var newId = GameHubClient.GameState.ShortCode;
-            NavigationManager.NavigateTo($"?TableGuid={newId}", replace: false);
+            var url = NavigationManager.GetUriWithQueryParameters(
+    new Dictionary<string, object?> { ["TableGuid"] = newId });
+
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
         }
     }
 
@@ -135,20 +141,6 @@ else
         {
             await GameHubClient.JoinByCode(GetBaseAddress(), CurrentPlayer, TableGuid);
         }
-    }
-
-    private async Task SetTableGuid(Guid guid)
-    {
-        var url = NavigationManager.GetUriWithQueryParameters(
-            new Dictionary<string, object?> { ["TableGuid"] = guid.ToString() });
-
-        await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
-
-        await ConnectState.UpdateAsync(ci =>
-        {
-            ci.TableGuid = guid;
-            ci.LastPlayed = DateTime.UtcNow;
-        });
     }
 
     private Uri GetBaseAddress()

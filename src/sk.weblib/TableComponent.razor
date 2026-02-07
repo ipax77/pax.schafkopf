@@ -51,7 +51,7 @@
                     else
                     {
                         <div id="trick" class="w-100 h-100" style="z-index: 10;">
-                            <TrickComponent @ref="trickComponent" OnReady="() => GameHubClient.Ready()" />
+                            <TrickComponent @ref="trickComponent" OnGameFinished="() => gameResultModal?.Show(publicGameState, players)" />
                         </div>
                     }
                 </div>
@@ -107,3 +107,4 @@
 <Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
 <Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
 <LastTrickModal @ref="lastTrickModal" />
+<GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />

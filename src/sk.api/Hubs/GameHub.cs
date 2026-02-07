@@ -49,7 +49,11 @@ public class GameHub(GameHubService service) : Hub
             && Context.Items.TryGetValue("playerId", out var playerIdObj)
             && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
         {
-            await service.Ready(gameId, playerId);
+            var ready = service.Ready(gameId, playerId);
+            if (ready)
+            {
+                await service.BroadcastGame(gameId);
+            }
         }
     }
 

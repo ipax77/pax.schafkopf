@@ -41,6 +41,7 @@ public partial class TableComponent() : ComponentBase
     private Bidding1Modal? bidding1Modal;
     private Bidding2Modal? bidding2Modal;
     private LastTrickModal? lastTrickModal;
+    private GameResultModal? gameResultModal;
 
     protected override void OnInitialized()
     {
@@ -108,6 +109,10 @@ public partial class TableComponent() : ComponentBase
         else if (publicGameState.GameState == GameState.Bidding2)
         {
             bidding2Modal?.Show(publicGameState);
+        }
+        else if (publicGameState.GameState == GameState.Finished)
+        {
+            gameResultModal?.Show(publicGameState, GetPlayersByView());
         }
     }
 

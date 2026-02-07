@@ -75,18 +75,19 @@ public class GameHubService(IHubContext<GameHub> hub)
         seat?.Player.ConnectionId = null;
     }
 
-    public async Task Ready(Guid gameId, Guid playerId)
+    public bool Ready(Guid gameId, Guid playerId)
     {
         var game = GetGame(gameId);
         lock (game.readyLock)
         {
             game.ReadyCheck++;
+            if (game.ReadyCheck >= 4)
+            {
+                game.Reset();
+                return true;
+            }
         }
-        if (game.ReadyCheck >= 4)
-        {
-            game.Reset();
-            await BroadcastGame(game.Table.Guid);
-        }
+        return false;
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)
