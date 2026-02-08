@@ -13,6 +13,8 @@ public sealed class Game
 
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
+    public bool DrunterDurch { get; private set; }
+    public int PublicTeammate { get; private set; } = -1;
 
     public int leadingPlayer;
     private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
@@ -159,9 +161,24 @@ public sealed class Game
     {
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
-        
+
+        var rufAce = Bidding2Result?.GameType == GameType.Ruf
+            ? new Card() { Rank = Rank.Ace, Suit = Bidding2Result!.Suit }
+            : null;
+
+        if (card == rufAce)
+        {
+            PublicTeammate = playerIndex;
+        }
+
         if (Table.CurrentTrick.All(a => a == null))
         {
+            if (rufAce != null && card.Suit == rufAce.Suit && !card.IsTrump(Bidding2Result!.GameType, Bidding2Result!.Suit)
+                && Table.Players[playerIndex].Hand.Contains(rufAce))
+            {
+                DrunterDurch = true;
+            }
+
             leadingPlayer = playerIndex;
         }
 
@@ -213,6 +230,8 @@ public sealed class Game
         _bidding2States.Clear();
         Bidding1Result = null;
         Bidding2Result = null;
+        DrunterDurch = false;
+        PublicTeammate = -1;
         Table.Reset();
         Dealer = (Dealer + 1) % 4;
         ActivePlayer = (Dealer + 1) % 4;

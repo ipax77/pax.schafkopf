@@ -111,7 +111,6 @@ public sealed class PlayTests
                 game.PlayCard(current, card);
             }
         }
-        game.CreateGameResult();
         Assert.HasCount(1, game.GameResults);
         var result = game.GameResults[0];
         Assert.AreEqual(GameType.Solo, result.GameType);
@@ -154,7 +153,6 @@ public sealed class PlayTests
                 game.PlayCard(current, card);
             }
         }
-        game.CreateGameResult();
         Assert.HasCount(1, game.GameResults);
         var result = game.GameResults[0];
         Assert.AreEqual(GameType.Solo, result.GameType);

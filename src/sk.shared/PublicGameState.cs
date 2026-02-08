@@ -10,6 +10,8 @@ public class PublicGameState
     public int Turn { get; set; }
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
+    public bool DrunterDurch { get; set; }
+    public int PublicTeammate { get; set; } = -1;
     public Table Table { get; set; } = new();
     public PublicGameResult? PublicGameResult { get; set; }
 }
@@ -125,15 +127,54 @@ public static class PublicGameStateExtensions
         var firstPlayer = publicGameState.LeadingPlayer;
         var firstCard = publicGameState.Table.CurrentTrick[firstPlayer];
         var hand = publicGameState.Table.Players[publicGameState.ActivePlayer].Hand;
+        var rufAce = publicGameState.Bidding2Result.GameType == GameType.Ruf
+            ? new Card() { Rank = Rank.Ace, Suit = publicGameState.Bidding2Result.Suit } : null;
 
         if (firstCard == null)
         {
-            return hand;
+            if (rufAce != null && hand.Contains(rufAce))
+            {
+                var rufSuitCards = hand
+                    .Where(x => !x.IsTrump(publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit)
+                        && x.Suit == rufAce.Suit && x.Rank != Rank.Ace)
+                    .ToList();
+                if (rufSuitCards.Count >= 3)
+                {
+                    return hand.Except(rufSuitCards).ToList();
+                }
+                else
+                {
+                    return hand;
+                }
+            }
+            else
+            {
+                return hand;
+            }
         }
 
-        return publicGameState.Table.Players[publicGameState.ActivePlayer].Hand
-            .Where(x => x.CanOperate(firstCard, publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit, hand))
+        var trumpCards = hand
+            .Where(x => x.IsTrump(publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit))
             .ToList();
+        var suitCards = hand
+            .Where(x => x.Suit == firstCard.Suit)
+            .Except(trumpCards)
+            .ToList();
+
+        if (firstCard.IsTrump(publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit))
+        {
+            return trumpCards.Count > 0 ? trumpCards :
+                rufAce == null || publicGameState.DrunterDurch ? hand : hand.Except([rufAce]).ToList();
+        }
+        else if (rufAce != null && firstCard.Suit == rufAce.Suit && hand.Contains(rufAce))
+        {
+            return [rufAce];
+        }
+        else
+        {
+            return suitCards.Count > 0 ? suitCards : 
+                rufAce == null || publicGameState.DrunterDurch ? hand : hand.Except([rufAce]).ToList();
+        }
     }
 
     public static string GetGameTypeString(this Bidding2Result bidding2Result)

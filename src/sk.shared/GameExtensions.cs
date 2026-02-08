@@ -80,6 +80,8 @@ public static class GameExtensions
             Turn = game.Turn,
             Bidding1Result = game.GetPublicBidding1Result(),
             Bidding2Result = game.GetPublicBidding2Result(),
+            PublicTeammate = game.PublicTeammate,
+            DrunterDurch = game.DrunterDurch,
             Table = publicTable,
             PublicGameResult = publicGameResult,
         };
