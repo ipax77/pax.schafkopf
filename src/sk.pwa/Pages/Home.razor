@@ -37,7 +37,7 @@ else
                         </button>
                     </div>
                 </div>
-                @if (!string.IsNullOrEmpty(TableGuid))
+                @if (!string.IsNullOrEmpty(TableId))
                 {
                     <div class="col-md-6">
                         <div class="card card-body border-primary">
@@ -46,6 +46,20 @@ else
                             <button class="btn btn-primary" disabled="@starting" @onclick="JoinGame">
                                 Join Invited Game
                             </button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-6">
+                        <div class="card card-body">
+                            <h4>Join Existing Game</h4>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Enter Table ID" @bind="_inputTableId" />
+                                <button class="btn btn-primary" disabled="@(starting || string.IsNullOrEmpty(_inputTableId))" @onclick="JoinGameFromInput">
+                                    Join Game
+                                </button>
+                            </div>
                         </div>
                     </div>
                 }
@@ -62,10 +76,11 @@ else
 
 @code {
     [SupplyParameterFromQuery]
-    public string? TableGuid { get; set; }
+    public string? TableId { get; set; }
 
     ConnectModal? connectModal;
     private bool starting;
+    private string? _inputTableId;
 
     private Player CurrentPlayer => new()
     {
@@ -75,7 +90,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        GameHubClient.OnGameInitialized += GameReady;
+        GameHubClient.OnGameInitialized += GameReadyHandler;
         await ConnectState.LoadAsync();
 
         if (ConnectState.Current == null)
@@ -84,13 +99,15 @@ else
         }
     }
 
+    private void GameReadyHandler() => _ = GameReady();
+
     private async Task Connect(ConnectInfo info)
     {
         await ConnectState.SaveAsync(info);
         await InvokeAsync(StateHasChanged);
     }
 
-    private void GameReady()
+    private async Task GameReady()
     {
         if (!starting)
         {
@@ -100,12 +117,12 @@ else
         {
             var newId = GameHubClient.GameState.ShortCode;
             var url = NavigationManager.GetUriWithQueryParameters(
-    new Dictionary<string, object?> { ["TableGuid"] = newId });
+    new Dictionary<string, object?> { ["TableId"] = newId });
 
-            JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
         }
         starting = false;
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     async Task CreateGame()
@@ -120,7 +137,7 @@ else
         {
             var newId = GameHubClient.GameState.ShortCode;
             var url = NavigationManager.GetUriWithQueryParameters(
-    new Dictionary<string, object?> { ["TableGuid"] = newId });
+    new Dictionary<string, object?> { ["TableId"] = newId });
 
             await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
         }
@@ -133,14 +150,35 @@ else
             return;
         }
         starting = true;
-        if (Guid.TryParse(TableGuid, out var id))
+        if (Guid.TryParse(TableId, out var id))
         {
             await GameHubClient.StartAsync(CurrentPlayer, id);
         }
-        else if (!string.IsNullOrEmpty(TableGuid))
+        else if (!string.IsNullOrEmpty(TableId))
         {
-            await GameHubClient.JoinByCode(CurrentPlayer, TableGuid);
+            await GameHubClient.JoinByCode(CurrentPlayer, TableId);
         }
+    }
+
+    async Task JoinGameFromInput()
+    {
+        if (starting || string.IsNullOrEmpty(_inputTableId))
+        {
+            return;
+        }
+        starting = true;
+        await GameHubClient.JoinByCode(CurrentPlayer, _inputTableId);
+
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.ShortCode;
+            var url = NavigationManager.GetUriWithQueryParameters(
+                new Dictionary<string, object?> { ["TableId"] = newId });
+
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+        }
+        starting = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private Uri GetBaseAddress()
@@ -155,6 +193,6 @@ else
 
     public void Dispose()
     {
-        GameHubClient.OnGameInitialized -= GameReady;
+        GameHubClient.OnGameInitialized -= GameReadyHandler;
     }
 }
