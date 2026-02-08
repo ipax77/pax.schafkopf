@@ -4,7 +4,7 @@ using sk.shared.Interfaces;
 
 namespace sk.pwa.Services;
 
-public class GameHubClient(HubConnection _hubConnection) : IAsyncDisposable, IGameHubClient
+public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> logger) : IAsyncDisposable, IGameHubClient
 {
     public PublicGameState? GameState { get; private set; }
     public event Action? OnStateChanged;
@@ -15,62 +15,77 @@ public class GameHubClient(HubConnection _hubConnection) : IAsyncDisposable, IGa
         if (_hubConnection.State != HubConnectionState.Disconnected)
             return;
 
-        GameState = null;
-        _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
+        try
         {
-            var isInitial = GameState is null;
-            GameState = state;
-
-            if (isInitial)
+            GameState = null;
+            _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
             {
-                OnGameInitialized?.Invoke();
-            }
-            OnStateChanged?.Invoke();
-        });
+                var isInitial = GameState is null;
+                GameState = state;
 
-        // Robust Reconnect: Always tell the server who we are when we come back online
-        _hubConnection.Reconnected += async (connectionId) =>
+                if (isInitial)
+                {
+                    OnGameInitialized?.Invoke();
+                }
+                OnStateChanged?.Invoke();
+            });
+
+            // Robust Reconnect: Always tell the server who we are when we come back online
+            _hubConnection.Reconnected += async (connectionId) =>
+            {
+                await _hubConnection.InvokeAsync("RejoinGame", gameId, player);
+            };
+
+            await _hubConnection.StartAsync();
+
+            // Initial Entry
+            if (gameId == Guid.Empty)
+                await _hubConnection.InvokeAsync("CreateNewGame", player);
+            else
+                await _hubConnection.InvokeAsync("JoinGame", gameId, player);
+        }
+        catch (Exception ex)
         {
-            await _hubConnection.InvokeAsync("RejoinGame", gameId, player);
-        };
-
-        await _hubConnection.StartAsync();
-
-        // Initial Entry
-        if (gameId == Guid.Empty)
-            await _hubConnection.InvokeAsync("CreateNewGame", player);
-        else
-            await _hubConnection.InvokeAsync("JoinGame", gameId, player);
+            logger.LogError("start failed: {error}", ex.Message);
+        }
     }
 
     public async Task JoinByCode(Player player, string code)
     {
         if (_hubConnection.State != HubConnectionState.Disconnected)
             return;
-        GameState = null;
 
-        _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
+        try
         {
-            var isInitial = GameState is null;
-            GameState = state;
+            GameState = null;
 
-            if (isInitial)
+            _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
             {
-                OnGameInitialized?.Invoke();
-            }
-            OnStateChanged?.Invoke();
-        });
+                var isInitial = GameState is null;
+                GameState = state;
 
-        // Robust Reconnect: Always tell the server who we are when we come back online
-        _hubConnection.Reconnected += async (connectionId) =>
+                if (isInitial)
+                {
+                    OnGameInitialized?.Invoke();
+                }
+                OnStateChanged?.Invoke();
+            });
+
+            // Robust Reconnect: Always tell the server who we are when we come back online
+            _hubConnection.Reconnected += async (connectionId) =>
+            {
+                await _hubConnection.InvokeAsync("RejoinGame", GameState?.Table.Guid ?? Guid.Empty, player);
+            };
+
+            await _hubConnection.StartAsync();
+
+            // Initial Entry
+            await _hubConnection.InvokeAsync("JoinByCode", code, player);
+        }
+        catch (Exception ex)
         {
-            await _hubConnection.InvokeAsync("RejoinGame", GameState?.Table.Guid ?? Guid.Empty, player);
-        };
-
-        await _hubConnection.StartAsync();
-
-        // Initial Entry
-        await _hubConnection.InvokeAsync("JoinByCode", code, player);
+            logger.LogError("Join failed: {error}", ex.Message);
+        }
     }
 
     public async Task Ready()
