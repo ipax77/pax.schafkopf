@@ -4,21 +4,18 @@ using sk.shared.Interfaces;
 
 namespace sk.pwa.Services;
 
-public class GameHubClient : IAsyncDisposable, IGameHubClient
+public class GameHubClient(HubConnection _hubConnection) : IAsyncDisposable, IGameHubClient
 {
-    private HubConnection? _hubConnection;
     public PublicGameState? GameState { get; private set; }
     public event Action? OnStateChanged;
     public event Action? OnGameInitialized;
 
-    public async Task StartAsync(Uri uri, Player player, Guid gameId)
+    public async Task StartAsync(Player player, Guid gameId)
     {
-        GameState = null;
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(uri)
-            .WithAutomaticReconnect()
-            .Build();
+        if (_hubConnection.State != HubConnectionState.Disconnected)
+            return;
 
+        GameState = null;
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {
             var isInitial = GameState is null;
@@ -46,13 +43,11 @@ public class GameHubClient : IAsyncDisposable, IGameHubClient
             await _hubConnection.InvokeAsync("JoinGame", gameId, player);
     }
 
-    public async Task JoinByCode(Uri uri, Player player, string code)
+    public async Task JoinByCode(Player player, string code)
     {
+        if (_hubConnection.State != HubConnectionState.Disconnected)
+            return;
         GameState = null;
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(uri)
-            .WithAutomaticReconnect()
-            .Build();
 
         _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
         {

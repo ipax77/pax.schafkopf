@@ -264,7 +264,7 @@ public sealed class TablePlayer
     public List<Card> Tricks { get; set; } = [];
     public bool IsConnected { get; set; }
     public int Cash { get; set; }
-
+    public bool ReadyForNextRound { get; set; }
 }
 
 public sealed class BiddingState

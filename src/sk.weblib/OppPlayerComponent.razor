@@ -6,7 +6,7 @@
             @if (PublicGameState.LeadingPlayer == PlayerViewInfo.ServerIndex && PublicGameState.GameState !=
                                     GameState.Playing)
             {
-                <span class="badge badge-secondary">Erster</span>
+                <span class="badge bg-secondary">Erster</span>
             }
             @if (!PlayerViewInfo.TablePlayer.IsConnected)
             {
@@ -45,7 +45,7 @@
             }
         </div>
         <div class="text-center">
-            <span class="badge bg-secondary">@PlayerViewInfo.TablePlayer.Player.Name</span>
+            <span class="badge bg-primary">@PlayerViewInfo.TablePlayer.Player.Name</span>
         </div>
     </div>
 </div>

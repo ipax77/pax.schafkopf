@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.SignalR.Client;
 using sk.pwa;
 using sk.pwa.Services;
 using sk.shared.Interfaces;
@@ -16,6 +17,18 @@ builder.Services.AddHttpClient("api", client =>
         ? new Uri("https://schafkopf.pax77.org")
         : new Uri("http://localhost:5283");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var uri = builder.HostEnvironment.IsProduction()
+        ? new Uri("https://schafkopf.pax77.org/gameHub")
+        : new Uri("http://localhost:5283/gameHub");
+
+    return new HubConnectionBuilder()
+        .WithUrl(uri)
+        .WithAutomaticReconnect()
+        .Build();
 });
 
 builder.Services.AddScoped<ConnectInfoState>();

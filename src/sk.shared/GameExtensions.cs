@@ -159,14 +159,10 @@ public static class GameExtensions
 
         TablePlayer? partner = null;
 
-        if (gameType == GameType.Ruf)
+        if (game.PublicTeammate >= 0)
         {
-            var rufAce = new Card { Rank = Rank.Ace, Suit = suit };
-            partner = game.Table.Players
-                .FirstOrDefault(p => p.StartingHand.Contains(rufAce));
-
-            if (partner is not null)
-                hand.AddRange(partner.StartingHand);
+            partner = game.Table.Players[game.PublicTeammate];
+            hand.AddRange(partner.Hand);
         }
 
         var runnerCards = gameType == GameType.Wenz

@@ -75,19 +75,17 @@ public class GameHubService(IHubContext<GameHub> hub)
         seat?.Player.ConnectionId = null;
     }
 
-    public bool Ready(Guid gameId, Guid playerId)
+    public void Ready(Guid gameId, Guid playerId)
     {
         var game = GetGame(gameId);
-        lock (game.readyLock)
+        var seat = game.GetTablePlayer(playerId)
+            ?? throw new InvalidOperationException("Player not in game");
+        seat.ReadyForNextRound = true;
+
+        if (game.Table.Players.All(a => a.ReadyForNextRound))
         {
-            game.ReadyCheck++;
-            if (game.ReadyCheck >= 4)
-            {
-                game.Reset();
-                return true;
-            }
+            game.Reset();
         }
-        return false;
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)

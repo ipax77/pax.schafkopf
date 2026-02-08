@@ -115,7 +115,7 @@ else
             return;
         }
         starting = true;
-        await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, Guid.Empty);
+        await GameHubClient.StartAsync(CurrentPlayer, Guid.Empty);
         if (GameHubClient.GameState != null)
         {
             var newId = GameHubClient.GameState.ShortCode;
@@ -135,11 +135,11 @@ else
         starting = true;
         if (Guid.TryParse(TableGuid, out var id))
         {
-            await GameHubClient.StartAsync(GetBaseAddress(), CurrentPlayer, id);
+            await GameHubClient.StartAsync(CurrentPlayer, id);
         }
         else if (!string.IsNullOrEmpty(TableGuid))
         {
-            await GameHubClient.JoinByCode(GetBaseAddress(), CurrentPlayer, TableGuid);
+            await GameHubClient.JoinByCode(CurrentPlayer, TableGuid);
         }
     }
 

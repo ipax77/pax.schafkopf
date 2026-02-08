@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\sk.shared\sk.shared.csproj" />
+    <ProjectReference Include="..\sk.ServiceDefaults\sk.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

@@ -73,12 +73,9 @@ public static class TablePlayerExtensions
 
     public static void Reset(this TablePlayer player)
     {
+        player.StartingHand.Clear();
         player.Hand.Clear();
         player.Tricks.Clear();
+        player.ReadyForNextRound = false;
     }
-}
-
-public static class TableExtensions
-{
-
 }
