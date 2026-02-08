@@ -15,10 +15,6 @@
                         <button type="button" class="btn btn-sm btn-outline-light"
                                 @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
                     </div>
-                    <div>
-                        <p>Yp @publicGameState.YourPosition @players[0].ServerIndex @players[0].ViewIndex</p>
-                        <p>Ap @publicGameState.ActivePlayer</p>
-                    </div>
                 </div>
 
                 <div class="d-flex position-relative" style="width: 25vw">
@@ -64,6 +60,13 @@
             <div class="d-inline-flex vw-100" style="height: 30vh;">
                 <div class="bg-transparent overflow-hidden" style="width: 20%;">
                     <div class="text-center">
+                        <div>
+                            @if (publicGameState.YourPosition.HasValue
+                                && publicGameState.LeadingPlayer == publicGameState.YourPosition.Value)
+                                {
+                                    <span class="small">Erster</span>    
+                                }
+                        </div>
                         <div>
                             @if (publicGameState.GameState == GameState.Playing
                                 && publicGameState.YourPosition.HasValue

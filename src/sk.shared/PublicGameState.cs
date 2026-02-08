@@ -172,7 +172,7 @@ public static class PublicGameStateExtensions
         }
         else
         {
-            return suitCards.Count > 0 ? suitCards : 
+            return suitCards.Count > 0 ? suitCards :
                 rufAce == null || publicGameState.DrunterDurch ? hand : hand.Except([rufAce]).ToList();
         }
     }
@@ -207,5 +207,21 @@ public static class PublicGameStateExtensions
         }
 
         return gameTypeString;
+    }
+
+    public static string GetTeammateString(this Bidding2Result bidding2Result)
+    {
+        var teammateString = bidding2Result.GameType switch
+        {
+            GameType.Ruf => bidding2Result.Suit switch
+            {
+                Suit.Schellen => "Lumberte",
+                Suit.Eichel => "Alte",
+                Suit.Gras => "Blaue",
+                _ => string.Empty
+            },
+            _ => string.Empty
+        };
+        return teammateString;
     }
 }
