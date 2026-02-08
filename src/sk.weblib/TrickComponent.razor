@@ -24,7 +24,7 @@
     public PublicGameState PublicGameState { get; set; } = default!;
 
     [Parameter]
-    public EventCallback OnGameFinished { get; set; }
+    public EventCallback<bool> OnTrickFinished { get; set; }
 
     protected override void OnInitialized()
     {
@@ -55,9 +55,43 @@
         _ => null
     };
 
+    public void Sync(PublicGameState state, List<PlayerViewInfo> playersByView)
+    {
+        // Clear any pending animations/queues to prevent "ghost" cards
+        _cardAnimationQueue.Clear();
+        _isProcessingQueue = false;
+        _isClearing = false;
+
+        // Reset all cards first
+        bottomCard = leftCard = topCard = rightCard = null;
+        currentCard = null;
+
+        // Populate cards from the current trick state
+        // CurrentTrick is likely a Card[] where index corresponds to player server index
+        for (int i = 0; i < state.Table.CurrentTrick.Length; i++)
+        {
+            var card = state.Table.CurrentTrick[i];
+            if (card != null)
+            {
+                AssignCard(new PlayerCard
+                {
+                    Card = card,
+                    Position = GetViewPosition(i, playersByView)
+                });
+            }
+        }
+    
+        StateHasChanged();
+    }
+
     public void AddCard(PlayerCard playerCard, List<PlayerViewInfo> playersByView)
     {
-        var tableCard = new PlayerCard() { Card = playerCard.Card, Position = GetViewPosition(playerCard.Position, playersByView) };
+        var tableCard = new PlayerCard()
+        {
+            Card = playerCard.Card,
+            Position = GetViewPosition(playerCard.Position,
+playersByView)
+        };
         _cardAnimationQueue.Enqueue(tableCard);
         // Only start processing if not already processing AND not currently clearing
         if (!_isProcessingQueue && !_isClearing)
@@ -108,6 +142,10 @@
         {
             await Task.Delay(800);
             await Clear(GetViewPosition(PublicGameState.ActivePlayer, playersByView), playersByView);
+        }
+        else
+        {
+            await OnTrickFinished.InvokeAsync(false);
         }
         _isProcessingQueue = false;
 
@@ -176,16 +214,12 @@
         });
 
         _isClearing = false; // Clear clearing flag
+        await OnTrickFinished.InvokeAsync(true);
 
         // After clearing, check if any cards are waiting in the queue
         if (_cardAnimationQueue.Any() && !_isProcessingQueue)
         {
             _ = ProcessCardQueue(playersByView); // Pass playersByView here
-        }
-
-        if (PublicGameState.PublicGameResult != null)
-        {
-            await OnGameFinished.InvokeAsync();
         }
     }
 }

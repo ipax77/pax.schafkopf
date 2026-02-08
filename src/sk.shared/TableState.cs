@@ -60,6 +60,10 @@ public sealed class Game
 
     public Bidding2Result? GetPublicBidding2Result()
     {
+        if (GameState == GameState.Finished)
+        {
+            return new();
+        }
         if (Bidding2Result != null)
             return Bidding2Result;
 
@@ -107,6 +111,7 @@ public sealed class Game
 
         if (_bidding1Decisions.All(a => a == Bidding1Decision.No))
         {
+            Bidding1Result = GetBidding1Result();
             GameState = GameState.Finished;
             this.CreateGameResult();
             return;

@@ -75,7 +75,7 @@ public class GameHubService(IHubContext<GameHub> hub)
         seat?.Player.ConnectionId = null;
     }
 
-    public void Ready(Guid gameId, Guid playerId)
+    public bool Ready(Guid gameId, Guid playerId)
     {
         var game = GetGame(gameId);
         var seat = game.GetTablePlayer(playerId)
@@ -85,7 +85,9 @@ public class GameHubService(IHubContext<GameHub> hub)
         if (game.Table.Players.All(a => a.ReadyForNextRound))
         {
             game.Reset();
+            return true;
         }
+        return false;
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)

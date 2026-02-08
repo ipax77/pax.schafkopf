@@ -15,6 +15,9 @@
                         <button type="button" class="btn btn-sm btn-outline-light"
                                 @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
                     </div>
+                    <div>
+                        <p>State: @GameHubClient.GameState?.GameState</p>
+                    </div>
                 </div>
 
                 <div class="d-flex position-relative" style="width: 25vw">
@@ -47,7 +50,7 @@
                     else
                     {
                         <div id="trick" class="w-100 h-100" style="z-index: 10;">
-                            <TrickComponent @ref="trickComponent" OnGameFinished="() => gameResultModal?.Show(publicGameState, players)" />
+                            <TrickComponent @ref="trickComponent" OnTrickFinished="TrickFinished" />
                         </div>
                     }
                 </div>
@@ -64,7 +67,7 @@
                             @if (publicGameState.YourPosition.HasValue
                                 && publicGameState.LeadingPlayer == publicGameState.YourPosition.Value)
                                 {
-                                    <span class="small">Erster</span>    
+                                    <span class="badge bg-secondary">Erster</span>    
                                 }
                         </div>
                         <div>
@@ -73,17 +76,21 @@
                                 && publicGameState.Bidding2Result != null
                                 && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
                             {
-                                <span class="small">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
+                                <span class="badge bg-secondary">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
+                            }
+                            else if (publicGameState.PublicTeammate == players[0].ServerIndex)
+                            {
+                                <span class="badge bg-info">@publicGameState.Bidding2Result?.GetTeammateString()</span>
                             }
                         </div>
                         <div>
                             @if (publicGameState.GameState == GameState.None)
                             {
-                                <span class="small">Warten auf andere Spieler.</span>
+                                <span class="badge bg-secondary">Warten auf andere Spieler.</span>
                             }
                             else if (IsMyTurn)
                             {
-                                <span class="small">Du bist am Zug!</span>
+                                <span class="badge bg-secondary">Du bist am Zug!</span>
                             }
                         </div>
                     </div>
@@ -98,11 +105,6 @@
                     
                 </div>
             </div>
-            
-            @* <div class="d-flex align-items-center justify-content-center w-100 @(IsMyTurn ? "bg-warning" : "")"
-                 style="height: 30vh;">
-                <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
-            </div> *@
         </CascadingValue>
     </div>
 </div>

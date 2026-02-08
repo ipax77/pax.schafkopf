@@ -6,7 +6,7 @@ using sk.weblib.Modals;
 
 namespace sk.weblib;
 
-public partial class TableComponent() : ComponentBase
+public partial class TableComponent() : ComponentBase, IDisposable
 {
     [Inject]
     public IGameHubClient GameHubClient { get; set; } = default!;
@@ -34,6 +34,8 @@ public partial class TableComponent() : ComponentBase
 
     int ViewIndex(int serverIndex)
       => (serverIndex - publicGameState.YourPosition!.Value + 4) % 4;
+
+    private bool trickFinished = true;
 
     private List<PlayerViewInfo> playersByView => GetPlayersByView();
     private PlayerComponent? playerComponent;
@@ -63,7 +65,8 @@ public partial class TableComponent() : ComponentBase
         });
     }
 
-    async Task CopyLink() {
+    async Task CopyLink()
+    {
         await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", NavigationManager.Uri);
         // Optional: Trigger a "Copied!" toast
     }
@@ -91,17 +94,45 @@ public partial class TableComponent() : ComponentBase
         if (firstRender)
         {
             await JSRuntime.InvokeVoidAsync("screenSleep");
-            ShowModals();
+            HandleInitialSync();
         }
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    private void HandleInitialSync()
+    {
+        InvokeAsync(() =>
+        {
+            if (GameHubClient.GameState != null)// Force the TrickComponent to match the server exactly
+                trickComponent?.Sync(GameHubClient.GameState, GetPlayersByView());
+
+            // If we joined a finished game, ensure the modal can show
+            if (GameHubClient.GameState?.GameState == GameState.Finished)
+            {
+                trickFinished = true;
+            }
+
+            ShowModals();
+            StateHasChanged();
+        });
+    }
+
     private void ShowModals()
     {
+        if (publicGameState.GameState == GameState.Finished)
+        {
+            if (trickFinished)
+            {
+                gameResultModal?.Show(publicGameState, GetPlayersByView());
+                return;
+            }
+        }
+
         if (publicGameState.ActivePlayer != publicGameState.YourPosition)
         {
             return;
         }
+
         if (publicGameState.GameState == GameState.Bidding1)
         {
             bidding1Modal?.Show(publicGameState.Bidding1Result?.InterestedPlayers.Count > 0);
@@ -110,7 +141,12 @@ public partial class TableComponent() : ComponentBase
         {
             bidding2Modal?.Show(publicGameState);
         }
-        else if (publicGameState.GameState == GameState.Finished)
+    }
+
+    private void TrickFinished(bool finished)
+    {
+        trickFinished = finished;
+        if (trickFinished && publicGameState.GameState == GameState.Finished)
         {
             gameResultModal?.Show(publicGameState, GetPlayersByView());
         }
@@ -140,5 +176,10 @@ public partial class TableComponent() : ComponentBase
     private async Task LeaveTable()
     {
         await GameHubClient.LeaveTable();
+    }
+
+    public void Dispose()
+    {
+        GameHubClient.OnStateChanged -= HandleStateChanged;
     }
 }
