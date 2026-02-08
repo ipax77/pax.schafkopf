@@ -75,10 +75,11 @@ public partial class PlayerComponent
 
     private void OnDragEnd(TouchEventArgs e)
     {
-        if (draggedCard != null)
+        // Use ChangedTouches because Touches is empty on 'touchend'
+        if (draggedCard != null && e.ChangedTouches.Length > 0)
         {
-            var currentDragDistance = Math.Abs(dragStartY - e.Touches[0].ClientY);
-            // Only play if the final position is past the threshold
+            var currentDragDistance = Math.Abs(dragStartY - e.ChangedTouches[0].ClientY);
+
             if (currentDragDistance > DragThreshold)
             {
                 PlayCard(draggedCard);
