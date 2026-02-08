@@ -177,7 +177,7 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
-        DealTestHand(game);
+        DealSie(game);
 
         game.SetBidding1(0, new() { WouldPlay = true });
         game.SetBidding1(1, new() { WouldPlay = false });
