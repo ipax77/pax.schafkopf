@@ -156,6 +156,7 @@ public static class GameExtensions
 
         var declarer = game.Table.Players[bidding.PlayerIndex];
         var hand = new List<Card>(declarer.StartingHand);
+        var trickCards = new List<Card>(declarer.Tricks);
 
         TablePlayer? partner = null;
 
@@ -163,6 +164,7 @@ public static class GameExtensions
         {
             partner = game.Table.Players[game.PublicTeammate];
             hand.AddRange(partner.Hand);
+            trickCards.AddRange(partner.Tricks);
         }
 
         var runnerCards = gameType == GameType.Wenz
@@ -173,6 +175,7 @@ public static class GameExtensions
         hand.Sort((a, b) =>
             b.GetCardOrder(gameType, suit)
              .CompareTo(a.GetCardOrder(gameType, suit)));
+        
 
         int runners = 0;
         for (int i = 0; i < runnerCards.Count && i < hand.Count; i++)
@@ -183,7 +186,7 @@ public static class GameExtensions
                 break;
         }
 
-        int playerPoints = hand.Sum(c => c.GetValue());
+        int playerPoints = trickCards.Sum(c => c.GetValue());
         bool declarerWins = bidding.Tout ? playerPoints == 120 : playerPoints > 60;
 
         var result = new GameResult
