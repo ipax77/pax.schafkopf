@@ -72,3 +72,28 @@ function getConnectInfo() {
     return value ? JSON.parse(value) : null;
 }
 
+function blazorSetPointerCapture (elementId, pointerId) {
+    var element = document.getElementById(elementId);
+    if (!element) {
+        return;
+    }
+    element.setPointerCapture(pointerId);
+}
+
+function getCardHeight() {
+    const el = document.createElement("div");
+    el.style.position = "absolute";
+    el.style.visibility = "hidden";
+    el.style.height = "var(--cardheight)";
+    el.style.width = "var(--cardwidth)";
+    el.style.maxHeight = "var(--cardmaxheight)";
+    el.style.maxWidth = "var(--cardmaxwidth)";
+
+    document.body.appendChild(el);
+
+    const rect = el.getBoundingClientRect();
+
+    document.body.removeChild(el);
+
+    return rect.height;
+}

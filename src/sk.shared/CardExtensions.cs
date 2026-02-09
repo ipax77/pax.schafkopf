@@ -120,4 +120,9 @@ public static class CardExtensions
         var rank = card.Rank.ToString();
         return $"card-{rank}-{suit}";
     }
+
+    public static string GetElementId(this Card card)
+    {
+        return $"trickcard{card.Suit}{card.Rank}";
+    }
 }

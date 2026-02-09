@@ -32,6 +32,7 @@
     public void Show(bool also)
     {
         this.also = also;
+        InvokeAsync(StateHasChanged);
         JSRuntime.InvokeVoidAsync("openModalById", modalId);
     }
 

@@ -14,16 +14,19 @@
                 var card = cards[i];
                 var rotation = (i - (cardCount - 1) / 2.0) * 4; // Adjust for more/less fan
 
-                <div class="hand-card" style="--rotation: @rotation;">
-                    <div class="draggable skcard @card.GetCssClass() @(IsValidCard(card) ? "border border-3 rounded border-info" : "")"
-                         draggable="true"
-                         @onclick="() => PlayCard(card)"
-                         @ontouchstart="(e) => OnDragStart(e, card)"
-                         @ontouchend="OnDragEnd"
-                         @ondragenter="(e) => OnDragStart(e, card)"
-                         @ondragend="OnDragEnd"
-                         @ontouchcancel="() => draggedCard = null">
+                <div class="hand-card @(draggedCard == card ? "dragging" : "")"
+                          style="
+                            --rotation: @rotation;
+                            --drag-x: @(draggedCard == card ? $"{dragOffsetX}px" : "0px");
+                            --drag-y: @(draggedCard == card ? $"{dragOffsetY}px" : "0px");
+                        ">
+                    <div id="@card.GetElementId()" class="draggable skcard @card.GetCssClass() @(IsValidCard(card) ? "border border-3 rounded border-info" : "")"
+                        @onpointerdown="e => OnPointerDown(e, card)"
+                        @onpointermove="OnPointerMove"
+                        @onpointerup="OnPointerUp"
+                        @onpointercancel="OnPointerCancel">
                     </div>
+
                 </div>
             }
         }

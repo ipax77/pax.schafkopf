@@ -11,11 +11,16 @@
     cursor: pointer;
     margin-bottom: 18vh;
     margin-left: 6vw;
-    transition: transform 0.3s ease, z-index 0s;
-    cursor: pointer;
-    transform: rotate(calc(var(--rotation) * 1deg));
-    /* Pivot point is below the visible area */
+
+    --drag-x: 0px;
+    --drag-y: 0px;
+
+    transform:
+        translate(var(--drag-x), var(--drag-y))
+        rotate(calc(var(--rotation) * 1deg));
+
     transform-origin: center bottom;
+    transition: transform 0.3s ease;
 }
 
     .hand-card:first-child {
@@ -23,13 +28,23 @@
     }
 
     .hand-card:hover {
-        /* Lift card up to show more on hover */
-        transform: rotate(calc(var(--rotation) * 1deg)) translateY(-40%) scale(1.05);
+        transform:
+            translate(var(--drag-x), var(--drag-y))
+            rotate(calc(var(--rotation) * 1deg))
+            translateY(-40%)
+            scale(1.05);
+
         z-index: 11;
     }
 
+    .hand-card.dragging {
+        z-index: 1000;
+        transition: none;
+    }
+
 .draggable {
-    cursor: grabbing;
+    touch-action: none;
+    cursor: grab;
 }
 
 .draggable:active {

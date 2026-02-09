@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using sk.shared;
 
 namespace sk.weblib;
 
 public partial class PlayerComponent
 {
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; } = default!;
+
     [CascadingParameter]
     public PublicGameState PublicGameState { get; set; } = default!;
 
@@ -21,7 +25,23 @@ public partial class PlayerComponent
 
     private Card? draggedCard;
     private double dragStartY;
-    private const double DragThreshold = 50;
+    private double dragStartX;
+    private double dragOffsetY;
+    private double dragOffsetX;
+    private double dragThreshold = 50;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var cardHeight = await JSRuntime.InvokeAsync<double>("getCardHeight");
+            if (cardHeight > 0)
+            {
+                dragThreshold = cardHeight * 0.3;
+            }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
     private void PlayCard(Card card)
     {
@@ -42,51 +62,104 @@ public partial class PlayerComponent
         return validCards.Contains(card);
     }
 
-    private void OnDragStart(MouseEventArgs e, Card card)
+    private bool isDragging;
+
+    private async Task OnPointerDown(PointerEventArgs e, Card card)
     {
         draggedCard = card;
+        dragStartX = e.ClientX;
         dragStartY = e.ClientY;
+        isDragging = false;
+
+        await JSRuntime.InvokeVoidAsync("blazorSetPointerCapture", card.GetElementId(), e.PointerId);
     }
 
-    private void OnDragStart(TouchEventArgs e, Card card)
+    private void OnPointerMove(PointerEventArgs e)
     {
-        if (e.Touches.Length > 0)
+        if (draggedCard is null) return;
+
+        dragOffsetX = e.ClientX - dragStartX;
+        dragOffsetY = e.ClientY - dragStartY;
+
+        if (Math.Abs(dragOffsetY) > 5 || Math.Abs(dragOffsetX) > 5)
         {
-            draggedCard = card;
-            dragStartY = e.Touches[0].ClientY;
+            isDragging = true;
         }
     }
 
-    private void OnDragEnd(MouseEventArgs e)
-    {
-        if (draggedCard != null)
-        {
-            var currentDragDistance = Math.Abs(dragStartY - e.ClientY);
-            // Only play if the final position is past the threshold
-            if (currentDragDistance > DragThreshold)
-            {
-                PlayCard(draggedCard);
-            }
 
-            // Reset state
-            draggedCard = null;
+    private void OnPointerUp(PointerEventArgs e)
+    {
+        if (draggedCard is null) return;
+
+        var deltaY = dragStartY - e.ClientY;
+
+        if (deltaY > dragThreshold)
+        {
+            PlayCard(draggedCard);
         }
+        else if (!isDragging)
+        {
+            // Tap behavior (optional)
+            PlayCard(draggedCard);
+        }
+
+        draggedCard = null;
+        isDragging = false;
     }
 
-    private void OnDragEnd(TouchEventArgs e)
+    private void OnPointerCancel(PointerEventArgs e)
     {
-        // Use ChangedTouches because Touches is empty on 'touchend'
-        if (draggedCard != null && e.ChangedTouches.Length > 0)
-        {
-            var currentDragDistance = Math.Abs(dragStartY - e.ChangedTouches[0].ClientY);
-
-            if (currentDragDistance > DragThreshold)
-            {
-                PlayCard(draggedCard);
-            }
-
-            // Reset state
-            draggedCard = null;
-        }
+        draggedCard = null;
+        isDragging = false;
     }
+
+
+    // private void OnDragStart(MouseEventArgs e, Card card)
+    // {
+    //     draggedCard = card;
+    //     dragStartY = e.ClientY;
+    // }
+
+    // private void OnDragStart(TouchEventArgs e, Card card)
+    // {
+    //     if (e.Touches.Length > 0)
+    //     {
+    //         draggedCard = card;
+    //         dragStartY = e.Touches[0].ClientY;
+    //     }
+    // }
+
+    // private void OnDragEnd(MouseEventArgs e)
+    // {
+    //     if (draggedCard != null)
+    //     {
+    //         var currentDragDistance = Math.Abs(dragStartY - e.ClientY);
+    //         // Only play if the final position is past the threshold
+    //         if (currentDragDistance > DragThreshold)
+    //         {
+    //             PlayCard(draggedCard);
+    //         }
+
+    //         // Reset state
+    //         draggedCard = null;
+    //     }
+    // }
+
+    // private void OnDragEnd(TouchEventArgs e)
+    // {
+    //     // Use ChangedTouches because Touches is empty on 'touchend'
+    //     if (draggedCard != null && e.ChangedTouches.Length > 0)
+    //     {
+    //         var currentDragDistance = Math.Abs(dragStartY - e.ChangedTouches[0].ClientY);
+
+    //         if (currentDragDistance > DragThreshold)
+    //         {
+    //             PlayCard(draggedCard);
+    //         }
+
+    //         // Reset state
+    //         draggedCard = null;
+    //     }
+    // }
 }
