@@ -1,4 +1,6 @@
 
+[![.NET](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml/badge.svg)](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml)
+
 # pax.Schafkopf
 
 Sample implementation of the card game 'Schafkopf' using .NET 10 Blazor with SignalR api
