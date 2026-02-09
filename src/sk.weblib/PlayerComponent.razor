@@ -2,9 +2,6 @@
 
 <div class="w-100 h-100 d-flex align-items-center justify-content-center" @ondragover:preventDefault="true"  
     style="z-index: 8; width: 90%; max-width: 1200px;">
-    <div>
-        <p>@PlayerViewInfo.TablePlayer.Position</p>
-    </div>
     <div class="hand-container">
         @{
             var cards = GetOrderedCards().ToList();

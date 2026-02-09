@@ -25,7 +25,11 @@
                     <div class="align-self-start">
                         <button type="button" class="btn btn-sm btn-outline-danger"
                                 @onclick="LeaveTable">Verlassen</button>
+                        <div>
+                            <span class="small">v0.3.0</span>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -38,7 +42,7 @@
                     @if (publicGameState.Table.Players.Any(a => a.Player.Guid == Guid.Empty))
                     {
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" value="@NavigationManager.Uri" readonly />
+                            <input type="text" class="form-control" value="@($"{NavigationManager.BaseUri}?TableId={publicGameState.ShortCode}")" readonly />
                             <button class="btn btn-primary" @onclick="CopyLink">
                                 <i class="bi bi-share"></i> Copy Invite Link
                             </button>
@@ -62,51 +66,52 @@
                     <div class="text-center">
                         <div>
                             @if (publicGameState.YourPosition.HasValue
-                                && publicGameState.LeadingPlayer == publicGameState.YourPosition.Value)
-                                {
-                                    <span class="badge bg-secondary">Erster</span>    
-                                }
+                                                            && publicGameState.LeadingPlayer == publicGameState.YourPosition.Value)
+                            {
+                                <span class="badge bg-secondary">Erster</span>
+                            }
                         </div>
                         <div>
                             @if (publicGameState.GameState == GameState.Playing
-                                && publicGameState.YourPosition.HasValue
-                                && publicGameState.Bidding2Result != null
-                                && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
+                                                            && publicGameState.YourPosition.HasValue
+                                                            && publicGameState.Bidding2Result != null
+                                                            && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
                             {
-                                <span class="badge bg-secondary">Du spielst @publicGameState.Bidding2Result.GetGameTypeString()</span>
-                            }
+                                <span class="badge bg-secondary">Du spielst
+                                    @publicGameState.Bidding2Result.GetGameTypeString()</span>
+                                }
                             else if (publicGameState.PublicTeammate == players[0].ServerIndex)
-                            {
-                                <span class="badge bg-info">@publicGameState.Bidding2Result?.GetTeammateString()</span>
-                            }
-                        </div>
-                        <div>
-                            @if (publicGameState.GameState == GameState.None)
-                            {
-                                <span class="badge bg-secondary">Warten auf andere Spieler.</span>
-                            }
-                            else if (IsMyTurn)
-                            {
-                                <span class="badge bg-secondary">Du bist am Zug!</span>
-                            }
+                                {
+                                    <span class="badge bg-info">@publicGameState.Bidding2Result?.GetTeammateString()</span>
+                                }
+                            </div>
+                            <div>
+                                @if (publicGameState.GameState == GameState.None)
+                                {
+                                    <span class="badge bg-secondary">Warten auf andere Spieler.</span>
+                                }
+                                else if (IsMyTurn)
+                                {
+                                    <span class="badge bg-secondary">Du bist am Zug!</span>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex align-items-center justify-content-center w-100 @(CanAct ? "bg-warning" : "")"
-                     style="width: 80%">
-                    <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
-                </div>
+                    <div class="d-flex align-items-center justify-content-center w-100 @(CanAct ? "bg-warning" : "")"
+                         style="width: 80%">
+                        <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
+                    </div>
 
-                <div class="bg-transparent" style="width: 20%;">
+                    <div class="bg-transparent" style="width: 20%;">
                     
+                    </div>
                 </div>
-            </div>
-        </CascadingValue>
+            </CascadingValue>
+        </div>
     </div>
-</div>
 
-<Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
-<Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
-<LastTrickModal @ref="lastTrickModal" />
-<GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />
+    <Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
+    <Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
+    <LastTrickModal @ref="lastTrickModal" />
+    <GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />
