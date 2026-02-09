@@ -56,7 +56,7 @@
                 };
             }
         }
-
+        InvokeAsync(StateHasChanged);
         JSRuntime.InvokeVoidAsync("openModalById", modalId);
     }
 
