@@ -224,10 +224,7 @@ public sealed class Game
     {
         Turn = 0;
         ReadyCheck = 0;
-        foreach (var player in Table.Players)
-        {
-            player.Reset();
-        }
+        Table.Reset();
         _bidding1Decisions[0] = null;
         _bidding1Decisions[1] = null;
         _bidding1Decisions[2] = null;
@@ -237,7 +234,6 @@ public sealed class Game
         Bidding2Result = null;
         DrunterDurch = false;
         PublicTeammate = -1;
-        Table.Reset();
         Dealer = (Dealer + 1) % 4;
         ActivePlayer = (Dealer + 1) % 4;
         this.DealCards();
@@ -304,6 +300,10 @@ public sealed class Table
 
     public void Reset()
     {
+        foreach (var player in Players)
+        {
+            player.Reset();
+        }
         CurrentTrickCard = null;
     }
 }
