@@ -5,7 +5,7 @@ Sample implementation of the card game 'Schafkopf' using .NET 10 Blazor with Sig
 
 ## Website
 [schafkopf.pax77.org](https://schafkopf.pax77.org)
-![stable](/images/table.png)
+![table](/images/table.png)
 
 # Contributing
 
