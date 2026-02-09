@@ -11,6 +11,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: src
+
     steps:
     - uses: actions/checkout@v6
     - name: Setup .NET
@@ -28,5 +32,5 @@ jobs:
       if: success() || failure()
       with:
         name: Tests
-        path: TestResults/test-*.trx
+        path: src/TestResults/test-*.trx
         reporter: dotnet-trx
