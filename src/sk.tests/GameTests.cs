@@ -183,4 +183,62 @@ public sealed class GameTests
         var winnerPlayer = game.Table.Players.First(f => f.Tricks.Count > 0);
         Assert.AreEqual(winnerPlayer.Position, game.ActivePlayer);
     }
+
+    [TestMethod]
+    public void CanDrunterDurch()
+    {
+        Game game = new();
+        game.DealCards();
+        game.GameState = GameState.Bidding1;
+
+        game.SetBidding1(0, new() { WouldPlay = false });
+        game.SetBidding1(1, new() { WouldPlay = true });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        game.SetBidding2(1, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+
+        var publicState = game.ToPublicGameState(0);
+        publicState.Table.Players[0].Hand = [
+            new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Gras },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
+            new Card() { Rank = Rank.Ace, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Ten, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Nine, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Seven, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
+        ];
+        var validCards = publicState.GetValidCards();
+        Assert.HasCount(8, validCards);
+    }
+
+    [TestMethod]
+    public void CanNotDrunterDurch()
+    {
+        Game game = new();
+        game.DealCards();
+        game.GameState = GameState.Bidding1;
+
+        game.SetBidding1(0, new() { WouldPlay = false });
+        game.SetBidding1(1, new() { WouldPlay = true });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        game.SetBidding2(1, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+
+        var publicState = game.ToPublicGameState(0);
+        publicState.Table.Players[0].Hand = [
+            new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Gras },
+            new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
+            new Card() { Rank = Rank.Ace, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Ten, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Nine, Suit = Suit.Schellen },
+            new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Seven, Suit = Suit.Gras },
+        ];
+        var validCards = publicState.GetValidCards();
+        Assert.HasCount(8 - 2, validCards);
+    }
 }

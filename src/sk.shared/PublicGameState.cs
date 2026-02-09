@@ -138,7 +138,7 @@ public static class PublicGameStateExtensions
                     .Where(x => !x.IsTrump(publicGameState.Bidding2Result.GameType, publicGameState.Bidding2Result.Suit)
                         && x.Suit == rufAce.Suit && x.Rank != Rank.Ace)
                     .ToList();
-                if (rufSuitCards.Count >= 3)
+                if (rufSuitCards.Count < 3)
                 {
                     return hand.Except(rufSuitCards).ToList();
                 }

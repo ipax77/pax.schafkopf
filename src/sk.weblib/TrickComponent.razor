@@ -3,6 +3,12 @@
 @using sk.weblib.Modals
 
 <div class="position-relative" style="left: 50%; top: 50%;">
+    @if (PublicGameState.GameState == GameState.Finished)
+    {
+        <div class="position-absolute translate-middle text-center" style="z-index: -1;">
+            <h4 class="fw-semibold text-nowrap">Die Karten werden neu gemischt ...</h4>
+        </div>
+    }
     <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
     </div>
     <div class="skcard bottom-card @bottomCard?.GetCssClass() @clearAnimationCssClassBottom">

@@ -60,7 +60,7 @@
                 <img class="skimage" src="_content/sk.weblib/images/back.png" />
             </div>
         }
-        @if (PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
         {
             <div class="skcard" style="top: 5%; left: 20%; height: 40%; width: auto; max-width: 25vw;">
                 <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />
@@ -79,7 +79,7 @@ else if (PlayerViewInfo.ViewIndex == 3)
                 <img class="skimage" src="_content/sk.weblib/images/back.png" />
             </div>
         }
-        @if (PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
         {
             <div class="skcard" style="top: 5%; right: 20%; height: 40%; width: auto; max-width: 25vw;">
                 <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />
@@ -98,7 +98,7 @@ else if (PlayerViewInfo.ViewIndex == 2)
                 <img class="skimage" src="_content/sk.weblib/images/back.png" />
             </div>
         }
-        @if (PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
         {
             <div class="skcard" style="left: -10%; top: 50%; height: auto; max-height: 20vh; width: 40%">
                 <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />

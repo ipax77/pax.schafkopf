@@ -10,25 +10,36 @@
                 <h5 class="modal-title">Ansagen</h5>
             </div>
             <div class="modal-body">
-                <div class="btn-group" role="group">
-                    @foreach (var ent in validGameTypes)
-                    {
-                        <button type="button" class="btn btn-outline-primary" @onclick="() => SelectGameType(ent)">
-                            @(ent == GameType.None ? "Weiter" : ent.ToString())
-                        </button>
-                    }
-                </div>
-                <div>
-                    @if (gameType != GameType.None)
-                    {
-                        @if (gameType != GameType.Ruf)
+                <!-- Game Type Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-2">Spielart wählen:</label>
+                    <div class="btn-group w-100 bg-secondary-subtle" role="group" aria-label="Spielart Auswahl">
+                        @foreach (var ent in validGameTypes)
                         {
-                            <div>
-                                <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
-                                <label class="btn btn-outline-warning" for="toutCheck">Tout</label>
-                            </div>
+                            <button type="button" class="btn btn-outline-primary" @onclick="() => SelectGameType(ent)">
+                                @(ent == GameType.None ? "Weiter" : ent.ToString())
+                            </button>
                         }
-                        <div class="btn-group" role="group">
+                    </div>
+                </div>
+
+                @if (gameType != GameType.None)
+                {
+                    <!-- Tout Option (not for Ruf) -->
+                    @if (gameType != GameType.Ruf)
+                    {
+                        <div class="mb-4">
+                            <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
+                            <label class="btn btn-outline-warning w-100" for="toutCheck">
+                                <i class="bi bi-star-fill me-2"></i>Tout
+                            </label>
+                        </div>
+                    }
+
+                    <!-- Suit Selection -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-2">Farbe wählen:</label>
+                        <div class="btn-group w-100 bg-secondary-subtle" role="group" aria-label="Farbe Auswahl">
                             @foreach (var ent in validSuits)
                             {
                                 <button type="button" class="btn btn-outline-secondary" @onclick="() => SelectSuit(ent)">
@@ -36,8 +47,8 @@
                                 </button>
                             }
                         </div>
-                    }
-                </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
