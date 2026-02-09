@@ -51,12 +51,12 @@ public static class PublicGameStateExtensions
             validGameTypes.Remove(GameType.Ruf);
             validGameTypes.Add(GameType.None);
         }
-        else if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count == 0)
+        else if (publicGameState.Bidding1Result != null && publicGameState.Bidding1Result.InterestedPlayers.Count == 1)
         {
             var nonTrumpCards = hand.Where(s => !s.IsTrump(GameType.Ruf, Suit.Herz));
             var aces = nonTrumpCards.Where(x => x.Rank == Rank.Ace).Select(s => s.Suit).ToHashSet();
             var callableSuits = nonTrumpCards.Select(s => s.Suit).ToHashSet();
-            callableSuits.RemoveWhere(x => !aces.Contains(x));
+            callableSuits.RemoveWhere(x => aces.Contains(x));
             if (callableSuits.Count == 0)
             {
                 validGameTypes.Remove(GameType.Ruf);
