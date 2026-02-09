@@ -51,6 +51,8 @@
     private bool _isProcessingQueue;
     private bool _isClearing; // New flag for clearing status
 
+    private Card? lastPlayedCard = null;
+
 
     string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch
     {
@@ -86,23 +88,35 @@
                 });
             }
         }
-    
+
         StateHasChanged();
     }
 
     public void AddCard(PlayerCard playerCard, List<PlayerViewInfo> playersByView)
     {
+        // Prevent re-animating the last played card on reconnect/state resync.
+        // Assumes cards are unique per deal.
+        if (playerCard.Card == lastPlayedCard)
+        {
+            return;
+        }
+        lastPlayedCard = playerCard.Card;
+
         var tableCard = new PlayerCard()
         {
             Card = playerCard.Card,
-            Position = GetViewPosition(playerCard.Position,
-playersByView)
+            Position = GetViewPosition(playerCard.Position, playersByView)
         };
         _cardAnimationQueue.Enqueue(tableCard);
         // Only start processing if not already processing AND not currently clearing
         if (!_isProcessingQueue && !_isClearing)
         {
             _ = ProcessCardQueue(playersByView);
+        }
+
+        if (PublicGameState.GameState == GameState.Finished)
+        {
+            lastPlayedCard = null; // Reset last played card at end of game to allow new cards in next game
         }
     }
 
