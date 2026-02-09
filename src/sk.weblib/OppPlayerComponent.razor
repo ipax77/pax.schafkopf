@@ -1,0 +1,116 @@
+@using sk.shared
+
+<div class="position-absolute h-100" style="z-index: 5; width: 25vw;">
+    <div class="border border-primary rounded @(PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex ? "bg-warning" : "")">
+        <div class="text-center">
+            @if (PublicGameState.LeadingPlayer == PlayerViewInfo.ServerIndex && PublicGameState.GameState !=
+                                    GameState.Playing)
+            {
+                <span class="badge bg-secondary">Erster</span>
+            }
+            @if (!PlayerViewInfo.TablePlayer.IsConnected)
+            {
+                <div>
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            @if (PublicGameState.GameState == GameState.Bidding1 && PublicGameState.Bidding1Result != null)
+            {
+                if (PublicGameState.Bidding1Result.InterestedPlayers.Contains(PlayerViewInfo.ServerIndex))
+                {
+                    <span class="badge bg-danger">Spiele!</span>
+                }
+                else if (PublicGameState.Bidding1Result.DeclinedPlayers.Contains(PlayerViewInfo.ServerIndex))
+                {
+                    <span class="badge bg-warning">Weiter.</span>
+                }
+            }
+            else if (PublicGameState.Bidding2Result != null
+                && PublicGameState.Bidding2Result.PlayerIndex == PlayerViewInfo.ServerIndex)
+            {
+                @if (PublicGameState.GameState == GameState.Bidding2)
+                {
+                    <span class="badge bg-danger">Spiele @(PublicGameState.Bidding2Result.GameType)</span>
+                }
+                else if (PublicGameState.GameState == GameState.Playing)
+                {
+                    <span class="badge bg-info">@PublicGameState.Bidding2Result?.GetGameTypeString()</span>
+                }
+            }
+            else if (PublicGameState.PublicTeammate == PlayerViewInfo.ServerIndex)
+            {
+                <span class="badge bg-info">@PublicGameState.Bidding2Result?.GetTeammateString()</span>
+            }
+        </div>
+        <div class="text-center">
+            <span class="badge bg-primary">@PlayerViewInfo.TablePlayer.Player.Name</span>
+        </div>
+    </div>
+</div>
+@if (PlayerViewInfo.ViewIndex == 1)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < PlayerViewInfo.TablePlayer.Hand.Count; i++)
+        {
+            int j = i;
+            <div class="oppcardWrapper"
+                 style="top: @((j + 1) * 10)%; left: -20%; transform: rotate(@(85 + (j * 2))deg); height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="_content/sk.weblib/images/back.png" />
+            </div>
+        }
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        {
+            <div class="skcard" style="top: 5%; left: 20%; height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />
+            </div>
+        }
+    </div>
+}
+else if (PlayerViewInfo.ViewIndex == 3)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < PlayerViewInfo.TablePlayer.Hand.Count; i++)
+        {
+            int j = i;
+            <div class="oppcardWrapper"
+                 style="top: @((j + 1) * 10)%; right: -20%; transform: rotate(@(99 - (j * 2))deg); height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="_content/sk.weblib/images/back.png" />
+            </div>
+        }
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        {
+            <div class="skcard" style="top: 5%; right: 20%; height: 40%; width: auto; max-width: 25vw;">
+                <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />
+            </div>
+        }
+    </div>
+}
+else if (PlayerViewInfo.ViewIndex == 2)
+{
+    <div class="position-absolute w-100 h-100" style="z-index: 4;">
+        @for (int i = 0; i < PlayerViewInfo.TablePlayer.Hand.Count; i++)
+        {
+            int j = i;
+            <div class="topcardWrapper"
+                 style="left: @((j + 1) * 10)%; top: -50%; transform: rotate(@(9 - (j * 2))deg); height: auto; max-height: 20vh; width: 40%">
+                <img class="skimage" src="_content/sk.weblib/images/back.png" />
+            </div>
+        }
+        @if (PublicGameState.GameState == GameState.Playing && PlayerViewInfo.TablePlayer.Tricks.Count > 0)
+        {
+            <div class="skcard" style="left: -10%; top: 50%; height: auto; max-height: 20vh; width: 40%">
+                <img class="skimage" src="_content/sk.weblib/images/stich@(PlayerViewInfo.TablePlayer.Tricks.Count / 4).png" />
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public PublicGameState PublicGameState { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public PlayerViewInfo PlayerViewInfo { get; set; }
+}

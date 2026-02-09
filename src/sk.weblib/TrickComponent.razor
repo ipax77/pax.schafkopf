@@ -1,0 +1,231 @@
+@using Microsoft.Extensions.Logging
+@using sk.shared
+@using sk.weblib.Modals
+
+<div class="position-relative" style="left: 50%; top: 50%;">
+    @if (PublicGameState.GameState == GameState.Finished)
+    {
+        <div class="position-absolute translate-middle text-center" style="z-index: -1;">
+            <h4 class="fw-semibold text-nowrap">Die Karten werden neu gemischt ...</h4>
+        </div>
+    }
+    <div class="skcard top-card @topCard?.GetCssClass() @clearAnimationCssClassTop">
+    </div>
+    <div class="skcard bottom-card @bottomCard?.GetCssClass() @clearAnimationCssClassBottom">
+    </div>
+    <div class="skcard left-card @leftCard?.GetCssClass() @clearAnimationCssClassLeft">
+    </div>
+    <div class="skcard right-card @rightCard?.GetCssClass() @clearAnimationCssClassRight">
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(cardAnimationCssClass))
+{
+    <div class="skcard @currentCard?.Card.GetCssClass() @cardAnimationCssClass">
+    </div>
+}
+
+
+@code {
+    [CascadingParameter]
+    public PublicGameState PublicGameState { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<bool> OnTrickFinished { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    Card? bottomCard;
+    Card? leftCard;
+    Card? topCard;
+    Card? rightCard;
+    PlayerCard? currentCard;
+    string? clearAnimationCssClassBottom;
+    string? clearAnimationCssClassLeft;
+    string? clearAnimationCssClassTop;
+    string? clearAnimationCssClassRight;
+
+    private readonly Queue<PlayerCard> _cardAnimationQueue = new Queue<PlayerCard>();
+    private bool _isProcessingQueue;
+    private bool _isClearing; // New flag for clearing status
+
+
+    string? cardAnimationCssClass => currentCard == null ? null : currentCard.Position switch
+    {
+        0 => "playbottomcard",
+        1 => "playleftcard",
+        2 => "playtopcard",
+        3 => "playrightcard",
+        _ => null
+    };
+
+    public void Sync(PublicGameState state, List<PlayerViewInfo> playersByView)
+    {
+        // Clear any pending animations/queues to prevent "ghost" cards
+        _cardAnimationQueue.Clear();
+        _isProcessingQueue = false;
+        _isClearing = false;
+
+        // Reset all cards first
+        bottomCard = leftCard = topCard = rightCard = null;
+        currentCard = null;
+
+        // Populate cards from the current trick state
+        // CurrentTrick is likely a Card[] where index corresponds to player server index
+        for (int i = 0; i < state.Table.CurrentTrick.Length; i++)
+        {
+            var card = state.Table.CurrentTrick[i];
+            if (card != null)
+            {
+                AssignCard(new PlayerCard
+                {
+                    Card = card,
+                    Position = GetViewPosition(i, playersByView)
+                });
+            }
+        }
+    
+        StateHasChanged();
+    }
+
+    public void AddCard(PlayerCard playerCard, List<PlayerViewInfo> playersByView)
+    {
+        var tableCard = new PlayerCard()
+        {
+            Card = playerCard.Card,
+            Position = GetViewPosition(playerCard.Position,
+playersByView)
+        };
+        _cardAnimationQueue.Enqueue(tableCard);
+        // Only start processing if not already processing AND not currently clearing
+        if (!_isProcessingQueue && !_isClearing)
+        {
+            _ = ProcessCardQueue(playersByView);
+        }
+    }
+
+    private async Task ProcessCardQueue(List<PlayerViewInfo> playersByView)
+    {
+        _isProcessingQueue = true;
+
+        // Wait until clearing is finished before processing cards
+        while (_isClearing)
+        {
+            await Task.Delay(50); // Small delay to avoid busy-waiting
+        }
+
+        while (_cardAnimationQueue.Count > 0)
+        {
+            // Re-check if clearing started while waiting for next card
+            if (_isClearing)
+            {
+                // Clearing started, stop processing and let Clear handle re-triggering if needed
+                _isProcessingQueue = false;
+                return;
+            }
+
+            var playerCard = _cardAnimationQueue.Dequeue();
+
+            // Set currentCard for animation
+            currentCard = playerCard;
+            await InvokeAsync(StateHasChanged);
+
+            // Wait for animation to complete
+            await Task.Delay(800);
+
+            // Move card to static position and clear animated card
+            await InvokeAsync(() =>
+            {
+                AssignCard(playerCard);
+                currentCard = null;
+                StateHasChanged();
+            });
+        }
+
+        if (bottomCard != null && leftCard != null && topCard != null && rightCard != null)
+        {
+            await Task.Delay(800);
+            await Clear(GetViewPosition(PublicGameState.ActivePlayer, playersByView), playersByView);
+        }
+        else
+        {
+            await OnTrickFinished.InvokeAsync(false);
+        }
+        _isProcessingQueue = false;
+
+        // If cards were added to the queue while clearing, and clearing is now done, restart processing
+        if (_cardAnimationQueue.Any() && !_isClearing)
+        {
+            _ = ProcessCardQueue(playersByView);
+        }
+    }
+
+    private int GetViewPosition(int serverIndex, List<PlayerViewInfo> playerViewInfos)
+    {
+        var player = playerViewInfos.FirstOrDefault(f => f.ServerIndex == serverIndex);
+        return player?.ViewIndex ?? 0;
+    }
+
+    private void AssignCard(PlayerCard card)
+    {
+        int cardIndex = card.Position;
+        if (cardIndex == 0)
+        {
+            bottomCard = card.Card;
+        }
+        else if (cardIndex == 1)
+        {
+            leftCard = card.Card;
+        }
+        else if (cardIndex == 2)
+        {
+            topCard = card.Card;
+        }
+        else if (cardIndex == 3)
+        {
+            rightCard = card.Card;
+        }
+    }
+
+
+    private async Task Clear(int position, List<PlayerViewInfo> playersByView) // Add playersByView parameter
+    {
+        _isClearing = true; // Set clearing flag
+
+        if (bottomCard != null) clearAnimationCssClassBottom = $"clear-to-pos{position}-from-bottom";
+        if (leftCard != null) clearAnimationCssClassLeft = $"clear-to-pos{position}-from-left";
+        if (topCard != null) clearAnimationCssClassTop = $"clear-to-pos{position}-from-top";
+        if (rightCard != null) clearAnimationCssClassRight = $"clear-to-pos{position}-from-right";
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(800); // Animation duration, should match CSS
+
+        await InvokeAsync(() =>
+        {
+            bottomCard = null;
+            leftCard = null;
+            topCard = null;
+            rightCard = null;
+            currentCard = null; // Ensure current card is also cleared
+
+            clearAnimationCssClassBottom = null;
+            clearAnimationCssClassLeft = null;
+            clearAnimationCssClassTop = null;
+            clearAnimationCssClassRight = null;
+
+            StateHasChanged();
+        });
+
+        _isClearing = false; // Clear clearing flag
+        await OnTrickFinished.InvokeAsync(true);
+
+        // After clearing, check if any cards are waiting in the queue
+        if (_cardAnimationQueue.Any() && !_isProcessingQueue)
+        {
+            _ = ProcessCardQueue(playersByView); // Pass playersByView here
+        }
+    }
+}

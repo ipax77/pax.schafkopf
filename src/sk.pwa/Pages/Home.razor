@@ -1,0 +1,206 @@
+﻿@page "/"
+@using sk.pwa.Services
+@using sk.shared
+@using sk.shared.Interfaces
+@using sk.weblib
+@using sk.weblib.Modals
+@inject ConnectInfoState ConnectState
+@inject IGameHubClient GameHubClient
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JSRuntime
+@inject ILogger<Home> Logger
+@implements IDisposable
+
+<PageTitle>pax.schafkopf</PageTitle>
+
+@if (ConnectState.Current == null)
+{
+    @* Step 1: User needs to identify themselves *@
+    <div class="text-center">
+        <h3>Welcome to Schafkopf</h3>
+        <button class="btn btn-primary btn-lg" @onclick="ShowConnect">Set Nickname</button>
+    </div>
+}
+else
+{
+    @if (GameHubClient.GameState == null)
+    {
+        <div>
+            @* Step 2: User is identified but not in a game *@
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-body">
+                        <h4>Start Fresh</h4>
+                        <button class="btn btn-success" disabled="@starting" @onclick="CreateGame">
+                            Create New Table
+                        </button>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(TableId))
+                {
+                    <div class="col-md-6">
+                        <div class="card card-body border-primary">
+                            <h4>Invitation Found</h4>
+                            <p>You've been invited to a game!</p>
+                            <button class="btn btn-primary" disabled="@starting" @onclick="JoinGame">
+                                Join Invited Game
+                            </button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-6">
+                        <div class="card card-body">
+                            <h4>Join Existing Game</h4>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Enter Table ID" @bind="_inputTableId" />
+                                <button class="btn btn-primary" disabled="@(starting || string.IsNullOrEmpty(_inputTableId))"
+                                        @onclick="JoinGameFromInput">
+                                    Join Game
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        @* Step 3: Active Game *@
+        <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" />
+    }
+}
+<ConnectModal @ref="connectModal" OnConnect="Connect" />
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? TableId { get; set; }
+
+    ConnectModal? connectModal;
+    private bool starting;
+    private string? _inputTableId;
+
+    private Player CurrentPlayer => new()
+    {
+        Name = ConnectState.Current?.UserName ?? "Anonymous",
+        Guid = ConnectState.Current?.Guid ?? Guid.Empty
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        GameHubClient.OnGameInitialized += GameReadyHandler;
+        await ConnectState.LoadAsync();
+
+        if (ConnectState.Current == null)
+        {
+            connectModal?.Show(new());
+        }
+    }
+
+    private void GameReadyHandler() => _ = GameReady();
+
+    private async Task Connect(ConnectInfo info)
+    {
+        await ConnectState.SaveAsync(info);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task GameReady()
+    {
+        if (!starting)
+        {
+            return;
+        }
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.ShortCode;
+            var url = NavigationManager.GetUriWithQueryParameters(
+    new Dictionary<string, object?> { ["TableId"] = newId });
+
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+        }
+        starting = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task CreateGame()
+    {
+        if (starting)
+        {
+            return;
+        }
+        starting = true;
+        await GameHubClient.StartAsync(CurrentPlayer, Guid.Empty);
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.ShortCode;
+            var url = NavigationManager.GetUriWithQueryParameters(
+    new Dictionary<string, object?> { ["TableId"] = newId });
+
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+        }
+    }
+
+    async Task JoinGame()
+    {
+        if (starting)
+        {
+            return;
+        }
+        starting = true;
+        if (Guid.TryParse(TableId, out var id))
+        {
+            await GameHubClient.StartAsync(CurrentPlayer, id);
+        }
+        else if (!string.IsNullOrEmpty(TableId))
+        {
+            await GameHubClient.JoinByCode(CurrentPlayer, TableId);
+        }
+    }
+
+    async Task JoinGameFromInput()
+    {
+        if (starting || string.IsNullOrEmpty(_inputTableId))
+        {
+            return;
+        }
+        starting = true;
+        await GameHubClient.JoinByCode(CurrentPlayer, _inputTableId);
+
+        if (GameHubClient.GameState != null)
+        {
+            var newId = GameHubClient.GameState.ShortCode;
+            var url = NavigationManager.GetUriWithQueryParameters(
+                new Dictionary<string, object?> { ["TableId"] = newId });
+
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+        }
+        starting = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task LeaveTable()
+    {
+        TableId = null;
+        await JSRuntime.InvokeVoidAsync("updateUrlSilently", NavigationManager.BaseUri);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private Uri GetBaseAddress()
+    {
+        using var httpClient = HttpClientFactory.CreateClient("api");
+        var baseUri = httpClient.BaseAddress
+            ?? new Uri("http://localhost:5283");
+        return new Uri(baseUri, "/gameHub");
+    }
+
+    private void ShowConnect() => connectModal?.Show(new());
+
+    public void Dispose()
+    {
+        GameHubClient.OnGameInitialized -= GameReadyHandler;
+    }
+}

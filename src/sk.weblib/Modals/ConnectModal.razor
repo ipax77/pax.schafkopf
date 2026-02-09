@@ -1,0 +1,68 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using sk.shared
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Spieler Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    @if (editContext != null)
+                    {
+                        <EditForm EditContext="editContext" FormName="ConnectForm">
+                            <ValidationSummary />
+                            <div>
+                                <label for="nameInput" class="form-label">Spieler Name</label>
+                                <InputText class="form-control" id="nameInput" aria-describedby="nameHelp"
+                                           @bind-Value="model.UserName" />
+                                <div id="nameHelp" class="form-text">Sichtbar für die anderen Spieler.</div>
+                                <ValidationMessage For="() => model.UserName" />
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="Save">Speichern</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "connectModal";
+
+    [Parameter]
+    public EventCallback<ConnectInfo> OnConnect { get; set; }
+
+    private ConnectInfo model = new();
+    EditContext? editContext;
+
+    public void Show(ConnectInfo? seed)
+    {
+        model = seed is null
+            ? new()
+            : seed with { }; // record copy
+
+        editContext = new(model);
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+        StateHasChanged();
+    }
+
+    public void Save()
+    {
+        OnConnect.InvokeAsync(model);
+        Close();
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+}

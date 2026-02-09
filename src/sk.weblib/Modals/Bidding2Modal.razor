@@ -1,0 +1,120 @@
+@using Microsoft.JSInterop
+@using sk.shared
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
+     aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ansagen</h5>
+            </div>
+            <div class="modal-body">
+                <!-- Game Type Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold mb-2">Spielart wählen:</label>
+                    <div class="btn-group w-100 bg-secondary-subtle" role="group" aria-label="Spielart Auswahl">
+                        @foreach (var ent in validGameTypes)
+                        {
+                            <button type="button" class="btn btn-outline-primary" @onclick="() => SelectGameType(ent)">
+                                @(ent == GameType.None ? "Weiter" : ent.ToString())
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (gameType != GameType.None)
+                {
+                    <!-- Tout Option (not for Ruf) -->
+                    @if (gameType != GameType.Ruf)
+                    {
+                        <div class="mb-4">
+                            <input type="checkbox" class="btn-check" id="toutCheck" autocomplete="off" @bind-value="tout" />
+                            <label class="btn btn-outline-warning w-100" for="toutCheck">
+                                <i class="bi bi-star-fill me-2"></i>Tout
+                            </label>
+                        </div>
+                    }
+
+                    <!-- Suit Selection -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold mb-2">Farbe wählen:</label>
+                        <div class="btn-group w-100 bg-secondary-subtle" role="group" aria-label="Farbe Auswahl">
+                            @foreach (var ent in validSuits)
+                            {
+                                <button type="button" class="btn btn-outline-secondary" @onclick="() => SelectSuit(ent)">
+                                    @ent
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "bidding2Modal";
+
+    GameType gameType = GameType.None;
+    Suit suit = Suit.None;
+    bool tout = false;
+    List<GameType> validGameTypes = [];
+    List<Suit> validSuits = [];
+    PublicGameState publicGameState = new();
+
+    [Parameter]
+    public EventCallback<Bidding2Result?> OnWouldPlay { get; set; }
+
+    public void Show(PublicGameState publicGameState)
+    {
+        this.publicGameState = publicGameState;
+        gameType = GameType.None;
+        suit = Suit.None;
+        tout = false;
+        validSuits = [];
+        validGameTypes = publicGameState.GetValidGameModes();
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+
+    private void SelectGameType(GameType selectedGameType)
+    {
+        gameType = selectedGameType;
+        if (gameType == GameType.None || gameType == GameType.Wenz || gameType == GameType.Sie)
+        {
+            WouldPlay();
+        }
+        validSuits = publicGameState.GetValidSuits(gameType);
+    }
+
+    private void SelectSuit(Suit suit)
+    {
+        this.suit = suit;
+        WouldPlay();
+    }
+
+    private void WouldPlay()
+    {
+        if (gameType == GameType.None)
+        {
+            OnWouldPlay.InvokeAsync(null);
+        }
+
+        Bidding2Result result = new()
+        {
+            GameType = gameType,
+            Suit = suit,
+            Tout = tout,
+            Sie = gameType == GameType.Sie
+        };
+        OnWouldPlay.InvokeAsync(result);
+        Close();
+    }
+}

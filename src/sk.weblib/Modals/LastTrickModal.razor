@@ -1,0 +1,67 @@
+@using Microsoft.JSInterop
+@using sk.shared
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" aria-hidden="true"
+     aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Letzer Strich</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="position-relative" style="left: 50%; top: 50%;">
+                    <div class="skcard top-card @topCard?.GetCssClass()">
+                    </div>
+                    <div class="skcard bottom-card @bottomCard?.GetCssClass()">
+                    </div>
+                    <div class="skcard left-card @leftCard?.GetCssClass()">
+                    </div>
+                    <div class="skcard right-card @rightCard?.GetCssClass()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "lastTrickModal";
+
+    Card? bottomCard;
+    Card? leftCard;
+    Card? topCard;
+    Card? rightCard;
+
+    public void Show(PublicGameState publicGameState, List<PlayerViewInfo> playersByView)
+    {
+        bottomCard = null;
+        leftCard = null;
+        topCard = null;
+        rightCard = null;
+
+        if (publicGameState.Table.PreviouseTrick != null && publicGameState.Table.PreviouseTrick.Length == 4)
+        {
+            foreach (var player in playersByView)
+            {
+                var card = publicGameState.Table.PreviouseTrick[player.ServerIndex];
+                _ = player.ViewIndex switch
+                {
+                    0 => bottomCard = card,
+                    1 => leftCard = card,
+                    2 => topCard = card,
+                    3 => rightCard = card,
+                    _ => null,
+                };
+            }
+        }
+        InvokeAsync(StateHasChanged);
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+    }
+}

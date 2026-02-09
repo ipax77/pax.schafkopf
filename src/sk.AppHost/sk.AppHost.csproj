@@ -1,0 +1,17 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
+
+  <ItemGroup>
+    <ProjectReference Include="..\sk.api\sk.api.csproj" />
+    <ProjectReference Include="..\sk.tests\sk.tests.csproj" />
+    <ProjectReference Include="..\sk.pwa\sk.pwa.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>58e29549-cd51-4042-be34-febd5ff2bcf8</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
