@@ -232,14 +232,14 @@ public static class PublicGameStateExtensions
         }
         int playerIndex = publicGameState.YourPosition.Value;
         var interestedPlayers = publicGameState.Bidding1Result.InterestedPlayers;
-        if (interestedPlayers.Count <= 1)
+        if (interestedPlayers.Count == 1)
         {
-            return true;
+            return interestedPlayers[0] == playerIndex;
         }
-        var orderedInterestePlayers = interestedPlayers
+        var orderedInterestedPlayers = interestedPlayers
             .OrderBy(p => DistanceFromLeader(p, publicGameState.LeadingPlayer))
             .ToList();
-        return orderedInterestePlayers.Last() == playerIndex;
+        return orderedInterestedPlayers.Last() == playerIndex;
     }
 
     private static int DistanceFromLeader(int player, int leader)
