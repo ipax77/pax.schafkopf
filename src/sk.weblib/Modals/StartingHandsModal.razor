@@ -1,0 +1,57 @@
+﻿@using Microsoft.JSInterop
+@using sk.shared
+@inject IJSRuntime JSRuntime
+
+<div class="modal" id="@modalId" aria-hidden="true"
+     aria-labelledby="@modalId" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Start Hände</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (startingHands.Count == playerViewInfos.Count)
+                {
+                    @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
+                    {
+                        var hand = startingHands[player.ServerIndex]
+                        .OrderByDescending(o => o.GetCardOrder(GameType.Ruf, Suit.Herz));
+                        <div class="mb-2">
+                            <h5 class="fw-semibold">@player.TablePlayer.Player.Name</h5>
+                            <div class="d-flex">
+                                @foreach (var card in hand)
+                                {
+                                    <div class="skcard @card.GetCssClass()" style="position: relative !important;">
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string modalId = "startingHandsModal";
+    private string closingModalId = "gameResultModal";
+
+    List<List<Card>> startingHands = [];
+    List<PlayerViewInfo> playerViewInfos = [];
+
+    public void Show(List<List<Card>> cards, List<PlayerViewInfo> playerViewInfos)
+    {
+        startingHands = cards;
+        this.playerViewInfos = playerViewInfos;
+        InvokeAsync(StateHasChanged);
+        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+    }
+
+    public void Close()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+        JSRuntime.InvokeVoidAsync("openModalById", closingModalId);
+    }
+}

@@ -43,72 +43,77 @@
                                 {
                                     <span class="text-muted">
                                         mit <span class="fw-bold">
-                                        @publicGameState.PublicGameResult.GameResult.Runners
-                                    </span> Läufern
-                                </span>
-                            }
-                        </div>
-
-                        <div>
-                            <span class="text-muted">Spielpreis:</span>
-                            <span class="fw-bold ms-1">
-                                @publicGameState.PublicGameResult.GameResult.Cost
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Result table -->
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Spieler</th>
-                                    <th class="text-end">Total</th>
-                                    <th class="text-end">Change</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
-                                {
-                                    @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
-                                    {
-                                        var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
-                                        var change = GetChange(player.TablePlayer.Player);
-
-                                        <tr>
-                                            <td>@player.TablePlayer.Player.Name</td>
-                                            <td class="text-end">
-                                                <span class="@(cash > 0 ? "text-success" : "text-danger")">
-                                                    @cash
-                                                </span>
-                                            </td>
-                                            <td class="text-end">
-                                                <span class="@(change > 0 ? "text-success" : "text-danger")">
-                                                    @change
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    }
+                                            @publicGameState.PublicGameResult.GameResult.Runners
+                                        </span> Läufern
+                                    </span>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
+                            </div>
+
+                            <div>
+                                <span class="text-muted">Spielpreis:</span>
+                                <span class="fw-bold ms-1">
+                                    @publicGameState.PublicGameResult.GameResult.Cost
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Result table -->
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Spieler</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-end">Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
+                                    {
+                                        @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
+                                        {
+                                            var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
+                                            var change = GetChange(player.TablePlayer.Player);
+
+                                            <tr>
+                                                <td>@player.TablePlayer.Player.Name</td>
+                                                <td class="text-end">
+                                                    <span class="@(cash > 0 ? "text-success" : "text-danger")">
+                                                        @cash
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <span class="@(change > 0 ? "text-success" : "text-danger")">
+                                                        @change
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 }
-            }
-        </div>
+            </div>
 
-        <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-primary" @onclick="Next">
-                Weiter
-            </button>
-        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" @onclick="ShowStartingHands">Start Hände</button>
+                <button type="button" class="btn btn-sm btn-primary" @onclick="Next">
+                    Weiter
+                </button>
+            </div>
 
+        </div>
     </div>
 </div>
-</div>
+
+<StartingHandsModal @ref="startingHandsModal" />
 
 @code {
     private string modalId = "gameResultModal";
+    
+    StartingHandsModal? startingHandsModal;
 
     [Parameter]
     public EventCallback OnReady { get; set; }
@@ -164,5 +169,11 @@
     {
         OnReady.InvokeAsync();
         Close();
+    }
+
+    private void ShowStartingHands()
+    {
+        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+        startingHandsModal?.Show(publicGameState.PublicGameResult?.StartingHands ?? [], playerViewInfos);
     }
 }
