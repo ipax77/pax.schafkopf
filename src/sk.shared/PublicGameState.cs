@@ -63,10 +63,9 @@ public static class PublicGameStateExtensions
             }
         }
 
-        var isLastPlayer = (publicGameState.Bidding1Result?.InterestedPlayers.Last() ?? -1)
-            == publicGameState.YourPosition.Value;
+        var isLastPlayer = IsLastInterestedPlayer(publicGameState);
         var noBiddingsYet = publicGameState.Bidding2Result == null || publicGameState.Bidding2Result.GameType == GameType.None;
-        if (isLastPlayer && noBiddingsYet && validGameTypes.Contains(GameType.None))
+        if (isLastPlayer && noBiddingsYet)
         {
             validGameTypes.Remove(GameType.None);
         }
@@ -223,5 +222,28 @@ public static class PublicGameStateExtensions
             _ => string.Empty
         };
         return teammateString;
+    }
+
+    private static bool IsLastInterestedPlayer(PublicGameState publicGameState)
+    {
+        if (publicGameState.Bidding1Result == null || !publicGameState.YourPosition.HasValue)
+        {
+            return false;
+        }
+        int playerIndex = publicGameState.YourPosition.Value;
+        var interestedPlayers = publicGameState.Bidding1Result.InterestedPlayers;
+        if (interestedPlayers.Count <= 1)
+        {
+            return true;
+        }
+        var orderedInterestePlayers = interestedPlayers
+            .OrderBy(p => DistanceFromLeader(p, publicGameState.LeadingPlayer))
+            .ToList();
+        return orderedInterestePlayers.Last() == playerIndex;
+    }
+
+    private static int DistanceFromLeader(int player, int leader)
+    {
+        return (player - leader + 4) % 4;
     }
 }

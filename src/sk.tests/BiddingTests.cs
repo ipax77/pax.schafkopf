@@ -197,4 +197,64 @@ public sealed class BiddingTests
         var validSuits = publicState.GetValidSuits(GameType.Ruf);
         Assert.DoesNotContain(Suit.Eichel, validSuits);
     }
+
+    [TestMethod]
+    public void CanSetTwoPlayerBidding1ValidGameModes()
+    {
+        Game game = new();
+        game.GameState = GameState.Bidding1;
+        game.SetBidding1(0, new() { WouldPlay = true });
+        game.SetBidding1(1, new() { WouldPlay = true });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = false });
+
+        var publicState1 = game.ToPublicGameState(0);
+        var validGameModes1 = publicState1.GetValidGameModes();
+        Assert.Contains(GameType.None, validGameModes1);
+
+        game.SetBidding2(0, new() { WouldPlay = false } );
+        var publicState2 = game.ToPublicGameState(1);
+        var validGameModes2 = publicState2.GetValidGameModes();
+        Assert.DoesNotContain(GameType.None, validGameModes2);
+    }
+
+    [TestMethod]
+    public void CanSetTwoPlayerBidding1ValidGameModes2()
+    {
+        Game game = new();
+        game.GameState = GameState.Bidding1;
+        game.SetBidding1(0, new() { WouldPlay = false });
+        game.SetBidding1(1, new() { WouldPlay = true });
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = true });
+
+        var publicState1 = game.ToPublicGameState(1);
+        var validGameModes1 = publicState1.GetValidGameModes();
+        Assert.Contains(GameType.None, validGameModes1);
+
+        game.SetBidding2(1, new() { WouldPlay = false });
+        var publicState2 = game.ToPublicGameState(3);
+        var validGameModes2 = publicState2.GetValidGameModes();
+        Assert.DoesNotContain(GameType.None, validGameModes2);
+    }
+
+    [TestMethod]
+    public void CanSetTwoPlayerBidding1ValidGameModes3()
+    {
+        Game game = new();
+        game.ActivePlayer = 2;
+        game.GameState = GameState.Bidding1;
+        game.SetBidding1(2, new() { WouldPlay = false });
+        game.SetBidding1(3, new() { WouldPlay = true });
+        game.SetBidding1(0, new() { WouldPlay = false });
+        game.SetBidding1(1, new() { WouldPlay = true });
+
+        var publicState1 = game.ToPublicGameState(3);
+        var validGameModes1 = publicState1.GetValidGameModes();
+        Assert.Contains(GameType.None, validGameModes1);
+        game.SetBidding2(3, new() { WouldPlay = false });
+        var publicState2 = game.ToPublicGameState(1);
+        var validGameModes2 = publicState2.GetValidGameModes();
+        Assert.DoesNotContain(GameType.None, validGameModes2);
+    }
 }
