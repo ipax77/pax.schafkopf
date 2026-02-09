@@ -1,5 +1,5 @@
 
-[![.NET](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml/badge.svg)](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/ipax77/pax.schafkopf/actions/workflows/dotnet.yml)
 
 # pax.Schafkopf
 
