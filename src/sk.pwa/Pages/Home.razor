@@ -56,7 +56,8 @@ else
                             <h4>Join Existing Game</h4>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control" placeholder="Enter Table ID" @bind="_inputTableId" />
-                                <button class="btn btn-primary" disabled="@(starting || string.IsNullOrEmpty(_inputTableId))" @onclick="JoinGameFromInput">
+                                <button class="btn btn-primary" disabled="@(starting || string.IsNullOrEmpty(_inputTableId))"
+                                        @onclick="JoinGameFromInput">
                                     Join Game
                                 </button>
                             </div>
@@ -69,7 +70,7 @@ else
     else
     {
         @* Step 3: Active Game *@
-        <TableComponent Player="CurrentPlayer" />
+        <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" />
     }
 }
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
@@ -178,6 +179,13 @@ else
             await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
         }
         starting = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async Task LeaveTable()
+    {
+        TableId = null;
+        await JSRuntime.InvokeVoidAsync("updateUrlSilently", NavigationManager.BaseUri);
         await InvokeAsync(StateHasChanged);
     }
 

@@ -20,6 +20,9 @@ public partial class TableComponent() : ComponentBase, IDisposable
     [Parameter, EditorRequired]
     public Player Player { get; set; } = default!;
 
+    [Parameter]
+    public EventCallback OnTableLeft { get; set; }
+
     private PublicGameState publicGameState => GameHubClient.GameState ?? new();
     bool IsMyTurn =>
         publicGameState.YourPosition.HasValue &&
@@ -176,6 +179,7 @@ public partial class TableComponent() : ComponentBase, IDisposable
     private async Task LeaveTable()
     {
         await GameHubClient.LeaveTable();
+        await OnTableLeft.InvokeAsync();
     }
 
     public void Dispose()

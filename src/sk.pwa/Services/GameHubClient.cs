@@ -134,6 +134,8 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
     {
         if (_hubConnection is null) return;
         await _hubConnection.SendAsync("LeaveGame");
+        GameState = null;
+        await _hubConnection.StopAsync();
     }
 
     public async ValueTask DisposeAsync()
