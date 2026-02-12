@@ -163,7 +163,7 @@ public static class GameExtensions
         if (game.PublicTeammate >= 0)
         {
             partner = game.Table.Players[game.PublicTeammate];
-            hand.AddRange(partner.Hand);
+            hand.AddRange(partner.StartingHand);
             trickCards.AddRange(partner.Tricks);
         }
 
