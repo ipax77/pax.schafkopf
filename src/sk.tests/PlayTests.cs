@@ -295,7 +295,7 @@ public sealed class PlayTests
         ];
     }
 
-    private static List<Card> GetOtherCards(List<Card> cards)
+    public static List<Card> GetOtherCards(List<Card> cards)
     {
         var deck = CreateDeck();
         return deck.Except(cards).ToList();
