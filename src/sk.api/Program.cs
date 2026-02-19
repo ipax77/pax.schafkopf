@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using sk.api.Db;
 using sk.api.Hubs;
 using sk.api.Services;
 
@@ -29,6 +31,16 @@ builder.Services.AddCors(options =>
     });
 });
 
+var sqliteConnectionString = $"Data Source=/data/sk/sk.db";
+builder.Services.AddDbContext<SkDbContext>(options => options
+    .UseSqlite(sqliteConnectionString, sqlOptions =>
+    {
+        sqlOptions.MigrationsAssembly("sk.api");
+        sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+    })
+//.EnableDetailedErrors()
+//.EnableSensitiveDataLogging()
+);
 
 // builder.AddServiceDefaults(); // aspire
 
