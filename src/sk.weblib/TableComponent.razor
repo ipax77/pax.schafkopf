@@ -7,7 +7,7 @@
         }
         <CascadingValue Value="publicGameState">
             @* top *@
-            <div class="d-inline-flex vw-100" style="height: 20vh;">
+            <div class="d-inline-flex vw-100" style="height: 15vh;">
                 <div class="d-flex bg-transparent" style="width: 37.5%;">
                     <div class="btn-block">
                         <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle"
@@ -26,7 +26,7 @@
                         <button type="button" class="btn btn-sm btn-outline-danger"
                                 @onclick="LeaveTable">Verlassen</button>
                         <div>
-                            <span class="small">v0.3.1</span>
+                            <span class="small">v0.3.2</span>
                         </div>
                     </div>
 
@@ -68,7 +68,7 @@
             </div>
 
             @* bottom *@
-            <div class="d-inline-flex vw-100" style="height: 30vh;">
+            <div class="d-inline-flex vw-100" style="height: 35vh;">
                 <div class="bg-transparent overflow-hidden" style="width: 20%;">
                     <div class="text-center">
                         <div>
@@ -105,7 +105,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center justify-content-center w-100 @(CanAct ? "bg-warning" : "")"
+                    <div class="d-flex align-items-center justify-content-center w-100 rounded rounded-2 @(CanAct ? "bg-warning" : "")"
                          style="width: 80%">
                         <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
                     </div>
