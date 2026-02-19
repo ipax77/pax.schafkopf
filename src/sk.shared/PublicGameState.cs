@@ -1,6 +1,6 @@
 namespace sk.shared;
 
-public class PublicGameState
+public partial class PublicGameState
 {
     public string ShortCode { get; set; } = string.Empty;
     public GameState GameState { get; set; }
