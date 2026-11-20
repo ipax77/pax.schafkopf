@@ -43,6 +43,8 @@ Each browser represents one player in the game.
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.
 Run the simulation check with `dotnet run --project tools/sk.simulation-audit -c Release -- 1000000`.
+See [engine benchmarks](src/sk.benchmarks/README.md) for repeatable throughput/allocation measurements
+and the results of the first two optimization rounds.
 
 # Contributing
 

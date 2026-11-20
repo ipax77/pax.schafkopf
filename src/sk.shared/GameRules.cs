@@ -5,50 +5,100 @@ public static class GameRules
 {
     public static List<Card> LegalCards(IReadOnlyList<Card> hand, Bidding2Result contract, Card? lead, bool ranAway)
     {
-        if (hand.Count == 0) return [];
+        var result = new List<Card>(hand.Count);
         var type = contract.GameType;
         var suit = contract.Suit;
-        var ace = type == GameType.Ruf ? new Card { Suit = suit, Rank = Rank.Ace } : null;
+        bool lockAce = type == GameType.Ruf && !ranAway;
         if (lead == null)
         {
-            if (ace != null && hand.Contains(ace) && !ranAway)
+            bool hasAce = false;
+            int calledCount = 0;
+            if (lockAce)
+                for (int i = 0; i < hand.Count; i++)
+                {
+                    var card = hand[i];
+                    if (card.Suit != suit || card.IsTrump(type, suit)) continue;
+                    calledCount++;
+                    hasAce |= card.Rank == Rank.Ace;
+                }
+            for (int i = 0; i < hand.Count; i++)
             {
-                var called = hand.Where(c => c.Suit == suit && !c.IsTrump(type, suit)).ToList();
-                if (called.Count < 4) return hand.Where(c => !called.Contains(c) || c == ace).ToList();
+                var card = hand[i];
+                if (hasAce && calledCount < 4 && card.Suit == suit && card.Rank != Rank.Ace && !card.IsTrump(type, suit)) continue;
+                result.Add(card);
             }
-            return [.. hand];
+            return result;
         }
-        var following = hand.Where(c => lead.IsTrump(type, suit)
-            ? c.IsTrump(type, suit) : !c.IsTrump(type, suit) && c.Suit == lead.Suit).ToList();
-        if (following.Count > 0)
+        bool trumpLed = lead.IsTrump(type, suit);
+        Card? calledAce = null;
+        for (int i = 0; i < hand.Count; i++)
         {
-            if (!ranAway && ace != null && !lead.IsTrump(type, suit) && lead.Suit == suit && hand.Contains(ace)) return [ace];
-            return following;
+            var card = hand[i];
+            bool trump = card.IsTrump(type, suit);
+            if (trumpLed ? trump : !trump && card.Suit == lead.Suit) result.Add(card);
+            if (lockAce && card.Suit == suit && card.Rank == Rank.Ace) calledAce = card;
         }
-        // The called ace is locked until searched/run away, except on the last trick.
-        return ace != null && !ranAway && hand.Count > 1 ? hand.Where(c => c != ace).ToList() : [.. hand];
+        if (result.Count > 0)
+        {
+            if (calledAce != null && !trumpLed && lead.Suit == suit)
+            {
+                result.Clear();
+                result.Add(calledAce);
+            }
+            return result;
+        }
+        for (int i = 0; i < hand.Count; i++)
+        {
+            var card = hand[i];
+            if (lockAce && hand.Count > 1 && card.Suit == suit && card.Rank == Rank.Ace) continue;
+            result.Add(card);
+        }
+        return result;
     }
 
-    public static List<Suit> CallableSuits(IReadOnlyList<Card> hand) =>
-        new[] { Suit.Schellen, Suit.Gras, Suit.Eichel }.Where(s =>
-            hand.Any(c => c.Suit == s && !c.IsTrump(GameType.Ruf, s)) &&
-            !hand.Contains(new Card { Suit = s, Rank = Rank.Ace })).ToList();
+    public static List<Suit> CallableSuits(IReadOnlyList<Card> hand)
+    {
+        int present = 0, aces = 0;
+        for (int i = 0; i < hand.Count; i++)
+        {
+            var card = hand[i];
+            if (card.Suit is not (Suit.Schellen or Suit.Gras or Suit.Eichel) || card.IsTrump(GameType.Ruf, card.Suit)) continue;
+            present |= 1 << (int)card.Suit;
+            if (card.Rank == Rank.Ace) aces |= 1 << (int)card.Suit;
+        }
+        var suits = new List<Suit>(3);
+        int callable = present & ~aces;
+        for (int s = 1; s <= 4; s++) if ((callable & (1 << s)) != 0) suits.Add((Suit)s);
+        return suits;
+    }
 
-    public static bool HasSie(IReadOnlyList<Card> hand) => hand.Count == 8 && hand.Distinct().Count() == 8 &&
-        hand.All(c => (c.Rank is Rank.Ober or Rank.Unter) && c.Suit is >= Suit.Schellen and <= Suit.Eichel);
+    public static bool HasSie(IReadOnlyList<Card> hand)
+    {
+        if (hand.Count != 8) return false;
+        uint seen = 0;
+        for (int i = 0; i < hand.Count; i++)
+        {
+            var card = hand[i];
+            if (card.Rank is not (Rank.Ober or Rank.Unter) || card.Suit is < Suit.Schellen or > Suit.Eichel) return false;
+            uint bit = 1u << GameAction.ToCardId(card);
+            if ((seen & bit) != 0) return false;
+            seen |= bit;
+        }
+        return true;
+    }
 
     public static List<GameAction> LegalBids(IReadOnlyList<Card> hand, bool canPass)
     {
-        List<GameAction> actions = [];
+        var actions = new List<GameAction>(14);
         if (canPass) actions.Add(GameAction.Pass);
         if (HasSie(hand)) { actions.Add(GameAction.Bid(GameType.Sie)); return actions; }
         foreach (var s in CallableSuits(hand)) actions.Add(GameAction.Bid(GameType.Ruf, s));
         actions.Add(GameAction.Bid(GameType.Wenz));
         actions.Add(GameAction.Bid(GameType.Wenz, tout: true));
-        foreach (var s in new[] { Suit.Schellen, Suit.Herz, Suit.Gras, Suit.Eichel })
+        for (int s = 1; s <= 4; s++)
         {
-            actions.Add(GameAction.Bid(GameType.Solo, s));
-            actions.Add(GameAction.Bid(GameType.Solo, s, true));
+            actions.Add(GameAction.Bid(GameType.Solo, (Suit)s));
+            actions.Add(GameAction.Bid(GameType.Solo, (Suit)s, true));
         }
         return actions;
     }

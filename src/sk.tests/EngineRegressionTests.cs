@@ -7,6 +7,34 @@ namespace sk.tests;
 public sealed class EngineRegressionTests
 {
     [TestMethod]
+    public void NoncanonicalActionsAreRejectedAndSharedValuesCannotBeChanged()
+    {
+        var game = new Game();
+        game.ResetEpisode(42);
+        RejectedWithoutMutation(game, () => game.Step(0, GameAction.Interest(true) with { CardId = 0 }));
+        var continuing = game.Step(0, GameAction.Interest(true));
+        Assert.Throws<NotSupportedException>(() => ((IList<int>)continuing.Rewards)[0] = 999);
+        for (int p = 1; p < 4; p++) game.Step(p, GameAction.Interest(false));
+        foreach (var action in new[]
+        {
+            GameAction.Pass with { Tout = true }, GameAction.Bid(GameType.None),
+            GameAction.Bid(GameType.Sie, tout: true),
+            GameAction.Bid(GameType.Wenz) with { WouldPlay = true },
+            GameAction.Bid(GameType.Wenz) with { CardId = 5 },
+            new GameAction((ActionKind)99)
+        }) RejectedWithoutMutation(game, () => game.Step(0, action));
+        game.Step(0, GameAction.Bid(GameType.Wenz));
+        var legal = game.GetLegalActions()[0];
+        RejectedWithoutMutation(game, () => game.Step(0, legal with { Tout = true }));
+        RejectedWithoutMutation(game, () => game.Step(0, new(ActionKind.Play, CardId: 32)));
+        var card = GameAction.FromCardId(0);
+        var changed = card with { Rank = Rank.Ace };
+        Assert.AreEqual(Rank.Seven, GameAction.FromCardId(0).Rank);
+        Assert.AreEqual(Rank.Ace, changed.Rank);
+        Assert.IsTrue(continuing.Rewards.All(r => r == 0));
+    }
+
+    [TestMethod]
     public void ActionIdsRoundTripAndOffSuitCardsCompareEqual()
     {
         for (int id = 0; id < GameAction.ActionCount; id++) Assert.AreEqual(id, GameAction.FromId(id).Id);

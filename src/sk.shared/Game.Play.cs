@@ -59,33 +59,24 @@ public partial class Game
     {
         ArgumentNullException.ThrowIfNull(Bidding2Result);
 
-        var trick = new List<(int Player, Card Card)>();
-
-        int player = leadingPlayer;
-
-        for (int i = 0; i < 4; i++)
+        var firstCard = Table.CurrentTrick[leadingPlayer]!;
+        int winner = leadingPlayer;
+        int bestRank = firstCard.GetCardRank(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
+        for (int i = 1; i < 4; i++)
         {
-            var card = Table.CurrentTrick[player];
-            ArgumentNullException.ThrowIfNull(card);
-
-            trick.Add((player, card));
-            player = (player + 1) % 4;
+            int player = (leadingPlayer + i) % 4;
+            var card = Table.CurrentTrick[player]!;
+            int rank = card.GetCardRank(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
+            if (rank > bestRank) { winner = player; bestRank = rank; }
         }
-
-        var firstCard = trick[0].Card;
-        var comparer = new TrickCardComparer(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
-        var winner = trick[0];
-        foreach (var candidate in trick.Skip(1))
-            if (comparer.Compare(candidate.Card, winner.Card) > 0) winner = candidate;
-
-        // store trick in play order, not sorted order
-        foreach (var (_, card) in trick)
-            Table.Players[winner.Player].Tricks.Add(card);
+        // Keep play order for snapshots and the public trick history.
+        for (int i = 0; i < 4; i++)
+            Table.Players[winner].Tricks.Add(Table.CurrentTrick[(leadingPlayer + i) % 4]!);
 
         Table.PreviouseTrick = Table.CurrentTrick;
         Table.CurrentTrick = [null, null, null, null];
 
-        ActivePlayer = winner.Player;
+        ActivePlayer = winner;
     }
 
     private void AdvanceTurn()

@@ -6,6 +6,9 @@ public enum ActionKind { Interest, Pass, Bid, Play }
 public readonly record struct GameAction(ActionKind Kind, bool WouldPlay = false,
     GameType GameType = GameType.None, Suit Suit = Suit.None, bool Tout = false, int CardId = -1)
 {
+    // Cards have init-only properties; callers can use `with` without mutating these instances.
+    private static readonly Card[] Cards = Enumerable.Range(0, 32)
+        .Select(id => new Card { Suit = (Suit)(id / 8 + 1), Rank = (Rank)(id % 8 + 1) }).ToArray();
     public const int ActionCount = 49;
     public static GameAction Interest(bool yes) => new(ActionKind.Interest, WouldPlay: yes);
     public static GameAction Pass => new(ActionKind.Pass);
@@ -42,6 +45,6 @@ public readonly record struct GameAction(ActionKind Kind, bool WouldPlay = false
         return ((int)card.Suit - 1) * 8 + (int)card.Rank - 1;
     }
     public static Card FromCardId(int id) => id is >= 0 and < 32
-        ? new() { Suit = (Suit)(id / 8 + 1), Rank = (Rank)(id % 8 + 1) }
+        ? Cards[id]
         : throw new ArgumentOutOfRangeException(nameof(id));
 }

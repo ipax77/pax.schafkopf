@@ -13,7 +13,8 @@ public partial class Game
 
     public void DealCards(ulong seed)
     {
-        var deck = Enumerable.Range(0, 32).Select(GameAction.FromCardId).ToArray();
+        Span<int> deck = stackalloc int[32];
+        for (int i = 0; i < deck.Length; i++) deck[i] = i;
         var rng = new DealRandom(seed);
         for (int i = deck.Length - 1; i > 0; i--)
         {
@@ -22,8 +23,16 @@ public partial class Game
         }
         for (int i = 0; i < 4; i++)
         {
-            Table.Players[i].Hand = deck.Skip(i * 8).Take(8).ToList();
-            Table.Players[i].StartingHand = [.. Table.Players[i].Hand];
+            var hand = new List<Card>(8);
+            var startingHand = new List<Card>(8);
+            for (int j = 0; j < 8; j++)
+            {
+                var card = GameAction.FromCardId(deck[i * 8 + j]);
+                hand.Add(card);
+                startingHand.Add(card);
+            }
+            Table.Players[i].Hand = hand;
+            Table.Players[i].StartingHand = startingHand;
         }
     }
 
@@ -104,7 +113,7 @@ public partial class Game
 }
 
 // Versioned by the engine contract: SplitMix64 + unbiased Fisher-Yates, independent of System.Random.
-internal sealed class DealRandom(ulong seed)
+internal struct DealRandom(ulong seed)
 {
     private ulong _state = seed;
     private ulong NextUInt64()

@@ -34,12 +34,25 @@ public sealed record GameResult
 
 public static class GameScoring
 {
+    // Private immutable card sequences: Wenz at index 0, suit Solos at 1..4.
+    private static readonly Card[][] TrumpOrders = Enumerable.Range(0, 5).Select(s =>
+        Enumerable.Range(0, 32).Select(GameAction.FromCardId)
+            .Where(c => c.IsTrump(s == 0 ? GameType.Wenz : GameType.Solo, (Suit)s))
+            .OrderByDescending(c => c.GetCardRank(s == 0 ? GameType.Wenz : GameType.Solo, (Suit)s)).ToArray()).ToArray();
+
     public static (int Count, bool Without) CountRunners(IReadOnlyCollection<Card> declarerCards, GameType type, Suit suit)
     {
-        var trumps = Enumerable.Range(0, 32).Select(GameAction.FromCardId)
-            .Where(c => c.IsTrump(type, suit)).OrderByDescending(c => c.GetCardRank(type, suit)).ToArray();
+        var trumps = type switch
+        {
+            GameType.Wenz => TrumpOrders[0],
+            GameType.Ruf or GameType.Sie => TrumpOrders[(int)Suit.Herz],
+            GameType.Solo when suit is >= Suit.Schellen and <= Suit.Eichel => TrumpOrders[(int)suit],
+            _ => Enumerable.Range(0, 32).Select(GameAction.FromCardId).Where(c => c.IsTrump(type, suit))
+                .OrderByDescending(c => c.GetCardRank(type, suit)).ToArray()
+        };
         bool ownsTop = declarerCards.Contains(trumps[0]);
-        int count = trumps.TakeWhile(c => declarerCards.Contains(c) == ownsTop).Count();
+        int count = 0;
+        while (count < trumps.Length && declarerCards.Contains(trumps[count]) == ownsTop) count++;
         return (count, !ownsTop);
     }
 }

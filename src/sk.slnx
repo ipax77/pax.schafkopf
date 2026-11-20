@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="sk.benchmarks/sk.benchmarks.csproj" />
   <Project Path="sk.api/sk.api.csproj" />
   <Project Path="sk.AppHost/sk.AppHost.csproj" />
   <Project Path="sk.pwa/sk.pwa.csproj" />

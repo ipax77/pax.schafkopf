@@ -44,8 +44,7 @@ public partial class Game
 
         if (_bidding2States.Count == 0)
             return null;
-        var comparer = new BiddingStateComparer();
-        var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+        var highestBid = HighestBid();
         return new()
         {
             PlayerIndex = highestBid.Item1,
@@ -134,8 +133,7 @@ public partial class Game
 
         if (_bidding2States.Count == Bidding1Result.InterestedPlayers.Count)
         {
-            var comparer = new BiddingStateComparer();
-            var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+            var highestBid = HighestBid();
             ArgumentNullException.ThrowIfNull(highestBid.Item2);
             ArgumentNullException.ThrowIfNull(highestBid.Item2.ProposedGame);
 
@@ -154,6 +152,19 @@ public partial class Game
         {
             AdvanceBidding2Turn();
         }
+    }
+
+    private (int, BiddingState) HighestBid()
+    {
+        var highest = _bidding2States[0];
+        int rank = GameRules.BidRank(highest.Item2.ProposedGame ?? GameType.None, highest.Item2.Tout);
+        for (int i = 1; i < _bidding2States.Count; i++)
+        {
+            var bid = _bidding2States[i];
+            int candidate = GameRules.BidRank(bid.Item2.ProposedGame ?? GameType.None, bid.Item2.Tout);
+            if (candidate > rank) { highest = bid; rank = candidate; }
+        }
+        return highest;
     }
 
     private void AdvanceBidding2Turn()

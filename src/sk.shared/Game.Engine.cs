@@ -15,39 +15,71 @@ public partial class Game
             GameState.Bidding2 => GameRules.LegalBids(Table.Players[ActivePlayer].Hand,
                 _bidding2States.Count < Bidding1Result!.InterestedPlayers.Count - 1 ||
                 _bidding2States.Any(b => b.Item2.ProposedGame is not (null or GameType.None))),
-            GameState.Playing => Table.Players[ActivePlayer].GetValidCards(this).Select(GameAction.Play).ToList(),
+            GameState.Playing => GetLegalPlayActions(),
             _ => []
         };
     }
 
+    private List<GameAction> GetLegalPlayActions()
+    {
+        var cards = Table.Players[ActivePlayer].GetValidCards(this);
+        var actions = new List<GameAction>(cards.Count);
+        for (int i = 0; i < cards.Count; i++) actions.Add(GameAction.Play(cards[i]));
+        return actions;
+    }
+
+    private static readonly StepResult Continuing = new(false, Array.AsReadOnly(new int[4]));
+
     public StepResult Step(int player, GameAction action)
     {
-        if (player != ActivePlayer || !GetLegalActions().Contains(action))
-            throw new InvalidOperationException("Illegal action or wrong player.");
+        if (player != ActivePlayer) throw new InvalidOperationException("Wrong player.");
+        // Check command shape here; the public handlers remain the authority for phase and legality.
+        // Do not construct a second complete legal-action list before those handlers validate.
         switch (action.Kind)
         {
-            case ActionKind.Interest: SetBidding1(player, new() { WouldPlay = action.WouldPlay }); break;
-            case ActionKind.Pass: SetBidding2(player, new()); break;
-            case ActionKind.Bid: SetBidding2(player, new() { ProposedGame = action.GameType, ProposedSuit = action.Suit, Tout = action.Tout }); break;
-            case ActionKind.Play: PlayCard(player, GameAction.FromCardId(action.CardId)); break;
+            case ActionKind.Interest when action == GameAction.Interest(action.WouldPlay):
+                SetBidding1(player, new() { WouldPlay = action.WouldPlay }); break;
+            case ActionKind.Pass when action == GameAction.Pass:
+                SetBidding2(player, new()); break;
+            case ActionKind.Bid when action.GameType != GameType.None &&
+                !(action.GameType == GameType.Sie && action.Tout) &&
+                action == GameAction.Bid(action.GameType, action.Suit, action.Tout):
+                SetBidding2(player, new() { ProposedGame = action.GameType, ProposedSuit = action.Suit, Tout = action.Tout }); break;
+            case ActionKind.Play when action.CardId is >= 0 and < 32 &&
+                action == new GameAction(ActionKind.Play, CardId: action.CardId):
+                PlayCard(player, GameAction.FromCardId(action.CardId)); break;
+            default: throw new InvalidOperationException("Illegal action.");
         }
-        return new(GameState == GameState.Finished, Array.AsReadOnly((int[])_rewards.Clone()));
+        return GameState == GameState.Finished
+            ? new(true, Array.AsReadOnly((int[])_rewards.Clone())) : Continuing;
     }
 
     /// <summary>Detached, seat-limited observation. Never reveals terminal opponent hands.</summary>
     public GameObservation Observe(int seat)
     {
         if (seat is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(seat));
-        var bid = GetPublicBidding2Result();
+        var bid = Bidding2Result ?? GetPublicBidding2Result();
         var legal = seat == ActivePlayer ? GetLegalActions() : [];
+        var ownHand = Table.Players[seat].Hand;
+        var hand = new int[ownHand.Count];
+        for (int i = 0; i < hand.Length; i++) hand[i] = GameAction.ToCardId(ownHand[i]);
+        var handCounts = new int[4];
+        var trick = new int[4];
+        var points = new int[4];
+        var trickCounts = new int[4];
+        for (int i = 0; i < 4; i++)
+        {
+            var player = Table.Players[i];
+            handCounts[i] = player.Hand.Count;
+            trick[i] = Table.CurrentTrick[i] is { } card ? GameAction.ToCardId(card) : -1;
+            for (int j = 0; j < player.Tricks.Count; j++) points[i] += player.Tricks[j].GetValue();
+            trickCounts[i] = player.Tricks.Count / 4;
+        }
         return new(seat, Dealer, ActivePlayer, leadingPlayer, Turn, GameState, PublicTeammate, DrunterDurch,
             bid == null ? null : new(bid.PlayerIndex, bid.GameType, bid.Suit, bid.Tout),
-            Array.AsReadOnly(Table.Players[seat].Hand.Select(GameAction.ToCardId).ToArray()),
-            Array.AsReadOnly(Table.Players.Select(p => p.Hand.Count).ToArray()),
-            Array.AsReadOnly(Table.CurrentTrick.Select(c => c == null ? -1 : GameAction.ToCardId(c)).ToArray()),
-            Array.AsReadOnly(Table.Players.Select(p => p.Tricks.Sum(c => c.GetValue())).ToArray()),
-            Array.AsReadOnly(Table.Players.Select(p => p.Tricks.Count / 4).ToArray()),
-            Array.AsReadOnly(_history.ToArray()), Array.AsReadOnly(legal.ToArray()));
+            Array.AsReadOnly(hand), Array.AsReadOnly(handCounts), Array.AsReadOnly(trick),
+            Array.AsReadOnly(points), Array.AsReadOnly(trickCounts),
+            Array.AsReadOnly(_history.ToArray()), legal.AsReadOnly());
     }
 
     private static Bidding2Result? CopyBid(Bidding2Result? b) => b == null ? null : new()

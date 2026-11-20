@@ -52,3 +52,8 @@ has different contract frequencies and additional validation, so these timings a
 controlled before/after speed comparison.
 
 See [the engine contract](../../docs/engine.md) for rules, action IDs, replay, and live bot hooks.
+
+After two optimization rounds, the same million-episode workload completed in 14.864 seconds
+with 44,510 allocated bytes/episode, the same contract counts, and zero stalls. See the
+[benchmark project and saved measurements](../../src/sk.benchmarks/README.md) for controlled
+before/after comparisons on fixed full-game workloads.
