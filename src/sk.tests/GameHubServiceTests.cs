@@ -9,6 +9,30 @@ namespace sk.tests;
 [TestClass]
 public class GameHubServiceTests
 {
+    [TestMethod]
+    public void ConcurrentBotDecisionsApplyOnceAndStaleDecisionsAreRejected()
+    {
+        var players = Enumerable.Range(0, 4).Select(i => new Player { Guid = Guid.NewGuid(), Name = $"Bot{i}" }).ToArray();
+        var id = _gameHubService.CreateNewGame(players[0]);
+        foreach (var p in players.Skip(1)) _gameHubService.JoinGame(id, p);
+        var turn = _gameHubService.GetBotTurn(id, players[0].Guid);
+        Assert.HasCount(8, turn.Observation.Hand);
+        Assert.HasCount(2, turn.Observation.LegalActions);
+        int applied = 0;
+        Parallel.For(0, 16, _ =>
+        {
+            if (_gameHubService.TryApplyBotAction(id, players[0].Guid, turn.Revision, GameAction.Interest(false)))
+                Interlocked.Increment(ref applied);
+        });
+        Assert.AreEqual(1, applied);
+        for (int p = 1; p < 4; p++) _gameHubService.SubmitBidding1(id, players[p].Guid, new());
+        foreach (var p in players) _gameHubService.Ready(id, p.Guid);
+        Assert.IsFalse(_gameHubService.TryApplyBotAction(id, players[0].Guid, turn.Revision, GameAction.Interest(false)));
+        var next = _gameHubService.GetBotTurn(id, players[1].Guid);
+        Assert.AreEqual(1, next.Observation.ActivePlayer);
+        Assert.IsEmpty(next.Observation.History);
+    }
+
     private Mock<IHubContext<GameHub>> _mockHubContext = null!;
     private Mock<IHubClients> _mockHubClients = null!;
     private Mock<IClientProxy> _mockAllClientsProxy = null!; // For All and AllExcept

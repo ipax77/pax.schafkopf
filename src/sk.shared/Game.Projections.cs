@@ -4,62 +4,43 @@ public partial class Game
 {
     public PublicGameState ToPublicGameState(int forPlayer)
     {
-        var publicTable = new Table
+        var table = new Table
         {
             Guid = Table.Guid,
-            PreviouseTrick = Table.PreviouseTrick,
-            CurrentTrick = Table.CurrentTrick,
-            CurrentTrickCard = Table.CurrentTrickCard,
+            PreviouseTrick = Table.PreviouseTrick?.ToArray(),
+            CurrentTrick = Table.CurrentTrick.ToArray(),
+            CurrentTrickCard = Table.CurrentTrickCard == null ? null : new()
+            { Position = Table.CurrentTrickCard.Position, Card = Table.CurrentTrickCard.Card }
         };
-
         for (int i = 0; i < 4; i++)
         {
-            var originalPlayer = Table.Players[i];
-            publicTable.Players[i] = new TablePlayer
+            var p = Table.Players[i];
+            table.Players[i] = new()
             {
-                Player = originalPlayer.Player,
-                Position = originalPlayer.Position,
-                Tricks = originalPlayer.Tricks,
-                Hand = i == forPlayer ? originalPlayer.Hand : GetPrivateHand(originalPlayer.Hand),
-                IsConnected = originalPlayer.IsConnected,
+                Player = CopyPlayer(p.Player), Position = p.Position, Tricks = [.. p.Tricks],
+                Hand = i == forPlayer ? [.. p.Hand] : p.Hand.Select(_ => new Card { Suit = Suit.None }).ToList(),
+                IsConnected = p.IsConnected, Cash = p.Cash, ReadyForNextRound = p.ReadyForNextRound
             };
         }
-
-        PublicGameResult? publicGameResult = null;
-        if (GameState == GameState.Finished)
+        var bidding1 = GetPublicBidding1Result();
+        var result = GameResults.LastOrDefault();
+        return new()
         {
-            publicGameResult = new()
+            ShortCode = ShortCode, GameState = GameState, LeadingPlayer = leadingPlayer,
+            ActivePlayer = ActivePlayer, YourPosition = forPlayer, Turn = Turn,
+            Bidding1Result = bidding1 == null ? null : new()
+            { InterestedPlayers = bidding1.InterestedPlayers.ToArray(), DeclinedPlayers = bidding1.DeclinedPlayers.ToArray() },
+            Bidding2Result = GetPublicBidding2Result(), PublicTeammate = PublicTeammate, DrunterDurch = DrunterDurch,
+            Table = table,
+            PublicGameResult = GameState != GameState.Finished ? null : new()
             {
-                StartingHands = Table.Players.OrderBy(o => o.Position).Select(s => s.StartingHand).ToList(),
-                PlayerCashes = Table.Players.OrderBy(o => o.Position).Select(s => s.Cash).ToList(),
-                GameResult = GameResults.LastOrDefault() ?? new(),
-            };
-        }
-
-        return new PublicGameState
-        {
-            ShortCode = ShortCode,
-            GameState = GameState,
-            LeadingPlayer = leadingPlayer,
-            ActivePlayer = ActivePlayer,
-            YourPosition = forPlayer,
-            Turn = Turn,
-            Bidding1Result = GetPublicBidding1Result(),
-            Bidding2Result = GetPublicBidding2Result(),
-            PublicTeammate = PublicTeammate,
-            DrunterDurch = DrunterDurch,
-            Table = publicTable,
-            PublicGameResult = publicGameResult,
+                StartingHands = Table.Players.Select(p => p.StartingHand.ToList()).ToList(),
+                PlayerCashes = Table.Players.Select(p => p.Cash).ToList(),
+                GameResult = result == null ? new() : result with
+                { Player = CopyPlayer(result.Player), Player2 = result.Player2 == null ? null : CopyPlayer(result.Player2) }
+            }
         };
     }
 
-    private static List<Card> GetPrivateHand(List<Card> hand)
-    {
-        List<Card> cards = [];
-        foreach (var _ in hand)
-        {
-            cards.Add(new() { Rank = Rank.Seven, Suit = Suit.None });
-        }
-        return cards;
-    }
+    private static Player CopyPlayer(Player p) => new() { Name = p.Name, Guid = p.Guid };
 }

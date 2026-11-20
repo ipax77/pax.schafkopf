@@ -17,7 +17,7 @@ public partial record Card
 
     public int GetCardRank(GameType mode, Suit trump, Card? firstCard = null)
     {
-        if (mode == GameType.Ruf)
+        if (mode is GameType.Ruf or GameType.Sie)
         {
             trump = Suit.Herz;
         }
@@ -43,7 +43,7 @@ public partial record Card
 
     public int GetCardOrder(GameType mode, Suit trump)
     {
-        if (mode == GameType.Ruf)
+        if (mode is GameType.Ruf or GameType.Sie)
         {
             trump = Suit.Herz;
         }
@@ -70,7 +70,7 @@ public partial record Card
 
     public bool IsTrump(GameType mode, Suit trump)
     {
-        if (mode == GameType.Ruf)
+        if (mode is GameType.Ruf or GameType.Sie)
         {
             trump = Suit.Herz;
         }
@@ -83,33 +83,9 @@ public partial record Card
         };
     }
 
-    public bool CanOperate(Card firstCard, GameType mode, Suit trump, List<Card> hand)
-    {
-        if (mode == GameType.Ruf)
-        {
-            trump = Suit.Herz;
-        }
-
-        if (firstCard.IsTrump(mode, trump))
-        {
-            if (!hand.Any(a => a.IsTrump(mode, trump)))
-            {
-                return true;
-            }
-            return IsTrump(mode, trump);
-        }
-
-        if (!IsTrump(mode, trump))
-        {
-            if (!hand.Any(a => !a.IsTrump(mode, trump) && a.Suit == firstCard.Suit))
-            {
-                return true;
-            }
-            return Suit == firstCard.Suit;
-        }
-
-        return true;
-    }
+    // Compatibility helper; use the same complete legality rules as the engine.
+    public bool CanOperate(Card firstCard, GameType mode, Suit trump, List<Card> hand, bool ranAway = false) =>
+        GameRules.LegalCards(hand, new() { GameType = mode, Suit = trump }, firstCard, ranAway).Contains(this);
 
     public string GetCssClass()
     {

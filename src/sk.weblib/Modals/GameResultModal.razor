@@ -42,7 +42,7 @@
                                 @if (hasRunners)
                                 {
                                     <span class="text-muted">
-                                        mit <span class="fw-bold">
+                                        @(publicGameState.PublicGameResult.GameResult.WithoutRunners ? "ohne" : "mit") <span class="fw-bold">
                                             @publicGameState.PublicGameResult.GameResult.Runners
                                         </span> Läufern
                                     </span>
@@ -120,9 +120,9 @@
 
     private PublicGameState publicGameState = new();
     private List<PlayerViewInfo> playerViewInfos = [];
-    bool isSchneider => publicGameState.PublicGameResult?.GameResult.PlayerPoints is < 30 or > 90;
-    bool isSchwarz => publicGameState.PublicGameResult?.GameResult.PlayerPoints is 0 or 120;
-    bool hasRunners => publicGameState.Bidding2Result?.GameType == GameType.Wenz ?
+    bool isSchneider => publicGameState.PublicGameResult?.GameResult.Schneider == true;
+    bool isSchwarz => publicGameState.PublicGameResult?.GameResult.Schwarz == true;
+    bool hasRunners => publicGameState.PublicGameResult?.GameResult.GameType == GameType.Wenz ?
         publicGameState.PublicGameResult?.GameResult.Runners >= 2 : publicGameState.PublicGameResult?.GameResult.Runners >= 3;
 
     public void Show(PublicGameState publicGameState, List<PlayerViewInfo> playerViewInfos)
@@ -146,9 +146,7 @@
         }
         var isPlayer = publicGameState.PublicGameResult.GameResult.Player.Guid == player.Guid
             || publicGameState.PublicGameResult?.GameResult.Player2?.Guid == player.Guid;
-        bool playersAreWinners = publicGameState.PublicGameResult!.GameResult.Tout ?
-            publicGameState.PublicGameResult.GameResult.PlayerPoints == 120
-            : publicGameState.PublicGameResult.GameResult.PlayerPoints > 60;
+        bool playersAreWinners = publicGameState.PublicGameResult!.GameResult.DeclarerWins;
         bool isSolo = publicGameState.PublicGameResult.GameResult.GameType != GameType.Ruf;
         var change = publicGameState.PublicGameResult.GameResult.Cost;
         if (isPlayer)

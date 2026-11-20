@@ -54,96 +54,134 @@ public class GameHubService(IHubContext<GameHub> hub)
 
     public void RejoinGame(Guid gameId, Player player)
     {
-        var seat = GetGame(gameId).GetTablePlayer(player.Guid)
-            ?? throw new InvalidOperationException("Player not part of game");
-        seat.Player.ConnectionId = player.ConnectionId;
-        seat.IsConnected = true;
+        var game = GetGame(gameId);
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(player.Guid)
+                ?? throw new InvalidOperationException("Player not part of game");
+            seat.Player.ConnectionId = player.ConnectionId;
+            seat.IsConnected = true;
+        }
     }
 
     public void DisconnectPlayer(Guid gameId, Guid playerId)
     {
-        var seat = GetGame(gameId).GetTablePlayer(playerId);
-        seat?.IsConnected = false;
+        var game = GetGame(gameId);
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId);
+            seat?.IsConnected = false;
+        }
     }
 
     public void LeaveGame(Guid gameId, Guid playerId)
     {
-        var seat = GetGame(gameId).GetTablePlayer(playerId);
-        seat?.IsConnected = false;
-        seat?.Player.Name = string.Empty;
-        seat?.Player.Guid = Guid.Empty;
-        seat?.Player.ConnectionId = null;
+        var game = GetGame(gameId);
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId);
+            seat?.IsConnected = false;
+            seat?.Player.Name = string.Empty;
+            seat?.Player.Guid = Guid.Empty;
+            seat?.Player.ConnectionId = null;
+        }
     }
 
     public bool Ready(Guid gameId, Guid playerId)
     {
         var game = GetGame(gameId);
-        if (game.GameState != GameState.Finished)
+        lock (game.joinLock)
         {
+            if (game.GameState != GameState.Finished)
+            {
+                return false;
+            }
+
+            var seat = game.GetTablePlayer(playerId)
+                ?? throw new InvalidOperationException("Player not in game");
+
+            seat.ReadyForNextRound = true;
+
+            if (game.Table.Players.All(a => a.ReadyForNextRound))
+            {
+                game.Reset();
+                return true;
+            }
             return false;
         }
-
-        var seat = game.GetTablePlayer(playerId)
-            ?? throw new InvalidOperationException("Player not in game");
-
-        seat.ReadyForNextRound = true;
-
-        if (game.Table.Players.All(a => a.ReadyForNextRound))
-        {
-            game.Reset();
-            return true;
-        }
-        return false;
     }
 
     public void SubmitBidding1(Guid gameId, Guid playerId, BiddingState request)
     {
         var game = GetGame(gameId);
-        var seat = game.GetTablePlayer(playerId) ?? throw new InvalidOperationException("Player not in game");
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId) ?? throw new InvalidOperationException("Player not in game");
 
-        game.SetBidding1(seat.Position, request);
+            game.SetBidding1(seat.Position, request);
+        }
     }
 
     public void SubmitBidding2(Guid gameId, Guid playerId, BiddingState request)
     {
         var game = GetGame(gameId);
-        var seat = game.GetTablePlayer(playerId)
-            ?? throw new InvalidOperationException("Player not in game");
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId)
+                ?? throw new InvalidOperationException("Player not in game");
 
-        game.SetBidding2(seat.Position, request);
+            game.SetBidding2(seat.Position, request);
+        }
     }
 
     public void PlayCard(Guid gameId, Guid playerId, Card card)
     {
         var game = GetGame(gameId);
-        var seat = game.GetTablePlayer(playerId)
-            ?? throw new InvalidOperationException("Player not in game");
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId)
+                ?? throw new InvalidOperationException("Player not in game");
 
-        game.PlayCard(seat.Position, card);
+            game.PlayCard(seat.Position, card);
+        }
     }
 
 
     public async Task BroadcastGame(Guid gameId)
     {
         var game = GetGame(gameId);
-
-        List<string> connectionIds = game.Table.Players
-            .Where(p => p.IsConnected && p.Player.Guid != Guid.Empty && !string.IsNullOrEmpty(p.Player.ConnectionId))
-            .Select(p => p.Player.ConnectionId ?? string.Empty) // see note below
-            .ToList();
-
-        foreach (var seat in game.Table.Players)
+        List<(string Connection, PublicGameState State)> snapshots;
+        lock (game.joinLock)
         {
-            if (!seat.IsConnected || string.IsNullOrEmpty(seat.Player.ConnectionId)) continue;
-
-            await _hub.Clients
-                .Client(seat.Player.ConnectionId)
-                .SendAsync("ReceiveGameState", game.ToPublicGameState(seat.Position));
+            snapshots = game.Table.Players
+                .Where(p => p.IsConnected && !string.IsNullOrEmpty(p.Player.ConnectionId))
+                .Select(p => (p.Player.ConnectionId!, game.ToPublicGameState(p.Position))).ToList();
         }
+        foreach (var (connection, state) in snapshots)
+            await _hub.Clients.Client(connection).SendAsync("ReceiveGameState", state);
+    }
 
-        // await _hub.Clients
-        //     .AllExcept(connectionIds)
-        //     .SendAsync("ReceiveGameState", game.ToPublicGameState(-1));
+    // Model inference happens outside the table lock. Reject results computed for an obsolete turn.
+    public BotTurn GetBotTurn(Guid gameId, Guid playerId)
+    {
+        var game = GetGame(gameId);
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId) ?? throw new InvalidOperationException("Player not in game");
+            return new(game.Revision, game.Observe(seat.Position));
+        }
+    }
+
+    public bool TryApplyBotAction(Guid gameId, Guid playerId, long revision, GameAction action)
+    {
+        var game = GetGame(gameId);
+        lock (game.joinLock)
+        {
+            var seat = game.GetTablePlayer(playerId) ?? throw new InvalidOperationException("Player not in game");
+            if (game.Revision != revision || game.ActivePlayer != seat.Position) return false;
+            game.Step(seat.Position, action);
+            return true;
+        }
     }
 
     private Game GetGame(Guid id) =>
@@ -153,11 +191,15 @@ public class GameHubService(IHubContext<GameHub> hub)
 
     public void AttachConnection(Guid gameId, Guid playerId, string connectionId)
     {
-        var seat = GetGame(gameId).GetTablePlayer(playerId);
-        if (seat != null)
+        var game = GetGame(gameId);
+        lock (game.joinLock)
         {
-            seat.IsConnected = true;
-            seat.Player.ConnectionId = connectionId;
+            var seat = game.GetTablePlayer(playerId);
+            if (seat != null)
+            {
+                seat.IsConnected = true;
+                seat.Player.ConnectionId = connectionId;
+            }
         }
     }
 
@@ -169,3 +211,5 @@ public class GameHubService(IHubContext<GameHub> hub)
             .Select(s => s[Random.Shared.Next(s.Length)]).ToArray());
     }
 }
+
+public sealed record BotTurn(long Revision, GameObservation Observation);

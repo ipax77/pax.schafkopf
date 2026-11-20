@@ -43,22 +43,9 @@ public sealed class CountTests
             new Card() { Rank = Rank.Eight, Suit = Suit.Schellen },
         ];
 
-        Game game = new();
-        
-        game.GameState = GameState.Bidding1;
-        game.Table.Players[0].Hand = hand;
-        game.Table.Players[0].StartingHand = hand;
-
-        game.SetBidding1(0, new() { WouldPlay = true });
-        game.SetBidding1(1, new() { WouldPlay = false });
-        game.SetBidding1(2, new() { WouldPlay = false });
-        game.SetBidding1(3, new() { WouldPlay = false });
-
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Herz });
-
-        game.CreateGameResult();
-        Assert.IsNotEmpty(game.GameResults);
-        Assert.AreEqual(3, game.GameResults[0].Runners);
+        var (runners, without) = GameScoring.CountRunners(hand, GameType.Solo, Suit.Herz);
+        Assert.AreEqual(3, runners);
+        Assert.IsFalse(without);
     }
 
     [TestMethod]
@@ -79,7 +66,7 @@ public sealed class CountTests
             new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
             new Card() { Rank = Rank.Unter, Suit = Suit.Herz },
             new Card() { Rank = Rank.Eight, Suit = Suit.Herz },
-            new Card() { Rank = Rank.Eight, Suit = Suit.Eichel },
+            new Card() { Rank = Rank.Ten, Suit = Suit.Eichel },
             new Card() { Rank = Rank.Eight, Suit = Suit.Gras },
             new Card() { Rank = Rank.Seven, Suit = Suit.Eichel },
             new Card() { Rank = Rank.Seven, Suit = Suit.Gras },

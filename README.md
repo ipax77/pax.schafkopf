@@ -38,6 +38,12 @@ Open http://localhost:5027
  in four different browsers or browser profiles.
 Each browser represents one player in the game.
 
+## Headless engine and bots
+
+See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
+stable action IDs, seat-limited observations, and live bot integration hooks.
+Run the simulation check with `dotnet run --project tools/sk.simulation-audit -c Release -- 1000000`.
+
 # Contributing
 
 We really like people helping us with the project. Nevertheless, take your time to read our contributing guidelines [here](./CONTRIBUTING.md).

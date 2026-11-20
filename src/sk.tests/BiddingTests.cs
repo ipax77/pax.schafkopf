@@ -117,7 +117,7 @@ public sealed class BiddingTests
     public void CanPlayPublicCard()
     {
         Game game = new();
-        game.DealCards();
+        game.DealCards(42);
         game.GameState = GameState.Bidding1;
 
         game.SetBidding1(0, new() { WouldPlay = true });
@@ -125,7 +125,7 @@ public sealed class BiddingTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Schellen });
 
         Assert.AreEqual(GameState.Playing, game.GameState);
 

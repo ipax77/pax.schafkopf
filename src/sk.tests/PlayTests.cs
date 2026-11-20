@@ -38,13 +38,14 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
+        game.DealCards(42);
 
         game.SetBidding1(0, new() { WouldPlay = true });
         game.SetBidding1(1, new() { WouldPlay = false });
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Schellen });
 
         for (int i = 0; i < 4; i++)
         {
@@ -71,6 +72,7 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
+        game.DealCards(42);
 
         var publicGameState = game.ToPublicGameState(3);
         Assert.IsTrue(publicGameState.YourPosition.HasValue);
@@ -93,6 +95,7 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
+        game.DealCards(42);
 
         game.SetBidding1(0, new() { WouldPlay = true });
         game.SetBidding1(1, new() { WouldPlay = false });
@@ -134,6 +137,7 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
+        game.DealCards(42);
         DealTestHand(game);
 
         game.SetBidding1(0, new() { WouldPlay = true });
@@ -177,6 +181,7 @@ public sealed class PlayTests
         game.TryAssignEmptySeat(testPlayers[3]);
 
         game.TryStartGame();
+        game.DealCards(42);
         DealSie(game);
 
         game.SetBidding1(0, new() { WouldPlay = true });
