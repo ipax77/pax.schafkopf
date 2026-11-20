@@ -88,16 +88,18 @@ The existing `Game` methods and public-state helpers use `GameRules`, the same i
 do not hand it to a policy or mutate its fields to drive a game. Use validated action methods.
 Live `Reset()` retains cash and the session results ledger and rotates dealer; headless reset does not.
 
-The service serializes mutations and snapshot creation per table. A future bot scheduler can:
+The service serializes mutations and snapshot delivery per table. `BotTurnScheduler` uses:
 
-1. Read `GameHubService.GetBotTurn(gameId, playerId)` for a detached observation and revision.
+1. Read `GameHubService.GetActiveBotTurn(gameId)` for the active bot's detached observation and revision.
 2. Compute the policy decision outside the table lock (e.g. through `IGamePolicy`).
 3. Call `TryApplyBotAction(gameId, playerId, revision, action)`; discard/recompute if it returns false.
 4. Broadcast the updated table after an accepted action.
 
-The revision guards delayed/concurrent inference, including across round resets. Human commands
-and bot commands share the same authority. Bot seat creation, scheduling, and model hosting are not
-enabled by this change; these service hooks provide the integration boundary.
+The revision guards delayed/concurrent decisions, including round resets, lineup changes, and
+disconnect/rejoin. Only server-owned bot seats can apply bot actions; human commands and bot commands
+use the same engine authority. Live seats use `heuristic-v1/conservative`, automatically ready at
+settlement, and can be replaced between rounds. Model hosting remains future work. See the
+[live bot guide](../training/README.md#live-heuristic-tables) for controls, pacing, and cleanup.
 The UI DTO still reveals starting hands after a round for the results dialog; policy observations
 deliberately do not use that DTO.
 

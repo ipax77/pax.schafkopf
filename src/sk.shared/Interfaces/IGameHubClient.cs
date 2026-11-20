@@ -16,4 +16,6 @@ public interface IGameHubClient
     Task SubmitBidding2(Bidding2Result? result);
     Task LeaveTable();
     Task Ready();
+    Task FillBotSeats();
+    Task RemoveBot(int position);
 }

@@ -7,28 +7,33 @@ using sk.shared;
 namespace sk.tests;
 
 [TestClass]
-public class GameHubServiceTests
+public partial class GameHubServiceTests
 {
     [TestMethod]
     public void ConcurrentBotDecisionsApplyOnceAndStaleDecisionsAreRejected()
     {
-        var players = Enumerable.Range(0, 4).Select(i => new Player { Guid = Guid.NewGuid(), Name = $"Bot{i}" }).ToArray();
-        var id = _gameHubService.CreateNewGame(players[0]);
-        foreach (var p in players.Skip(1)) _gameHubService.JoinGame(id, p);
-        var turn = _gameHubService.GetBotTurn(id, players[0].Guid);
+        var human = new Player { Guid = Guid.NewGuid(), Name = "Human" };
+        var id = _gameHubService.CreateNewGame(human);
+        _gameHubService.FillBotSeats(id, human.Guid);
+        _gameHubService.SubmitBidding1(id, human.Guid, new());
+        var work = _gameHubService.GetActiveBotTurn(id)!;
+        var turn = work.Turn;
         Assert.HasCount(8, turn.Observation.Hand);
         Assert.HasCount(2, turn.Observation.LegalActions);
+        Assert.IsFalse(_gameHubService.TryApplyBotAction(id, work.PlayerId, turn.Revision, GameAction.FromId(17)));
+        Assert.AreEqual(turn.Revision, _gameHubService.GetActiveBotTurn(id)!.Turn.Revision);
         int applied = 0;
         Parallel.For(0, 16, _ =>
         {
-            if (_gameHubService.TryApplyBotAction(id, players[0].Guid, turn.Revision, GameAction.Interest(false)))
+            if (_gameHubService.TryApplyBotAction(id, work.PlayerId, turn.Revision, GameAction.Interest(false)))
                 Interlocked.Increment(ref applied);
         });
         Assert.AreEqual(1, applied);
-        for (int p = 1; p < 4; p++) _gameHubService.SubmitBidding1(id, players[p].Guid, new());
-        foreach (var p in players) _gameHubService.Ready(id, p.Guid);
-        Assert.IsFalse(_gameHubService.TryApplyBotAction(id, players[0].Guid, turn.Revision, GameAction.Interest(false)));
-        var next = _gameHubService.GetBotTurn(id, players[1].Guid);
+        while (_gameHubService.GetActiveBotTurn(id) is { } remaining)
+            Assert.IsTrue(_gameHubService.TryApplyBotAction(id, remaining.PlayerId, remaining.Turn.Revision, GameAction.Interest(false)));
+        Assert.IsTrue(_gameHubService.Ready(id, human.Guid));
+        Assert.IsFalse(_gameHubService.TryApplyBotAction(id, work.PlayerId, turn.Revision, GameAction.Interest(false)));
+        var next = _gameHubService.GetBotTurn(id, work.PlayerId);
         Assert.AreEqual(1, next.Observation.ActivePlayer);
         Assert.IsEmpty(next.Observation.History);
     }

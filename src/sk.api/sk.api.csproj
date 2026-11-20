@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\sk.bot\sk.bot.csproj" />
     <ProjectReference Include="..\sk.shared\sk.shared.csproj" />
     <ProjectReference Include="..\sk.ServiceDefaults\sk.ServiceDefaults.csproj" />
   </ItemGroup>

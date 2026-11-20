@@ -8,7 +8,7 @@
             {
                 <span class="badge bg-secondary">Erster</span>
             }
-            @if (!PlayerViewInfo.TablePlayer.IsConnected)
+            @if (!PlayerViewInfo.TablePlayer.IsBot && !PlayerViewInfo.TablePlayer.IsConnected)
             {
                 <div>
                     <div class="spinner-border" role="status">
@@ -46,6 +46,14 @@
         </div>
         <div class="text-center">
             <span class="badge bg-primary">@PlayerViewInfo.TablePlayer.Player.Name</span>
+            @if (PlayerViewInfo.TablePlayer.IsBot)
+            {
+                <span class="badge bg-secondary" title="Vorsichtiger Computergegner">Bot</span>
+            }
+            @if (PublicGameState.GameState == GameState.Finished && PlayerViewInfo.TablePlayer.ReadyForNextRound)
+            {
+                <span class="badge bg-success">Bereit</span>
+            }
         </div>
     </div>
 </div>

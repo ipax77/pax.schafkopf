@@ -29,11 +29,14 @@ public partial class TableComponent() : ComponentBase, IDisposable
         publicGameState.ActivePlayer == publicGameState.YourPosition.Value;
 
     bool CanAct =>
-        IsMyTurn &&
+        IsMyTurn && AllPlayersAvailable &&
         publicGameState.GameState is
             GameState.Bidding1 or
             GameState.Bidding2 or
             GameState.Playing;
+
+    bool AllPlayersAvailable => publicGameState.Table.Players.All(p =>
+        p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected));
 
     int ViewIndex(int serverIndex)
       => (serverIndex - publicGameState.YourPosition!.Value + 4) % 4;
@@ -124,14 +127,15 @@ public partial class TableComponent() : ComponentBase, IDisposable
     {
         if (publicGameState.GameState == GameState.Finished)
         {
-            if (trickFinished)
+            if (trickFinished && !publicGameState.Table.Players.Any(p =>
+                p.Player.Guid == Player.Guid && p.ReadyForNextRound))
             {
                 gameResultModal?.Show(publicGameState, GetPlayersByView());
                 return;
             }
         }
 
-        if (publicGameState.ActivePlayer != publicGameState.YourPosition)
+        if (!AllPlayersAvailable || publicGameState.ActivePlayer != publicGameState.YourPosition)
         {
             return;
         }
@@ -149,10 +153,7 @@ public partial class TableComponent() : ComponentBase, IDisposable
     private void TrickFinished(bool finished)
     {
         trickFinished = finished;
-        if (trickFinished && publicGameState.GameState == GameState.Finished)
-        {
-            gameResultModal?.Show(publicGameState, GetPlayersByView());
-        }
+        if (trickFinished) ShowModals();
     }
 
     private async Task SubmitBidding1(bool wouldPlay)

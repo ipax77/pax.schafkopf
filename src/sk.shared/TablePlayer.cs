@@ -9,6 +9,8 @@ public sealed class TablePlayer
     public List<Card> Hand { get; set; } = [];
     public List<Card> Tricks { get; set; } = [];
     public bool IsConnected { get; set; }
+    // Assigned only by the server; independent of browser connection state.
+    public bool IsBot { get; set; }
     public int Cash { get; set; }
     public bool ReadyForNextRound { get; set; }
 

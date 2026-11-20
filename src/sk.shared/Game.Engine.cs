@@ -7,6 +7,9 @@ public partial class Game
     private bool _settled;
     public long Revision { get; private set; }
 
+    // Live seat/connection changes invalidate detached decisions, just like engine actions.
+    public void InvalidatePendingActions() => Revision++;
+
     public List<GameAction> GetLegalActions()
     {
         return GameState switch

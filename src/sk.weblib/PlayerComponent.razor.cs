@@ -21,7 +21,8 @@ public partial class PlayerComponent
 
     GameType gameType => PublicGameState.Bidding2Result?.GameType ?? GameType.Ruf;
     Suit suit => PublicGameState.Bidding2Result?.Suit ?? Suit.Herz;
-    List<Card> validCards => PublicGameState.GetValidCards();
+    List<Card> validCards => PublicGameState.Table.Players.All(p =>
+        p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected)) ? PublicGameState.GetValidCards() : [];
 
     private Card? draggedCard;
     private double dragStartY;

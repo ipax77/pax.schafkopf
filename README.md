@@ -34,9 +34,12 @@ cd pax.schafkopf/src/sk.pwa
 dotnet run
 ```
 
-Open http://localhost:5027
- in four different browsers or browser profiles.
-Each browser represents one player in the game.
+Open http://localhost:5027, set a nickname, and create a table. Click
+**Freie Plätze mit Bots füllen** to fill the empty seats with conservative heuristic bots.
+For a mixed table, invite other humans before filling the remaining seats. Each human
+uses a separate browser or browser profile. Bots automatically ready after each deal;
+click **Weiter** in the result dialog to start the next one. Remove bots in that dialog
+between rounds to make room for friends.
 
 ## Headless engine and bots
 
@@ -44,8 +47,8 @@ The [WSL training plan](docs/training-plan.md) defines separate bidding and play
 staged PPO training, and the implementation milestones.
 
 The [bot and evaluation guide](training/README.md) covers the implemented heuristic policies,
-WSL environment checks, seeded comparisons, and replay commands. Live bot seats and neural
-training are not enabled yet.
+WSL environment checks, seeded comparisons, and replay commands. Live bot seats use
+`heuristic-v1/conservative`; neural training is not enabled yet.
 
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.

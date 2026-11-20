@@ -4,7 +4,8 @@ public partial class Game
 {
     public bool TryStartGame()
     {
-        if (GameState != GameState.None || !Table.Players.All(p => p.IsConnected)) return false;
+        if (GameState != GameState.None || !Table.Players.All(p =>
+            p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected))) return false;
         StartRound((ulong)Random.Shared.NextInt64(), Dealer);
         return true;
     }
@@ -96,6 +97,8 @@ public partial class Game
         Turn = 0;
         ReadyCheck = 0;
         Table.Reset();
+        _roundPlayers = Table.Players.Any(p => p.Player.Guid != Guid.Empty)
+            ? Table.Players.Select(p => CopyPlayer(p.Player)).ToArray() : [];
         Array.Clear(_bidding1Decisions);
         _bidding2States.Clear();
         _history.Clear();

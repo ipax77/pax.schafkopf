@@ -1,8 +1,54 @@
 # Bot baseline and evaluation
 
-Milestones 1–2 of [the training plan](../docs/training-plan.md) are implemented:
-WSL preflight, a reusable C# heuristic bot, and seeded paired evaluation. Neural training,
-observation tensors, and live bot seat/scheduling integration are subsequent milestones.
+Milestones 1–3 of [the training plan](../docs/training-plan.md) are implemented:
+WSL preflight, reusable C# heuristic policies, seeded paired evaluation, and playable live
+bot tables. Observation tensors and neural training are subsequent milestones.
+
+## Live heuristic tables
+
+Start the API and PWA as described in the root README. Create a table and select
+**Freie Plätze mit Bots füllen**. Invite human players first for a table with one or two
+bots. All live bots use the fixed, stateless `heuristic-v1/conservative` policy for bidding
+and play; it cannot change during a round. No Python/model service is needed.
+
+Bots are named, server-owned seats with no SignalR connection. Only connected human table
+members can fill/remove them, and only before play or between rounds. Use the result dialog
+to remove a bot before a friend joins. Seat cash balances persist across replacements;
+the completed result retains its original players, hands, and payouts. Bots ready on
+settlement, including all-pass. Every human must select **Weiter** for another deal;
+changing the lineup clears human readiness.
+
+`BotTurnScheduler` permits one outstanding policy call per table, computes from detached
+private observations outside the game lock, and applies only current legal actions through
+the revision guard. Broadcasts are serialized per table. Disconnects pause the table and
+invalidate pending work; reconnecting resumes it. A late disconnect from an old connection
+does not undo a successful rejoin. Leaving mid-deal reserves the human's hand for rejoin;
+when the last connected human explicitly leaves, the table and join code are removed.
+Tables with all humans disconnected are retained for 30 minutes, then cleaned up.
+
+Optional API configuration under `Bots` uses .NET `TimeSpan` strings:
+
+```json
+{
+  "Bots": {
+    "TurnDelay": "00:00:00.900",
+    "TrickDelay": "00:00:02.600",
+    "PollInterval": "00:00:00.050",
+    "DisconnectedTableRetention": "00:30:00"
+  }
+}
+```
+
+Defaults allow the existing card/trick animations to finish. The fixed policy itself runs
+locally; display pacing is separate from inference latency. Neural deadlines, fallback,
+and measured p95 serving gates remain part of the future neural adapter milestone.
+
+Live regression tests exercise four consecutive played rounds with each of 1/2/3 bot seats,
+bot-led auctions/declarations, all-pass readiness, private snapshots, bot identity protection,
+replacement, duplicate/stale/illegal actions, in-flight disconnect/rejoin, cancellation,
+abandoned-table cleanup, and independent progress at ten tables. Local browser verification
+completed a human-declared Wenz and a bot-declared Ruf, including next-round startup and bot
+replacement, with no browser console errors. These are mechanics checks, not strength claims.
 
 ## Environment
 

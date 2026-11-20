@@ -19,7 +19,7 @@ public partial class Game
             {
                 Player = CopyPlayer(p.Player), Position = p.Position, Tricks = [.. p.Tricks],
                 Hand = i == forPlayer ? [.. p.Hand] : p.Hand.Select(_ => new Card { Suit = Suit.None }).ToList(),
-                IsConnected = p.IsConnected, Cash = p.Cash, ReadyForNextRound = p.ReadyForNextRound
+                IsConnected = p.IsConnected, IsBot = p.IsBot, Cash = p.Cash, ReadyForNextRound = p.ReadyForNextRound
             };
         }
         var bidding1 = GetPublicBidding1Result();
@@ -36,6 +36,8 @@ public partial class Game
             {
                 StartingHands = Table.Players.Select(p => p.StartingHand.ToList()).ToList(),
                 PlayerCashes = Table.Players.Select(p => p.Cash).ToList(),
+                Players = _roundPlayers.Select(CopyPlayer).ToList(),
+                PlayerChanges = [.. _rewards],
                 GameResult = result == null ? new() : result with
                 { Player = CopyPlayer(result.Player), Player2 = result.Player2 == null ? null : CopyPlayer(result.Player2) }
             }

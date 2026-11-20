@@ -44,6 +44,7 @@
                     {
                         <div class="w-75">
                             <h3 class="fw-semibold">Warten auf andere Spieler ...</h3>
+                            <BotSeatControls State="publicGameState" />
                             <div class="input-group w-100 mb-3">
                                 <input type="text" class="form-control"
                                        value="@($"{NavigationManager.BaseUri}?TableId={publicGameState.ShortCode}")"
@@ -56,6 +57,10 @@
                     }
                     else
                     {
+                        @if (!AllPlayersAvailable)
+                        {
+                            <div role="status">Warten auf die Verbindung aller Spieler …</div>
+                        }
                         <div id="trick" class="w-100 h-100" style="z-index: 10;">
  
                             <TrickComponent @ref="trickComponent" OnTrickFinished="TrickFinished" />
@@ -111,7 +116,11 @@
                     </div>
 
                     <div class="bg-transparent" style="width: 20%;">
-                    
+                        @if (publicGameState.GameState == GameState.Finished)
+                        {
+                            <button class="btn btn-sm btn-outline-light"
+                                    @onclick="() => gameResultModal?.Show(publicGameState, playersByView)">Ergebnis / Plätze</button>
+                        }
                     </div>
                 </div>
             </CascadingValue>

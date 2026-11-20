@@ -1,6 +1,6 @@
 # WSL training and live bot plan
 
-Status: milestones 1–2 implemented and verified; live bot seats and neural training remain pending.
+Status: milestones 1–3 implemented and verified; encoding and neural training remain pending.
 Updated: 2026-11-20.
 
 This is the implementation plan following the engine redesign and performance work.
@@ -20,8 +20,8 @@ when evaluation demonstrates an improvement. Simulation throughput alone is not 
 
 The repository now has `HeadlessGame`, private observations, `IGamePolicy`, guarded live-action
 hooks, heuristic policies, a seeded evaluation harness, and WSL preflight checks. See the
-[implementation guide and recorded results](../training/README.md). The encoder, trainer, bot
-seat lifecycle, and scheduler remain pending. The milestones below include these missing pieces.
+[implementation guide and recorded results](../training/README.md). The bot seat lifecycle
+and scheduler are implemented. The encoder and trainer remain pending.
 
 | Area | Decision |
 | --- | --- |
@@ -434,7 +434,7 @@ before adding compute. Consider history models or information-set search only af
 | --- | --- | --- |
 | 1. Environment — complete | Selected .NET executable, isolated Python environment, reproducible run manifest | SDK/runtime recorded; GPU check and existing regression tests pass |
 | 2. Baseline and evaluator — complete | Versioned heuristic pair, two bidding styles, seeded paired match runner | Deterministic replays, seat/dealer coverage, block confidence intervals, and baseline reports saved |
-| 3. Playable heuristic bot | Bot seats, scheduler, ready handling, visible bot names | Human plus 1-3 bots can bid, finish, and start further rounds; stale/duplicate work rejected |
+| 3. Playable heuristic bot — complete | Server-owned named seats, conservative heuristic scheduler, automatic bot ready handling | Verified 1-3 bots across repeated played/all-pass rounds, stale/duplicate guards, reconnects, cancellation, cleanup, and 10 concurrent tables; browser Wenz/Ruf playthroughs |
 | 4. Encoding | Reusable C# encoders, 17/32 action adapters, golden fixtures | Stable shapes; relative seats, history, own-role inference, privacy, and masks verified |
 | 5. Batched inference and benchmark | Game pool, two TensorFlow endpoints, CPU/GPU and batch sweeps | Full games complete; timings/memory separated; partial queues and historical versions work |
 | 6. Rollout collector and PPO | Per-seat/per-model buffers, losses, checkpoint/resume | Hand-calculated returns, all-pass, forced moves, learner-only data, and rollout draining verified; 10-update smoke test passes |
@@ -449,9 +449,11 @@ is assumed before measurement with the selected SDK and actual model shapes.
 
 ## 9. Live behavior and deployment
 
-Complete the live path with the heuristic first; neural inference later plugs into the same
-scheduler. The existing `GetBotTurn` / `TryApplyBotAction` hooks are necessary but do not yet
-create bot seats, schedule turns, or ready bots for the next round.
+The live heuristic path is implemented with `heuristic-v1/conservative`, server-owned seats,
+`BotTurnScheduler`, and automatic bot readiness. The table's fill control and result dialog
+support setup and replacement between rounds. See [live operation](../training/README.md#live-heuristic-tables)
+for pacing, pause/rejoin behavior, cleanup, and verification. Neural serving and its latency,
+deadline, and fallback gates below remain future work; no neural release is claimed.
 
 - Add explicit server-owned bot identity and a table control to fill empty seats with named bots.
   Keep bot membership distinct from human connection state; bots must satisfy table start/ready
@@ -518,6 +520,7 @@ latency budget. Search would need validated state reconstruction/cloning, which 
 does not currently expose; sampled hidden states must be consistent with this seat's observations,
 never the actual unseen deal. Do not make search or a second rules engine a prerequisite for v1.
 
-The immediate next implementation is **milestone 3: live bot seats and scheduling**, using the
-implemented heuristic. Encoding, batched inference, and learning follow with the evaluator and
-live target in place. The current baseline has not been trained or deployed to human tables.
+The immediate next implementation is **milestone 4: observation encoding**. Batched inference
+and learning follow with the evaluator and playable live target in place. The current baseline
+is a fixed heuristic, not a trained model. Local browser checks do not constitute the longer
+human strength playtests required for trained releases.
