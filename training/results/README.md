@@ -1,4 +1,74 @@
-# Initial baseline — 2026-11-20
+# Training and evaluation results — 2026-11-20
+
+## Timed trained-bot run
+
+The selected pair is **PPO update 250**, with the larger imitation bidder frozen. The local
+export is `models/serious-20261120/` (ignored by Git); start it from the repository root in WSL:
+
+```bash
+bash training/play-trained.sh models/serious-20261120
+```
+
+Open http://localhost:5027, create a table, and choose **Freie Plätze mit Bots füllen**.
+The API was restarted with this pair after user approval and confirmed `trained: true`,
+the expected pair ID, and zero fallbacks. This is local experimental play, not public promotion.
+
+The [record](serious-20261120.json) contains settings, model hashes, compact evaluation
+reports, export parity, inference timings, and provenance. The
+[validation curve](serious-20261120-validation.jsonl) records every selection checkpoint.
+Full reports with seed blocks, Keras checkpoints, and training traces remain under
+`~/.local/share/pax-schafkopf/` in the paths recorded there.
+
+Training used the RTX 3080 Ti with a 2 GiB TensorFlow allocator cap:
+
+- A 22.7-minute staged pilot stopped at a controlled-deal retry limit. Its learned bidder
+  also collapsed toward passing (54 interests in 8,168 learner auctions). It was not selected.
+  The retry limit was raised from 1,000 to 10,000 with clearer failure logs.
+- A larger imitation run used 30,000 training games, 3,000 validation games, and 20 epochs
+  in 6.5 minutes. The selected bidding/playing epochs were 20/11, with non-forced validation
+  action accuracy 97.1%/91.6%. On 12,000 interest decisions, the bidder expressed interest in
+  22.0% of hands versus the teacher's 21.2%, with 94.5% interest recall.
+- The final playing PPO session completed **251 updates, 8,688,064 learner decisions,
+  and 547,688 games** in 60.3 monotonic minutes (about 66 wall-clock minutes). Bidding weights
+  stayed identical and its optimizer took zero steps. There were 109,420 controlled games
+  and 3,640,532 rejected candidate deals; the next training index is 24,188,220.
+
+The three sessions totaled **89.6 recorded training minutes**, excluding setup and held-out
+evaluation. No checkpoint was selected using confirmation results. Update 250 had the highest
+fixed-panel validation payout (+0.271 units/deal), versus -0.929 for its imitation warm start.
+
+The predeclared [confirmation protocol](serious-20261120-protocol.json) used fresh indices
+starting at 2,000,000 in the Confirmation split, all four seats/dealers, and 2,000 bootstrap
+resamples of base-seed blocks. Natural comparisons each used 2,000 seed blocks and 64,000
+candidate/reference games. Values below are raw payout units per deal:
+
+| Opponents | Trained payout [95% CI] | Gain over larger imitation [95% CI] |
+| --- | --- | --- |
+| Three conservative heuristics | -0.468 [-0.746, -0.192] | +0.877 [+0.632, +1.131] |
+| Three balanced heuristics | +0.733 [+0.342, +1.146] | +1.083 [+0.808, +1.371] |
+
+Controlled play used 500 proposed seeds per contract, with the same forced legal auction
+for both players. Ruf retained 305 eligible seeds; Wenz and Solo retained all 500:
+
+| Contract | Gain over larger imitation [95% CI] |
+| --- | --- |
+| Ruf Schellen | +0.414 [-0.035, +0.846] |
+| Wenz | -0.630 [-1.258, -0.054] |
+| Solo Schellen | +0.706 [+0.170, +1.271] |
+
+The pair improves over its imitation warm start, but remains below the conservative heuristic
+on natural deals and regresses in controlled Wenz. Forced contracts include weak declarer
+hands and measure card play separately from bidding. These results do not establish expert
+strength or satisfy the public-release gate; the models remain experimental.
+
+All **169,760 confirmation games** completed without illegal actions. C# CPU inference
+matched TensorFlow on 256 real bidding and 256 real playing observations: zero masked-action
+disagreements, maximum logit error 0.00000771, and maximum value error 0.000000985. Measured
+decision p95 was 0.578 ms with one worker and 0.125 ms with ten workers (encoding and inference
+only, excluding scheduler queues/network/display pacing; not a live-table soak). Regression
+verification passed **108 C# tests and 16 Python tests**. Existing NuGet audit warnings remain.
+
+## Initial baseline
 
 These are development/validation runs, not trained-model promotion results. Reports record
 the source commit plus a dirty-tree flag because implementation changes were still uncommitted.

@@ -13,6 +13,7 @@ import uuid
 import numpy as np
 from ppo_math import ppo_terms, summarize
 from ppo_rollout import collect
+from ppo_run import schedule, select_best, prune
 from train_sample import ROOT, ENCODER, RULES, FEATURES, KINDS, Progress, atomic_json, evaluate
 
 
@@ -184,7 +185,13 @@ def main():
     parser.add_argument("--warm-start", type=Path, help="Imitation run directory, model directory, or pair.json")
     parser.add_argument("--resume", type=Path, help="Existing PPO run; restores optimizer, sampling RNG and next deal index")
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--train", choices=["playing", "bidding", "alternate"], default="playing")
+    parser.add_argument("--train", choices=["playing", "bidding", "alternate", "staged"], default="playing")
+    parser.add_argument("--minutes", type=float, help="Session time budget; inherits the last session on resume, otherwise 0 (disabled). Finish the current update and final evaluation before stopping")
+    parser.add_argument("--warmup-updates", type=int, default=24, help="Staged mode: controlled playing updates before repeating four play / one bidding update")
+    parser.add_argument("--bidding-decisions", type=int, default=0, help="0 uses --decisions for both models")
+    parser.add_argument("--controlled-percent", type=int, default=0, help="Playing curriculum share after staged warmup; bidding always uses natural deals")
+    parser.add_argument("--keep-checkpoints", type=int, default=0, help="Keep this many recent checkpoints plus initial/best; 0 keeps all")
+    parser.add_argument("--keep-rollouts", type=int, default=0, help="Keep large trajectory arrays for this many recent updates; 0 keeps all. Traces/metrics always retained")
     parser.add_argument("--updates", type=int, default=10, help="Total target updates, including completed updates on resume")
     parser.add_argument("--decisions", type=int, default=4096, help="Selected learner decisions before draining all active games")
     parser.add_argument("--pool", type=int, default=64)
@@ -196,13 +203,18 @@ def main():
     parser.add_argument("--start-index", type=int, default=2000000)
     parser.add_argument("--gpu-memory-mb", type=int, default=2048)
     args = parser.parse_args()
+    if args.minutes is None:
+        session_path = args.resume / "session.json" if args.resume else None
+        args.minutes = json.loads(session_path.read_text()).get("minutes", 0) if session_path and session_path.exists() else 0
     if platform.system() != "Linux" or "microsoft" not in platform.release().lower():
         parser.error("Run in WSL using bash training/run-sample.sh ppo")
     if args.resume and (args.output or args.warm_start):
         parser.error("--resume cannot be combined with --output or --warm-start")
     if not args.resume and not args.warm_start:
         parser.error("A new PPO run requires --warm-start pointing to the imitation checkpoint pair")
-    if not (1 <= args.updates <= 100000 and 1 <= args.decisions <= 131072 and 1 <= args.pool <= 256 and
+    if not (0 <= args.minutes <= 1440 and 0 <= args.warmup_updates <= 100000 and 0 <= args.bidding_decisions <= 131072 and
+            0 <= args.controlled_percent <= 100 and 0 <= args.keep_checkpoints <= 100000 and 0 <= args.keep_rollouts <= 100000 and
+            1 <= args.updates <= 100000 and 1 <= args.decisions <= 131072 and 1 <= args.pool <= 256 and
             1 <= args.epochs <= 4 and 0 <= args.batch_size <= 8192 and 2 <= args.eval_seeds <= 10000 and
             1 <= args.eval_every <= 100000 and 0 <= args.seed < 2**64 and 0 <= args.start_index < 2**62 - 100000000 and
             256 <= args.gpu_memory_mb <= 8192):
@@ -225,6 +237,8 @@ def main():
         atomic_json(run / "warm-start/source-pair.json", source_manifest)
         config = dict(script_version=1, algorithm="complete-game-ppo", encoder_version=ENCODER, rules_version=RULES,
                       warm_start=str(source_path), warm_start_sha256=source_hashes, train=args.train, decisions=args.decisions,
+                      warmup_updates=args.warmup_updates, bidding_decisions=args.bidding_decisions, controlled_percent=args.controlled_percent,
+                      keep_checkpoints=args.keep_checkpoints, keep_rollouts=args.keep_rollouts,
                       pool=args.pool, max_games=max(args.pool, args.decisions * 4), epochs=args.epochs, batch_size=args.batch_size,
                       eval_seeds=args.eval_seeds, eval_every=args.eval_every, seed=args.seed, start_index=args.start_index,
                       gpu_memory_mb=args.gpu_memory_mb, clip=.2, value_coefficient=.5, entropy_coefficient=.01,
@@ -236,10 +250,17 @@ def main():
     with (run / "run.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         progress = Progress(run)
+        session_start = time.monotonic()
+        deadline = session_start + args.minutes * 60 if args.minutes else float("inf")
         try:
             progress.emit(f"PPO RUN {run}", phase="preflight", run=str(run), target_updates=args.updates)
             progress.emit(f"Watch: bash training/watch-training.sh '{run}'")
-            progress.emit(f"Resume: bash training/run-sample.sh ppo --resume '{run}' --updates {args.updates}")
+            progress.emit(f"Resume: bash training/run-sample.sh ppo --resume '{run}' --updates {args.updates}" +
+                          (f" --minutes {args.minutes:g}" if args.minutes else ""))
+            if args.minutes:
+                progress.emit(f"Time budget: {args.minutes:g} minutes; stop after a complete update, then evaluate the final pair")
+            atomic_json(run / "session.json", dict(minutes=args.minutes, target_updates=args.updates,
+                        started_at_utc=datetime.now(timezone.utc).isoformat()))
             env = dict(os.environ, DOTNET_ROOT=str(Path.home() / ".dotnet"),
                        PATH=str(Path.home() / ".dotnet") + os.pathsep + os.environ.get("PATH", ""), TF_CPP_MIN_LOG_LEVEL="2")
             environment_path = run / ("environment-" + datetime.now().strftime("%Y%m%d-%H%M%S") + ".json")
@@ -283,16 +304,23 @@ def main():
                 raise RuntimeError("Policy forward pass did not use GPU")
             progress.emit(f"Policy tensors on {probe.device}; TensorFlow allocator cap {config['gpu_memory_mb']} MiB")
             functions = {kind: step_functions(model, config, tf) for kind, model in models.items()}
-            evaluation(run, state["update"], cli, env, models, config, progress, tf)
+            report = evaluation(run, state["update"], cli, env, models, config, progress, tf)
+            select_best(run, directory, report)
+            last_evaluated = state["update"]
             for update in range(state["update"] + 1, args.updates + 1):
-                kind = config["train"] if config["train"] != "alternate" else ("playing" if update % 2 else "bidding")
+                if time.monotonic() >= deadline:
+                    progress.emit("Time budget reached; preserving the last completed update and finishing evaluation")
+                    break
+                kind, rollout_config = schedule(config, update)
                 companion = "bidding" if kind == "playing" else "playing"
+                if args.minutes:
+                    progress.emit(f"TIME {max(0, (deadline - time.monotonic()) / 60):.1f} minutes remaining")
                 progress.emit(f"UPDATE {update}/{args.updates}: collecting fresh {kind} decisions; {companion} frozen",
                               phase="rollout", update=update, updates=args.updates, model=kind)
                 work = run / "rollouts" / f"update-{update:04d}-{uuid.uuid4().hex[:8]}"
                 work.mkdir(parents=True)
                 versions = version_pair(models)
-                arrays, metadata = collect(work, cli, env, models, versions, config, kind, state["next_index"], rng, progress, tf)
+                arrays, metadata = collect(work, cli, env, models, versions, rollout_config, kind, state["next_index"], rng, progress, tf)
                 if version_pair(models) != versions:
                     raise RuntimeError("Weights changed during collection")
                 metrics = update_policy(arrays, functions[kind], kind, config, rng, update, progress)
@@ -308,7 +336,14 @@ def main():
                               phase="checkpoint", update=update, updates=args.updates, total_decisions=state["total_decisions"])
                 del arrays
                 if update % config["eval_every"] == 0 or update == args.updates:
-                    evaluation(run, update, cli, env, models, config, progress, tf)
+                    report = evaluation(run, update, cli, env, models, config, progress, tf)
+                    last_evaluated = update
+                    if select_best(run, directory, report):
+                        progress.emit(f"BEST validated pair: update {update}, payout {report['paired_improvement']['mean']:+.3f}")
+                prune(run, config.get("keep_checkpoints", 0), config.get("keep_rollouts", 0))
+            if last_evaluated != state["update"]:
+                report = evaluation(run, state["update"], cli, env, models, config, progress, tf)
+                select_best(run, directory, report)
             progress.emit(f"COMPLETE: {state['update']} PPO updates; latest pair: {directory / 'pair.json'}; live bots unchanged",
                           phase="complete", completed_updates=state["update"], total_decisions=state["total_decisions"],
                           latest_checkpoint=str(directory), run=str(run), live_promoted=False)

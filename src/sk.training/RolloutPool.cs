@@ -6,14 +6,15 @@ using sk.shared;
 namespace sk.training;
 
 public sealed record RolloutOptions(string Model, int Target, int PoolSize, int MaxGames,
-    ulong Master, ulong Start, string BiddingVersion, string PlayingVersion)
+    ulong Master, ulong Start, string BiddingVersion, string PlayingVersion, int ControlledPercent = 0)
 {
     public void Validate()
     {
         if (Model is not ("bidding" or "playing") || Target < 1 || PoolSize is < 1 or > 256 || MaxGames < PoolSize ||
-            string.IsNullOrWhiteSpace(BiddingVersion) || string.IsNullOrWhiteSpace(PlayingVersion))
+            string.IsNullOrWhiteSpace(BiddingVersion) || string.IsNullOrWhiteSpace(PlayingVersion) ||
+            ControlledPercent is < 0 or > 100 || (Model == "bidding" && ControlledPercent != 0))
             throw new ArgumentException("Invalid rollout options");
-        if (Start > (ulong.MaxValue >> 2) - (ulong)MaxGames) throw new ArgumentOutOfRangeException(nameof(Start));
+        if (Start > (ulong.MaxValue >> 2) - (ulong)MaxGames * RolloutPool.CurriculumAttemptLimit) throw new ArgumentOutOfRangeException(nameof(Start));
     }
 }
 
@@ -22,11 +23,13 @@ public sealed record RolloutDecision(string EpisodeId, int Decision, int Seat, i
 public sealed record RolloutAction(string EpisodeId, int Decision, int Action, double LogProbability, float Value, string PolicyVersion);
 public sealed record RolloutCompletion(string EpisodeId, EpisodeTrace Trace);
 public sealed record RolloutBatch(int BatchId, RolloutDecision[] Requests, RolloutCompletion[] Completed,
-    int LearnerDecisions, int CompletedGames, int LaunchedGames, bool Draining, bool Done, ulong NextIndex);
+    int LearnerDecisions, int CompletedGames, int LaunchedGames, bool Draining, bool Done, ulong NextIndex,
+    int RejectedDeals = 0, int ControlledGames = 0);
 
 /// <summary>Single-owner pool. Finish every game and stop replacing games once the selected decision target is reached.</summary>
 public sealed class RolloutPool
 {
+    public const int CurriculumAttemptLimit = 10000;
     private sealed class Episode(ulong index, ulong seed, int dealer, bool[] learnerSeats, string[] versions)
     {
         public string Id { get; } = index.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -37,6 +40,7 @@ public sealed class RolloutPool
         public HeadlessGame Game { get; } = new();
         public List<int> Actions { get; } = [];
         public int[] Rewards { get; set; } = new int[4];
+        public int[] AuctionPrefix { get; set; } = [];
     }
 
     private readonly RolloutOptions options;
@@ -44,14 +48,18 @@ public sealed class RolloutPool
     private readonly List<Episode> active = [];
     private RolloutDecision[]? pending;
     private int batchId, launched, completed, learnerDecisions;
+    private int rejected, controlled;
+    private ulong nextIndex;
+    private Exception? deferredError;
 
     public RolloutPool(RolloutOptions options)
     {
-        options.Validate(); this.options = options;
+        options.Validate(); this.options = options; nextIndex = options.Start;
     }
 
     public RolloutBatch ReadBatch()
     {
+        if (deferredError != null) throw deferredError;
         if (pending != null) throw new InvalidOperationException("Previous batch is still outstanding");
         var finished = new List<RolloutCompletion>();
         foreach (var episode in active.ToArray())
@@ -71,7 +79,7 @@ public sealed class RolloutPool
         // the next read. An all-pass game cap must not lose the final batch's evidence.
         if (!draining && launched >= options.MaxGames && active.Count == 0 && finished.Count > 0)
             return new(++batchId, [], finished.ToArray(), learnerDecisions, completed, launched,
-                false, false, options.Start + (ulong)launched);
+                false, false, nextIndex, rejected, controlled);
         while (!draining && active.Count < options.PoolSize)
         {
             if (launched >= options.MaxGames)
@@ -79,17 +87,48 @@ public sealed class RolloutPool
                 if (active.Count == 0) throw new InvalidOperationException("Rollout exceeded game cap before reaching its decision target");
                 break;
             }
-            ulong index = options.Start + (ulong)launched++;
-            int focal = (int)(index / 4 % 4);
+            ulong scenario = options.Start + (ulong)launched;
+            int focal = (int)(scenario / 4 % 4);
             // Half self-play; half one learner with three frozen heuristics. No historical pool yet.
             // Rotate all four dealers and focal seats independently of table composition.
-            bool[] seats = Enumerable.Range(0, 4).Select(s => index / 16 % 2 == 0 || s == focal).ToArray();
+            bool[] seats = Enumerable.Range(0, 4).Select(s => scenario / 16 % 2 == 0 || s == focal).ToArray();
             var versions = seats.Select(learner => learner
                 ? $"{options.BiddingVersion}|{options.PlayingVersion}"
                 : $"{heuristic.Id}|{(options.Model == "bidding" ? options.PlayingVersion : heuristic.Id)}").ToArray();
-            var episode = new Episode(index, SeedSchedule.Deal(options.Master, SeedSplit.Training, index), (int)(index % 4), seats, versions);
-            episode.Game.Reset(episode.Seed, episode.Dealer);
-            active.Add(episode);
+            var sampler = new StableRandom(StableRandom.Mix(scenario ^ options.Master ^ 0x8e349cb7UL));
+            bool force = sampler.Next(100) < options.ControlledPercent;
+            int bucket = sampler.Next(10), declarer = sampler.Next(4);
+            int bidId = bucket < 6 ? 3 + sampler.Next(3) : bucket < 8 ? 6 : 8 + 2 * sampler.Next(4);
+            bool strong = sampler.Next(5) != 0;
+            bool accepted = false;
+            for (int attempt = 0; attempt < CurriculumAttemptLimit; attempt++)
+            {
+                ulong index = nextIndex++;
+                var episode = new Episode(index, SeedSchedule.Deal(options.Master, SeedSplit.Training, index), (int)(scenario % 4), seats, versions);
+                episode.Game.Reset(episode.Seed, episode.Dealer);
+                if (force)
+                {
+                    // Script the auction through the engine; no scripted actions enter PPO.
+                    for (int i = 0; i < 4; i++) Step(episode, GameAction.Interest(episode.Game.CurrentPlayer == declarer));
+                    var own = episode.Game.Observe(declarer);
+                    var bid = GameAction.FromId(bidId);
+                    if (!own.LegalActions.Contains(bid) || (strong && !heuristic.AcceptsContract(own, bid)))
+                    { rejected++; continue; }
+                    Step(episode, bid);
+                    episode.AuctionPrefix = episode.Actions.ToArray();
+                    controlled++;
+                }
+                active.Add(episode); launched++; accepted = true; break;
+            }
+            if (!accepted)
+            {
+                deferredError = new InvalidOperationException($"Controlled curriculum exhausted {CurriculumAttemptLimit} attempts " +
+                    $"(scenario {scenario}, bid {bidId}, strong {strong}, next index {nextIndex})");
+                // Flush this batch's already-complete games before reporting failure on
+                // the next read. Accepted outcomes must not vanish on a sampler error.
+                return new(++batchId, [], finished.ToArray(), learnerDecisions, completed, launched,
+                    false, false, nextIndex, rejected, controlled);
+            }
         }
         var requests = new List<RolloutDecision>();
         foreach (var episode in active)
@@ -112,7 +151,7 @@ public sealed class RolloutPool
         }
         pending = requests.Count > 0 ? requests.ToArray() : null;
         return new(++batchId, requests.ToArray(), finished.ToArray(), learnerDecisions, completed, launched,
-            draining, active.Count == 0, options.Start + (ulong)launched);
+            draining, active.Count == 0, nextIndex, rejected, controlled);
     }
 
     public void Apply(int responseBatchId, RolloutAction[] responses)
@@ -151,7 +190,7 @@ public sealed class RolloutPool
             episode.LearnerSeats.Select(s => s ? "learner" : "opponent").ToArray(), episode.Versions,
             episode.Actions.ToArray(), episode.Rewards, final.Contract,
             Enumerable.Range(0, 4).Select(s => final.Contract == null ? "all-pass" : s == final.Contract.Player ? "declarer" :
-                final.Contract.GameType == GameType.Ruf && s == final.PublicTeammate ? "partner" : "defender").ToArray(), []);
+                final.Contract.GameType == GameType.Ruf && s == final.PublicTeammate ? "partner" : "defender").ToArray(), episode.AuctionPrefix);
     }
 
     public EpisodeTrace[] ActiveTraces() => active.Select(Trace).ToArray();

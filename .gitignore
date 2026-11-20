@@ -336,6 +336,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 .venv/
 training/runs/
+/models/
+/.playwright-mcp/
 __pycache__/
 *.pyc
 

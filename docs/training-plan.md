@@ -1,6 +1,6 @@
 # WSL training and live bot plan
 
-Status: milestones 1–4 and 6 implemented and verified; bounded imitation and warm-started PPO run in WSL. HTTP serving, the full training curriculum, historical opponents, and neural live release remain pending.
+Status: milestones 1–4 and 6 implemented and verified. Timed staged PPO, controlled normal-contract play, best-pair selection, and local CPU neural play are implemented. Historical opponents, broader curriculum/strength comparisons, and public-release gates remain pending.
 Updated: 2026-11-20.
 
 This is the implementation plan following the engine redesign and performance work.
@@ -26,8 +26,15 @@ A small conservative-heuristic imitation trainer and warm-started complete-game 
 available through `training/run-sample.sh`, including batched stdio inference/evaluation and
 checkpoint resume. See the [PPO launch/watch guide](../training/README.md#ppo-from-imitation-checkpoints).
 The ten-update playing smoke test and separate playing-to-bidding restart check passed.
-These use natural deals and current/heuristic opponents; the controlled-contract curriculum,
-historical pool, HTTP serving, and strength gates below remain planned work.
+The timed preset adds controlled normal-contract play with a frozen imitation bidder. An opt-in
+staged schedule alternates four playing updates per bidding update after warmup. Frozen pairs can be exported into the API for local
+human play using the native CPU adapter; see the [timed training/play guide](../training/README.md#timed-training-and-trained-bot-play).
+
+The first substantial run completed 251 playing PPO updates and 8.69 million learner
+decisions, selecting update 250 for local three-bot play. Fresh confirmation shows improvement
+over the larger imitation warm start, but the conservative heuristic still leads and controlled
+Wenz regresses. See the [results and limitations](../training/results/README.md#timed-trained-bot-run).
+Historical opponents, controlled Tout, and the full public-release strength gates remain planned.
 
 | Area | Decision |
 | --- | --- |
@@ -35,7 +42,7 @@ historical pool, HTTP serving, and strength gates below remain planned work.
 | Learning | Python/TensorFlow, initially synchronous PPO |
 | Policies | Separate bidding and playing models, each with its own value head |
 | Seats | Share each model across all four seats; encode positions relative to the acting seat |
-| Transport | Batched local stdio for sample evaluation/PPO; reusable HTTP service remains planned |
+| Transport | Batched local stdio for evaluation/PPO; immutable native CPU model export for local live play |
 | Scheduling | Separate bidding and playing queues, served by one Python process |
 | Rollouts | Complete games; learner and opponent versions fixed during collection |
 | Reward | Acting seat's terminal payout divided by 100; no reward clipping |
@@ -447,9 +454,9 @@ before adding compute. Consider history models or information-set search only af
 | 4. Encoding — complete | Shared 1,748-feature C# encoder, 17/32 action adapters, golden fixture | Relative seats, history, own-role inference, privacy, masks, and terminal demonstration labels verified |
 | 5. Batched inference and benchmark — stdio subset implemented | Bounded game pool and separate model batches; HTTP, historical versions, CPU/GPU sweeps pending | Full games and partial batches complete; transport/inference benchmark gates still pending |
 | 6. Rollout collector and PPO — complete | Per-seat/per-model buffers, masked losses, versioned checkpoint/resume | Hand-calculated returns, all-pass, forced moves, learner-only data, draining and stale guards verified; ten playing updates and a fresh-process bidding resume passed |
-| 7. Warm start and playing pilot — bounded samples available | Conservative imitation and natural-deal PPO run; controlled-contract curriculum pending | 49,152 PPO decisions and paired evaluation recorded; no measured gain over warm start; strength/scratch comparisons pending |
+| 7. Warm start and playing pilot — timed runs available | Conservative imitation, controlled normal-contract play, natural-deal PPO, best-pair selection | Ten-update sample and staged restart/retention checks passed; held-out strength and scratch comparisons are recorded separately |
 | 8. Bidding pilot and varied tables — modes implemented | Frozen-play bidding and alternating updates available; historical pool pending | Bidding update and frozen companion verified; strength, interest/Tout behavior, and unfamiliar partners still need assessment |
-| 9. Trained live release | Frozen pair served through the already working bot scheduler | Section 7F strength gates, section 9 latency/reliability gates, and human sessions pass |
+| 9. Trained live release — local experimental adapter available | Frozen native CPU pair served through the existing bot scheduler | Native/TensorFlow parity, legal masks, immutable loading, and three-bot rounds verified; public-release strength and human-session gates remain pending |
 
 Keep the existing random-policy benchmark as a lower-overhead reference. Neural policies choose
 different games, so use fixed recorded observations for isolated transport/inference comparisons,
@@ -461,8 +468,13 @@ is assumed before measurement with the selected SDK and actual model shapes.
 The live heuristic path is implemented with `heuristic-v1/conservative`, server-owned seats,
 `BotTurnScheduler`, and automatic bot readiness. The table's fill control and result dialog
 support setup and replacement between rounds. See [live operation](../training/README.md#live-heuristic-tables)
-for pacing, pause/rejoin behavior, cleanup, and verification. Neural serving and its latency,
-deadline, and fallback gates below remain future work; no neural release is claimed.
+for pacing, pause/rejoin behavior, cleanup, and verification. Local neural play uses an immutable
+`dense-f32-v1` CPU export loaded at API startup with `Bots:ModelManifest`. This fixed adapter
+evaluates the existing two Dense/ReLU layers and policy/value heads, validates versions and SHA-256
+checksums, and masks selection with engine legality. It has no network or GPU dependency during play;
+runtime failures log and fall back to the conservative heuristic. TensorFlow/C# parity and repeated
+three-bot rounds are verified. The full public-release strength, latency/soak, and human-session
+gates below remain pending; no public neural release is claimed.
 
 - Add explicit server-owned bot identity and a table control to fill empty seats with named bots.
   Keep bot membership distinct from human connection state; bots must satisfy table start/ready
@@ -517,7 +529,7 @@ releases. Save atomically at rollout boundaries and prove a stopped run can resu
 optimizer and RNG state; exact GPU bitwise reproducibility is not an acceptance requirement.
 Document deterministic engine replay separately from potentially nondeterministic GPU training.
 
-ONNX export, local .NET inference, gRPC/binary transport, recurrent models, distributed training,
+ONNX export, gRPC/binary transport, recurrent models, distributed training,
 and automated opponent leagues are deferred; the small frozen opponent pool above is part of
 the initial trainer. If ONNX becomes worthwhile for live latency or simpler hosting, compare logits and
 values against TensorFlow and verify masking/sampling parity before using it for PPO collection.
@@ -529,10 +541,10 @@ latency budget. Search would need validated state reconstruction/cloning, which 
 does not currently expose; sampled hidden states must be consistent with this seat's observations,
 never the actual unseen deal. Do not make search or a second rules engine a prerequisite for v1.
 
-The next training work is **the controlled playing curriculum and historical opponent pool**,
-with measured batch/transport benchmarks before scaling. The reusable encoder, imitation
-warm start, and complete-game PPO now work through batched stdio. The ten-update PPO sample
-scored below the conservative teacher and showed no clear gain over its warm start on the
-small validation panel; see [recorded results](../training/results/README.md). Live tables
-still use the fixed conservative heuristic. HTTP serving and the longer human/confirmation
-strength gates remain required before a trained release.
+The next training work is **historical opponents and targeted analysis of held-out failures**,
+then controlled Tout and scratch/independent-seed comparisons. The reusable encoder, imitation
+warm start, timed curriculum, and complete-game PPO work through batched stdio. Local experimental
+play uses the native CPU export; an HTTP model service is no longer a prerequisite for that path.
+Default servers still use the conservative heuristic unless a model is explicitly configured.
+See [recorded results](../training/results/README.md); local play does not replace the longer
+human/confirmation strength gates required for a public trained release.

@@ -7,6 +7,38 @@ namespace sk.tests;
 [TestClass]
 public sealed class RolloutTests
 {
+    [TestMethod]
+    public void ControlledCurriculumReplaysAndExcludesScriptedBidsFromLearnerData()
+    {
+        var pool = new RolloutPool(Options(target: 4096, pool: 32, max: 1000) with { ControlledPercent = 100 });
+        var contracts = new HashSet<GameType>();
+        int completed = 0;
+        for (int n = 0; n < 2000; n++)
+        {
+            var batch = pool.ReadBatch();
+            foreach (var request in batch.Requests) Assert.AreEqual("playing", request.Model);
+            foreach (var terminal in batch.Completed)
+            {
+                Assert.HasCount(5, terminal.Trace.AuctionPrefix);
+                Assert.IsNotNull(terminal.Trace.Contract);
+                contracts.Add(terminal.Trace.Contract.GameType);
+                Assert.IsTrue(EpisodeRunner.Replay(terminal.Trace).Terminal);
+                completed++;
+            }
+            if (batch.Done)
+            {
+                Assert.AreEqual(completed, batch.ControlledGames);
+                Assert.AreEqual(batch.LaunchedGames, batch.ControlledGames);
+                Assert.IsGreaterThan(0, batch.RejectedDeals);
+                Assert.AreEqual((ulong)(batch.LaunchedGames + batch.RejectedDeals), batch.NextIndex);
+                CollectionAssert.AreEquivalent(new[] { GameType.Ruf, GameType.Wenz, GameType.Solo }, contracts.ToArray());
+                return;
+            }
+            if (batch.Requests.Length > 0) pool.Apply(batch.BatchId, Responses(batch));
+        }
+        Assert.Fail("Controlled pool did not drain");
+    }
+
     private static RolloutOptions Options(string model = "playing", int target = 200, int pool = 8, int max = 100, ulong start = 0) =>
         new(model, target, pool, max, 20261120, start, "bid-v1", "play-v1");
     private static RolloutAction[] Responses(RolloutBatch batch, Func<RolloutDecision, GameAction>? choose = null) =>

@@ -12,9 +12,50 @@ from ppo_math import trajectory_targets, normalize_advantages, ppo_terms, summar
 from ppo_rollout import Trajectories
 from train_ppo import checkpoint, version_pair, step_functions, compare_evaluations
 from train_sample import FEATURES, KINDS, build_model
+from ppo_run import schedule, prune, select_best
 
 
 class PpoTests(unittest.TestCase):
+    def test_staged_schedule_keeps_bidding_natural_and_uses_separate_target(self):
+        config = dict(train="staged", warmup_updates=2, decisions=1000, bidding_decisions=250, controlled_percent=20, pool=16)
+        self.assertEqual(schedule(config, 1)[1]["controlled_percent"], 100)
+        self.assertEqual(schedule(config, 3)[1]["controlled_percent"], 20)
+        kind, rollout = schedule(config, 7)
+        self.assertEqual(kind, "bidding")
+        self.assertEqual(rollout["decisions"], 250)
+        self.assertEqual(rollout["controlled_percent"], 0)
+        self.assertEqual(config["decisions"], 1000)
+
+    def test_retention_preserves_initial_latest_best_and_replay_traces(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder)
+            for n in range(6):
+                (run / "checkpoints" / f"update-{n:04d}").mkdir(parents=True)
+                work = run / "rollouts" / f"update-{n:04d}"
+                work.mkdir(parents=True)
+                (work / "trajectories.npz").touch()
+                (work / "games.jsonl").touch()
+            (run / "latest.json").write_text(json.dumps(dict(checkpoint="checkpoints/update-0005")))
+            report = dict(ppo_update=2, paired_improvement=dict(mean=-1))
+            self.assertTrue(select_best(run, run / "checkpoints/update-0002", report))
+            self.assertFalse(select_best(run, run / "checkpoints/update-0003", dict(ppo_update=3, paired_improvement=dict(mean=-2))))
+            prune(run, 2, 1)
+            self.assertEqual(sorted(p.name for p in (run / "checkpoints").iterdir()), ["update-0000", "update-0002", "update-0004", "update-0005"])
+            self.assertEqual(len(list(run.glob("rollouts/*/games.jsonl"))), 6)
+            self.assertEqual(len(list(run.glob("rollouts/*/trajectories.npz"))), 1)
+
+    def test_retention_orders_large_update_numbers_and_ignores_incomplete_snapshots(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder)
+            for name in ("update-0000-valid", "update-0000-broken.tmp", "update-9999-old", "update-10000-new"):
+                (run / "checkpoints" / name).mkdir(parents=True)
+            (run / "latest.json").write_text(json.dumps(dict(checkpoint="checkpoints/update-10000-new")))
+            prune(run, 1, 0)
+            self.assertTrue((run / "checkpoints/update-0000-valid").exists())
+            self.assertTrue((run / "checkpoints/update-0000-broken.tmp").exists())
+            self.assertTrue((run / "checkpoints/update-10000-new").exists())
+            self.assertFalse((run / "checkpoints/update-9999-old").exists())
+
     def test_terminal_payout_has_monte_carlo_return_at_every_own_decision(self):
         rewards, terminal, advantage, returns = trajectory_targets([.1, .3, -.2], 60)
         np.testing.assert_allclose(rewards, [0, 0, .6])

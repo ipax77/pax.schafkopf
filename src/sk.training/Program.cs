@@ -22,10 +22,34 @@ try
               --master 20261120 --start 2000000 --max-games 16384 --bidding-version id --playing-version id
             sk.training replay-rollout file.jsonl
             sk.training replay-rollout-failure file.jsonl.failure.json
+            sk.training probe-policy native-pair.json (JSON lines: model, features -> logits, value)
+            sk.training audit-policy native-pair.json output.json
+            Native evaluation: --candidate neural:/absolute/path/to/native-pair.json
             Policies: balanced, conservative, random. Each base seed produces 32 games.
             Contract mode uses a forced legal auction, rotates declarer across base seeds,
             and skips seeds where that declaration is illegal. All payouts use raw tariff units.
             """);
+        return 0;
+    }
+    if (args[0] == "audit-policy")
+    {
+        if (args.Length != 3) throw new ArgumentException("Native audit needs manifest and output paths");
+        NativePolicyAudit.Run(args[1], args[2]);
+        return 0;
+    }
+    if (args[0] == "probe-policy")
+    {
+        if (args.Length != 2) throw new ArgumentException("Native probe needs one manifest path");
+        var policy = new sk.bot.NeuralPolicy(args[1]);
+        string? line;
+        while ((line = Console.ReadLine()) != null)
+        {
+            using var request = JsonDocument.Parse(line);
+            var root = request.RootElement;
+            var (logits, value) = policy.Predict(root.GetProperty("model").GetString()!,
+                root.GetProperty("features").EnumerateArray().Select(x => x.GetSingle()).ToArray());
+            Console.WriteLine(JsonSerializer.Serialize(new { logits, value }, TrainingJson.Options));
+        }
         return 0;
     }
     if (args[0] is "replay-rollout" or "replay-rollout-failure")
@@ -44,7 +68,7 @@ try
     }
     if (args[0] == "rollout")
     {
-        string[] allowed = ["--traces", "--model", "--target", "--pool", "--master", "--start", "--max-games", "--bidding-version", "--playing-version"];
+        string[] allowed = ["--traces", "--model", "--target", "--pool", "--master", "--start", "--max-games", "--bidding-version", "--playing-version", "--controlled-percent"];
         var values = new Dictionary<string, string>();
         for (int i = 1; i < args.Length; i += 2)
         {
@@ -55,7 +79,8 @@ try
         int Number(string key) => int.Parse(Required(key), CultureInfo.InvariantCulture);
         ulong Large(string key) => ulong.Parse(Required(key), CultureInfo.InvariantCulture);
         RolloutPool.Serve(new(Required("--model"), Number("--target"), Number("--pool"), Number("--max-games"),
-            Large("--master"), Large("--start"), Required("--bidding-version"), Required("--playing-version")), Required("--traces"));
+            Large("--master"), Large("--start"), Required("--bidding-version"), Required("--playing-version"),
+            int.Parse(values.GetValueOrDefault("--controlled-percent", "0"), CultureInfo.InvariantCulture)), Required("--traces"));
         return 0;
     }
     if (args[0] is "demonstrate" or "evaluate-neural")

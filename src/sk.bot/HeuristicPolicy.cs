@@ -10,6 +10,10 @@ public sealed class HeuristicPolicy(BiddingStyle style = BiddingStyle.Balanced) 
     public const string Version = "heuristic-v1";
     public string Id => $"{Version}/{style.ToString().ToLowerInvariant()}";
 
+    // Curriculum acceptance depends only on the prospective declarer's own hand.
+    public bool AcceptsContract(GameObservation observation, GameAction bid) =>
+        bid.Kind == ActionKind.Bid && BidScore(observation.Hand.Select(GameAction.FromCardId).ToArray(), bid) >= 0;
+
     public GameAction ChooseAction(GameObservation observation)
     {
         if (observation.ActivePlayer != observation.Seat || observation.LegalActions.Count == 0)

@@ -58,7 +58,8 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
     command = [str(Path(env["DOTNET_ROOT"]) / "dotnet"), str(cli), "rollout", "--traces", str(directory / "games.jsonl"),
                "--model", kind, "--target", str(config["decisions"]), "--pool", str(config["pool"]),
                "--master", str(config["seed"]), "--start", str(start), "--max-games", str(config["max_games"]),
-               "--bidding-version", versions["bidding"], "--playing-version", versions["playing"]]
+               "--bidding-version", versions["bidding"], "--playing-version", versions["playing"],
+               "--controlled-percent", str(config.get("controlled_percent", 0) if kind == "playing" else 0)]
     trajectories = Trajectories(kind)
     started = time.monotonic()
     last_progress = 0.0
@@ -66,7 +67,9 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
     hello = False
     last_batch = 0
     final = None
-    with subprocess.Popen(command, cwd=ROOT, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1) as process:
+    error_path = directory / "collector.stderr.log"
+    with error_path.open("w", encoding="utf-8") as errors, subprocess.Popen(command, cwd=ROOT, env=env,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors, text=True, bufsize=1) as process:
         try:
             for line in process.stdout:
                 message = json.loads(line)
@@ -145,7 +148,9 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
                 process.stdin.write(json.dumps(dict(batch_id=last_batch, actions=responses), allow_nan=False) + "\n")
                 process.stdin.flush()
             if process.wait(timeout=30) != 0 or final is None:
-                raise RuntimeError("Rollout process failed")
+                errors.flush()
+                detail = error_path.read_text()[-4000:].strip()
+                raise RuntimeError(f"Rollout process failed: {detail or 'no terminal batch'}")
         except BaseException:
             # EOF lets C# save accepted action prefixes before exiting.
             process.stdin.close()
@@ -172,6 +177,7 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
                     learner_rows=count, completed_games=final["completed_games"], contracts=contracts,
                     collection_seconds=time.monotonic() - started, feature_bytes=int(arrays["features"].nbytes),
                     table_mix="half self-play; half one learner and three heuristics; frozen neural play in all seats for bidding updates",
-                    curriculum="natural-deals", illegal_actions=0)
+                    curriculum="mixed-controlled-v1" if config.get("controlled_percent", 0) and kind == "playing" else "natural-deals",
+                    controlled_games=final.get("controlled_games", 0), rejected_deals=final.get("rejected_deals", 0), illegal_actions=0)
     atomic_json(directory / "rollout.json", metadata)
     return arrays, metadata

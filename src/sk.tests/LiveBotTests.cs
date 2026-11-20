@@ -10,6 +10,34 @@ namespace sk.tests;
 
 public partial class GameHubServiceTests
 {
+    [TestMethod]
+    public async Task ThreeNativeBotsCompleteRepeatedHumanTableRounds()
+    {
+        using var fixture = new NeuralPolicyTests.Fixture();
+        var (id, humans) = BotTable();
+        using var scheduler = Scheduler(new NeuralPolicy(fixture.Manifest));
+        await scheduler.StartAsync(CancellationToken.None);
+        try
+        {
+            for (int round = 0; round < 3; round++)
+            {
+                await Until(() =>
+                {
+                    var observation = _gameHubService.GetBotTurn(id, humans[0].Guid).Observation;
+                    if (observation.Phase == GameState.Finished) return true;
+                    if (observation.Seat == observation.ActivePlayer) HumanAction(id, humans[0], observation);
+                    return false;
+                });
+                var state = await Snapshot(id);
+                Assert.HasCount(3, state.Table.Players.Where(p => p.IsBot));
+                Assert.AreEqual(8, state.Turn);
+                Assert.AreEqual(0, state.Table.Players.Sum(p => p.Cash));
+                Assert.IsTrue(_gameHubService.Ready(id, humans[0].Guid));
+            }
+        }
+        finally { await scheduler.StopAsync(CancellationToken.None); }
+    }
+
     private BotTurnScheduler Scheduler(IGamePolicy? policy = null, TimeSpan? delay = null) => new(
         _gameHubService, policy ?? new HeuristicPolicy(BiddingStyle.Conservative),
         Options.Create(new BotTurnOptions

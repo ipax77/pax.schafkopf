@@ -152,7 +152,7 @@ public static class Evaluation
         return new(1, HeadlessGame.RulesVersion, SeedSchedule.Version, RuntimeInformation.FrameworkDescription,
             typeof(Evaluation).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(a => a.Key == "BuildSdk").Value!,
             RuntimeInformation.OSDescription, Git("rev-parse", "HEAD"), Git("status", "--porcelain") is { } status ? status.Length > 0 : null,
-            DateTimeOffset.UtcNow, options, versionMap, "heuristic: deterministic, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+            DateTimeOffset.UtcNow, options, versionMap, "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
             candidateTotals.Games + referenceTotals.Games, skipped, timer.Elapsed.TotalSeconds, checksum.ToString("X16"),
             candidateEstimate, referenceEstimate, difference, candidateTotals, referenceTotals, blocks, examples);
 

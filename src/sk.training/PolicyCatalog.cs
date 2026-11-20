@@ -5,8 +5,11 @@ namespace sk.training;
 
 public static class PolicyCatalog
 {
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, NeuralPolicy> Neural = new();
+    private static NeuralPolicy Load(string name) => Neural.GetOrAdd(Path.GetFullPath(name[7..]), path => new NeuralPolicy(path));
     public static string Version(string name) => name switch
     {
+        _ when name.StartsWith("neural:", StringComparison.Ordinal) => Load(name).Id,
         "balanced" => $"{HeuristicPolicy.Version}/balanced",
         "conservative" => $"{HeuristicPolicy.Version}/conservative",
         "random" => "uniform-legal-splitmix64-v1",
@@ -14,6 +17,7 @@ public static class PolicyCatalog
     };
     public static IGamePolicy Create(string name, ulong seed) => name switch
     {
+        _ when name.StartsWith("neural:", StringComparison.Ordinal) => Load(name),
         "balanced" => new HeuristicPolicy(),
         "conservative" => new HeuristicPolicy(BiddingStyle.Conservative),
         "random" => new RandomPolicy(seed),

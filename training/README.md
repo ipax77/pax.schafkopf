@@ -3,8 +3,121 @@
 Milestones 1–4 of [the training plan](../docs/training-plan.md) are implemented:
 WSL preflight, reusable C# heuristic policies, seeded paired evaluation, playable live
 bot tables, and a versioned observation encoder. A bounded TensorFlow imitation sample
-and warm-started PPO are available, including complete-game rollouts and checkpoint resume.
-Neural live serving remains pending.
+and warm-started PPO are available, including complete-game rollouts, controlled playing
+curricula, timed sessions, and checkpoint resume. Frozen trained pairs can run locally in
+the API on CPU for experimental human play.
+
+## Timed training and trained-bot play
+
+The completed local run's selected pair is ready at `models/serious-20261120/`:
+
+```bash
+bash training/play-trained.sh models/serious-20261120
+```
+
+See the [measured results](results/README.md#timed-trained-bot-run) for its 8.69 million
+PPO decisions, held-out improvements, and remaining weaknesses. Model binaries stay local
+and are excluded from Git; the reproducible settings and evaluation summaries are tracked.
+
+From the repository root **inside WSL**, prepare a substantial imitation warm start (the
+three-epoch sample is primarily a pipeline check):
+
+```bash
+bash training/run-sample.sh --games 30000 --validation-games 3000 --epochs 20 --eval-seeds 500
+```
+
+Then start the 90-minute PPO preset with that run directory:
+
+```bash
+bash training/run-serious.sh /path/to/larger/imitation/run
+```
+
+Add `--minutes 60` or `--minutes 120` to change the session budget. The runner finishes its
+current complete rollout/update and final evaluation when time expires; this can exceed
+the requested time by an update/evaluation. Keep the training terminal open. The preset uses:
+
+- 32,768 playing decisions/update, 8,192 bidding decisions/update, 128 concurrent games.
+- Playing PPO with the imitation bidder held fixed. The first staged pilot collapsed toward
+  always passing, so bidding PPO is opt-in (`--train staged`, `--train bidding`, or `--train alternate`).
+- Controlled play: 60% Ruf, 20% Wenz, 20% Solo; 80% conservative-accepted declarer hands,
+  20% unrestricted legal hands. Acceptance sees only that declarer's own observation. The
+  engine executes scripted legal auctions, which never enter PPO. Rejected seeds are counted
+  and consumed, with a 10,000-attempt cap. The default mix is 20% controlled / 80% natural play.
+- Half self-play, half one learner with three conservative heuristics; no historical pool yet.
+- A fixed 500-seed validation panel at startup, every ten updates, and shutdown. `best.json`
+  retains the highest mean payout pair, including the initial pair if training does not improve it.
+- Four recent checkpoints plus initial/best, and two recent large trajectory arrays. All
+  accepted game traces, per-update metrics, and seed/RNG metadata remain available.
+- A 2 GiB TensorFlow allocator cap. The live app can run independently on CPU.
+
+Watch from another WSL terminal using the run directory printed at startup:
+
+```bash
+bash training/watch-training.sh /path/to/run
+```
+
+Resume for another bounded session (the update target includes completed updates):
+
+```bash
+bash training/run-sample.sh ppo --resume /path/to/run --updates 100000 --minutes 90
+```
+
+The last session's time budget is inherited if `--minutes` is omitted on resume; explicit
+`--minutes 0` disables the timer. Other training settings remain pinned in `run.json`.
+Current checkpoints and the best validated pair can differ substantially. A longer run does
+not guarantee a stronger bot; inspect the recorded evaluations before making strength claims.
+For an explicit staged experiment, `--train staged` uses 24 initial controlled playing updates,
+then four playing updates per bidding update; its bidding updates always use natural deals.
+Inspect actual interest/declaration rates, not just aggregate payout or imitation accuracy.
+
+To play against the best saved pair:
+
+```bash
+bash training/play-trained.sh /path/to/run
+```
+
+This exports a new immutable copy, builds and starts the API/PWA, and prints their logs.
+Open **http://localhost:5027**, create a table, and select **Freie Plätze mit Bots füllen**.
+You get one human seat and three trained bots. Keep this terminal open; Ctrl+C stops these
+servers and leaves training alone. Existing servers on ports 5283/5027 must be stopped first.
+You can also pass an existing exported model directory. Opening a run while training is active
+uses the best pair available at launch; later checkpoints never change an existing game.
+
+`http://localhost:5283/bots/policy` reports the loaded pair ID and fallback count. The API loads
+one pair at startup through `Bots:ModelManifest` (`Bots__ModelManifest` as an environment
+variable). Without that setting it uses the conservative heuristic. Invalid manifests fail
+startup clearly; a runtime inference failure logs and falls back to the legal heuristic.
+
+For an API started manually, export first:
+
+```bash
+"$HOME/.venvs/pax-schafkopf/bin/python" training/export_policy.py /path/to/run \
+  --output /new/export/directory
+Bots__ModelManifest=/new/export/directory/pair.json bash training/dotnet.sh run --project src/sk.api
+```
+
+The `dense-f32-v1` export stores the existing two ReLU layers and linear policy/value heads as
+SHA-256-checked float32 files, with encoder/rules/action-selection metadata. `NeuralPolicy`
+implements only this fixed feed-forward calculation; C# still supplies observations and legal
+actions. It needs no Python/GPU/network service during play. Exported pairs use masked argmax,
+and are marked experimental. TensorFlow/C# output and action parity are checked with
+`training/verify_export.py`; native pairs can also be evaluated by the existing CLI using
+`--candidate neural:/absolute/path/to/export/pair.json`.
+
+For the predeclared held-out diagnostics after training finishes:
+
+```bash
+"$HOME/.venvs/pax-schafkopf/bin/python" training/finish_run.py /path/to/run \
+  --output /new/report-and-model-directory
+```
+
+This freezes the selected pair before evaluating it, exports initial/best CPU models, checks
+TensorFlow/native parity and one/ten-worker inference latency, then evaluates the fixed
+[protocol](results/serious-20261120-protocol.json): 2,000 fresh confirmation seeds against each
+heuristic style and 500 controlled seeds each for Ruf Schellen, Wenz, and Solo Schellen. It
+compares against the original imitation pair, saves all seed blocks and role/contract diagnostics,
+and writes `playable.json` into the run. This is an experimental diagnostic suite, smaller than
+the public-release gate. `--quick` uses a separate validation panel solely to test this workflow.
 
 ## PPO from imitation checkpoints
 
@@ -57,6 +170,7 @@ Choose another mode when starting a new run:
 | `--train playing` (default) | Playing | Bidding |
 | `--train bidding` | Bidding | Same neural player in every seat |
 | `--train alternate` | Playing on odd updates, bidding on even updates | The other network for the entire collection/update |
+| `--train staged` | Controlled playing warmup, then four playing / one bidding update | The other network for the entire collection/update |
 
 For example, a larger explicitly bounded playing run uses:
 
@@ -73,9 +187,9 @@ The same pinned GPU preflight and selected .NET SDK apply to imitation and PPO.
 The collector uses natural deals with a deterministic mix of half self-play and half one
 learner against three conservative heuristics, rotating dealers and focal seats. For bidding
 updates, all seats use the same frozen neural player. Only selected learner decisions enter
-the loss. This first PPO runner uses the batched local stdio transport; HTTP serving,
-controlled-contract curricula, historical opponent pools, and strength/scratch comparisons
-are still pending. It does not install models into live tables.
+the loss. This PPO runner uses batched local stdio transport. Controlled play is available in
+the timed preset above or with `--controlled-percent`. Historical opponent pools and
+strength/scratch comparisons remain pending. Exporting and launching a pair for local play is explicit.
 
 Each PPO run contains:
 
@@ -88,8 +202,8 @@ Each PPO run contains:
 - `metrics.jsonl`: completed update metrics, including approximate KL, clipping, entropy,
   forced fraction, gradient norm, value MSE, and explained variance.
 - `checkpoints/update-*/`: resumable `.keras` files, state, and versioned `pair.json`;
-  `latest.json` points to the last committed pair. These are latest checkpoints, not models
-  selected as strongest by validation.
+  `latest.json` points to the last committed pair; `best.json` points to the pair with the
+  highest mean payout on the fixed validation panel.
 - `baseline-evaluation.json`, `evaluation.json`, and `evaluations/`: raw-payout evaluation
   against three conservative opponents, with base-seed bootstrap intervals; paired change
   from the warm-start pair uses the same validation seed panel. Bidding-only results evaluate
@@ -209,8 +323,9 @@ See [recorded results](results/README.md).
 
 Start the API and PWA as described in the root README. Create a table and select
 **Freie Plätze mit Bots füllen**. Invite human players first for a table with one or two
-bots. All live bots use the fixed, stateless `heuristic-v1/conservative` policy for bidding
-and play; it cannot change during a round. No Python/model service is needed.
+bots. By default live bots use the fixed, stateless `heuristic-v1/conservative` policy for
+bidding and play. The trained-play launcher above configures an immutable neural pair instead.
+Neither path needs a Python/model service during play.
 
 Bots are named, server-owned seats with no SignalR connection. Only connected human table
 members can fill/remove them, and only before play or between rounds. Use the result dialog
@@ -241,8 +356,8 @@ Optional API configuration under `Bots` uses .NET `TimeSpan` strings:
 ```
 
 Defaults allow the existing card/trick animations to finish. The fixed policy itself runs
-locally; display pacing is separate from inference latency. Neural deadlines, fallback,
-and measured p95 serving gates remain part of the future neural adapter milestone.
+locally; display pacing is separate from inference latency. Native neural CPU inference and
+runtime fallback are available; the full live-load latency and reliability soak gates remain pending.
 
 Live regression tests exercise four consecutive played rounds with each of 1/2/3 bot seats,
 bot-led auctions/declarations, all-pass readiness, private snapshots, bot identity protection,
