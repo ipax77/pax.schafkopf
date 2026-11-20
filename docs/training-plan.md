@@ -1,6 +1,6 @@
 # WSL training and live bot plan
 
-Status: revised implementation plan; training and playable bots are not implemented yet.
+Status: milestones 1–2 implemented and verified; live bot seats and neural training remain pending.
 Updated: 2026-11-20.
 
 This is the implementation plan following the engine redesign and performance work.
@@ -18,9 +18,10 @@ card play with unfamiliar partners, and responsive turns. Expert strength is a l
 goal. Deliver a playable heuristic bot first, then replace its policies with trained ones only
 when evaluation demonstrates an improvement. Simulation throughput alone is not the objective.
 
-The repository currently has `HeadlessGame`, private observations, `IGamePolicy`, and guarded
-live-action hooks. It does **not** yet have a heuristic policy, encoder, trainer, evaluation
-harness, bot seat lifecycle, or scheduler. The milestones below include these missing pieces.
+The repository now has `HeadlessGame`, private observations, `IGamePolicy`, guarded live-action
+hooks, heuristic policies, a seeded evaluation harness, and WSL preflight checks. See the
+[implementation guide and recorded results](../training/README.md). The encoder, trainer, bot
+seat lifecycle, and scheduler remain pending. The milestones below include these missing pieces.
 
 | Area | Decision |
 | --- | --- |
@@ -431,8 +432,8 @@ before adding compute. Consider history models or information-set search only af
 
 | Milestone | Deliverable | Acceptance gate |
 | --- | --- | --- |
-| 1. Environment | Selected .NET executable, isolated Python environment, reproducible run manifest | SDK/runtime recorded; GPU check and existing regression tests pass |
-| 2. Baseline and evaluator | Versioned heuristic pair, two bidding styles, seeded paired match runner | Deterministic replays, seat/dealer coverage, block confidence intervals, and baseline reports saved |
+| 1. Environment — complete | Selected .NET executable, isolated Python environment, reproducible run manifest | SDK/runtime recorded; GPU check and existing regression tests pass |
+| 2. Baseline and evaluator — complete | Versioned heuristic pair, two bidding styles, seeded paired match runner | Deterministic replays, seat/dealer coverage, block confidence intervals, and baseline reports saved |
 | 3. Playable heuristic bot | Bot seats, scheduler, ready handling, visible bot names | Human plus 1-3 bots can bid, finish, and start further rounds; stale/duplicate work rejected |
 | 4. Encoding | Reusable C# encoders, 17/32 action adapters, golden fixtures | Stable shapes; relative seats, history, own-role inference, privacy, and masks verified |
 | 5. Batched inference and benchmark | Game pool, two TensorFlow endpoints, CPU/GPU and batch sweeps | Full games complete; timings/memory separated; partial queues and historical versions work |
@@ -517,6 +518,6 @@ latency budget. Search would need validated state reconstruction/cloning, which 
 does not currently expose; sampled hidden states must be consistent with this seat's observations,
 never the actual unseen deal. Do not make search or a second rules engine a prerequisite for v1.
 
-The immediate next implementation is **milestones 1–2**, then **milestone 3: a bot we can actually
-play against**. Encoding, batched inference, and learning follow with an evaluator and live target
-already in place. The revised plan itself does not constitute a trained or deployed bot.
+The immediate next implementation is **milestone 3: live bot seats and scheduling**, using the
+implemented heuristic. Encoding, batched inference, and learning follow with the evaluator and
+live target in place. The current baseline has not been trained or deployed to human tables.

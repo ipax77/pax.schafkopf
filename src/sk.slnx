@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="sk.bot/sk.bot.csproj" />
+  <Project Path="sk.training/sk.training.csproj" />
   <Project Path="sk.benchmarks/sk.benchmarks.csproj" />
   <Project Path="sk.api/sk.api.csproj" />
   <Project Path="sk.AppHost/sk.AppHost.csproj" />

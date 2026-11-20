@@ -43,6 +43,10 @@ Each browser represents one player in the game.
 The [WSL training plan](docs/training-plan.md) defines separate bidding and playing models,
 staged PPO training, and the implementation milestones.
 
+The [bot and evaluation guide](training/README.md) covers the implemented heuristic policies,
+WSL environment checks, seeded comparisons, and replay commands. Live bot seats and neural
+training are not enabled yet.
+
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.
 Run the simulation check with `dotnet run --project tools/sk.simulation-audit -c Release -- 1000000`.

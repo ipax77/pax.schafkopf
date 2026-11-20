@@ -1,0 +1,749 @@
+{
+  "SchemaVersion": 1,
+  "RulesVersion": "schafkopf-long-v1",
+  "SeedScheduleVersion": "splitmix64-partition-v1",
+  "Runtime": ".NET 10.0.15",
+  "BuildSdk": "10.0.404",
+  "OS": "Ubuntu 24.04.5 LTS",
+  "SourceCommit": "984c6a820dd77f9223bff0b71ce6912fd97c9d1e",
+  "SourceDirty": true,
+  "CreatedAtUtc": "2026-11-20T18:44:03.2171556+00:00",
+  "Options": {
+    "Seeds": 100,
+    "StartIndex": 0,
+    "MasterSeed": 20261120,
+    "Split": "Validation",
+    "Candidate": "balanced",
+    "Reference": "conservative",
+    "Opponents": [
+      "conservative",
+      "balanced",
+      "random"
+    ],
+    "BootstrapSamples": 2000,
+    "BootstrapSeed": 712367,
+    "ContractAction": 3
+  },
+  "PolicyVersions": {
+    "conservative": "heuristic-v1/conservative",
+    "balanced": "heuristic-v1/balanced",
+    "random": "uniform-legal-splitmix64-v1"
+  },
+  "SelectionMode": "heuristic: deterministic, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+  "CompletedGames": 1856,
+  "SkippedSeeds": 42,
+  "ElapsedSeconds": 1.6511587,
+  "ActionChecksum": "49E52632F1A128D1",
+  "CandidatePayout": {
+    "IndependentSeeds": 58,
+    "Mean": 0.9806034482758621,
+    "Lower95": -0.3232758620689655,
+    "Upper95": 2.1982758620689653
+  },
+  "ReferencePayout": {
+    "IndependentSeeds": 58,
+    "Mean": 0.9806034482758621,
+    "Lower95": -0.3232758620689655,
+    "Upper95": 2.1982758620689653
+  },
+  "PairedImprovement": {
+    "IndependentSeeds": 58,
+    "Mean": 0,
+    "Lower95": 0,
+    "Upper95": 0
+  },
+  "CandidateTotals": {
+    "Games": 928,
+    "AllPass": 0,
+    "Interests": 928,
+    "ToutGames": 0,
+    "ToutWins": 0,
+    "FocalDeclarations": 232,
+    "FocalDeclarationWins": 139,
+    "RawPayout": 910,
+    "ByContractRole": {
+      "Ruf/Schellen/normal/defender": {
+        "Games": 464,
+        "Wins": 228,
+        "Payout": -450,
+        "MeanPayout": -0.9698275862068966
+      },
+      "Ruf/Schellen/normal/declarer": {
+        "Games": 232,
+        "Wins": 139,
+        "Payout": 780,
+        "MeanPayout": 3.3620689655172415
+      },
+      "Ruf/Schellen/normal/partner": {
+        "Games": 232,
+        "Wins": 134,
+        "Payout": 580,
+        "MeanPayout": 2.5
+      }
+    }
+  },
+  "ReferenceTotals": {
+    "Games": 928,
+    "AllPass": 0,
+    "Interests": 928,
+    "ToutGames": 0,
+    "ToutWins": 0,
+    "FocalDeclarations": 232,
+    "FocalDeclarationWins": 139,
+    "RawPayout": 910,
+    "ByContractRole": {
+      "Ruf/Schellen/normal/defender": {
+        "Games": 464,
+        "Wins": 228,
+        "Payout": -450,
+        "MeanPayout": -0.9698275862068966
+      },
+      "Ruf/Schellen/normal/declarer": {
+        "Games": 232,
+        "Wins": 139,
+        "Payout": 780,
+        "MeanPayout": 3.3620689655172415
+      },
+      "Ruf/Schellen/normal/partner": {
+        "Games": 232,
+        "Wins": 134,
+        "Payout": 580,
+        "MeanPayout": 2.5
+      }
+    }
+  },
+  "Blocks": [
+    {
+      "Index": 1,
+      "DealSeed": 13879685170331710131,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 6,
+      "DealSeed": 9537105211450647024,
+      "PairedGames": 16,
+      "CandidateMean": 4.375,
+      "ReferenceMean": 4.375,
+      "Difference": 0
+    },
+    {
+      "Index": 7,
+      "DealSeed": 4767328030909402363,
+      "PairedGames": 16,
+      "CandidateMean": -1.875,
+      "ReferenceMean": -1.875,
+      "Difference": 0
+    },
+    {
+      "Index": 9,
+      "DealSeed": 3561473542606157288,
+      "PairedGames": 16,
+      "CandidateMean": 1.875,
+      "ReferenceMean": 1.875,
+      "Difference": 0
+    },
+    {
+      "Index": 10,
+      "DealSeed": 5383728271904088349,
+      "PairedGames": 16,
+      "CandidateMean": -2.5,
+      "ReferenceMean": -2.5,
+      "Difference": 0
+    },
+    {
+      "Index": 11,
+      "DealSeed": 8534481563146131857,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 12,
+      "DealSeed": 8404400983624689014,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 13,
+      "DealSeed": 303292926621802478,
+      "PairedGames": 16,
+      "CandidateMean": 6.25,
+      "ReferenceMean": 6.25,
+      "Difference": 0
+    },
+    {
+      "Index": 16,
+      "DealSeed": 3891674610966722586,
+      "PairedGames": 16,
+      "CandidateMean": 5,
+      "ReferenceMean": 5,
+      "Difference": 0
+    },
+    {
+      "Index": 17,
+      "DealSeed": 4863184660492505842,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 20,
+      "DealSeed": 16804446386315813234,
+      "PairedGames": 16,
+      "CandidateMean": -16.875,
+      "ReferenceMean": -16.875,
+      "Difference": 0
+    },
+    {
+      "Index": 21,
+      "DealSeed": 9540852357235306752,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 22,
+      "DealSeed": 1065696671310927465,
+      "PairedGames": 16,
+      "CandidateMean": 6.25,
+      "ReferenceMean": 6.25,
+      "Difference": 0
+    },
+    {
+      "Index": 24,
+      "DealSeed": 4709786880556199579,
+      "PairedGames": 16,
+      "CandidateMean": -8.75,
+      "ReferenceMean": -8.75,
+      "Difference": 0
+    },
+    {
+      "Index": 25,
+      "DealSeed": 18018822172639364070,
+      "PairedGames": 16,
+      "CandidateMean": -2.5,
+      "ReferenceMean": -2.5,
+      "Difference": 0
+    },
+    {
+      "Index": 29,
+      "DealSeed": 15733834578881699232,
+      "PairedGames": 16,
+      "CandidateMean": -3.125,
+      "ReferenceMean": -3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 30,
+      "DealSeed": 7686910127696594790,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 31,
+      "DealSeed": 2763775421228843592,
+      "PairedGames": 16,
+      "CandidateMean": 3.75,
+      "ReferenceMean": 3.75,
+      "Difference": 0
+    },
+    {
+      "Index": 32,
+      "DealSeed": 14298016522927542092,
+      "PairedGames": 16,
+      "CandidateMean": 0.625,
+      "ReferenceMean": 0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 33,
+      "DealSeed": 13588915077127240356,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 34,
+      "DealSeed": 5923481895873273826,
+      "PairedGames": 16,
+      "CandidateMean": 5,
+      "ReferenceMean": 5,
+      "Difference": 0
+    },
+    {
+      "Index": 36,
+      "DealSeed": 17335555514492072618,
+      "PairedGames": 16,
+      "CandidateMean": -5.625,
+      "ReferenceMean": -5.625,
+      "Difference": 0
+    },
+    {
+      "Index": 38,
+      "DealSeed": 5639872388092099968,
+      "PairedGames": 16,
+      "CandidateMean": 0.625,
+      "ReferenceMean": 0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 39,
+      "DealSeed": 1017367174027089083,
+      "PairedGames": 16,
+      "CandidateMean": 0.625,
+      "ReferenceMean": 0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 43,
+      "DealSeed": 384080827532460205,
+      "PairedGames": 16,
+      "CandidateMean": 0,
+      "ReferenceMean": 0,
+      "Difference": 0
+    },
+    {
+      "Index": 46,
+      "DealSeed": 17624823249524447456,
+      "PairedGames": 16,
+      "CandidateMean": -4.375,
+      "ReferenceMean": -4.375,
+      "Difference": 0
+    },
+    {
+      "Index": 50,
+      "DealSeed": 8202717037095140280,
+      "PairedGames": 16,
+      "CandidateMean": 0,
+      "ReferenceMean": 0,
+      "Difference": 0
+    },
+    {
+      "Index": 51,
+      "DealSeed": 4513119556262956587,
+      "PairedGames": 16,
+      "CandidateMean": 6.875,
+      "ReferenceMean": 6.875,
+      "Difference": 0
+    },
+    {
+      "Index": 58,
+      "DealSeed": 16636764177876562174,
+      "PairedGames": 16,
+      "CandidateMean": 1.25,
+      "ReferenceMean": 1.25,
+      "Difference": 0
+    },
+    {
+      "Index": 60,
+      "DealSeed": 10733576170594694236,
+      "PairedGames": 16,
+      "CandidateMean": -5,
+      "ReferenceMean": -5,
+      "Difference": 0
+    },
+    {
+      "Index": 61,
+      "DealSeed": 9952868341143439044,
+      "PairedGames": 16,
+      "CandidateMean": 0,
+      "ReferenceMean": 0,
+      "Difference": 0
+    },
+    {
+      "Index": 62,
+      "DealSeed": 15560802464897549048,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 65,
+      "DealSeed": 9381120182315841196,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 68,
+      "DealSeed": 17488206093122395372,
+      "PairedGames": 16,
+      "CandidateMean": -0.625,
+      "ReferenceMean": -0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 70,
+      "DealSeed": 8545223112152870373,
+      "PairedGames": 16,
+      "CandidateMean": -1.25,
+      "ReferenceMean": -1.25,
+      "Difference": 0
+    },
+    {
+      "Index": 71,
+      "DealSeed": 15340295011557984676,
+      "PairedGames": 16,
+      "CandidateMean": -1.875,
+      "ReferenceMean": -1.875,
+      "Difference": 0
+    },
+    {
+      "Index": 72,
+      "DealSeed": 15521198961074364280,
+      "PairedGames": 16,
+      "CandidateMean": 0.625,
+      "ReferenceMean": 0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 73,
+      "DealSeed": 13865869060962553497,
+      "PairedGames": 16,
+      "CandidateMean": 0.625,
+      "ReferenceMean": 0.625,
+      "Difference": 0
+    },
+    {
+      "Index": 74,
+      "DealSeed": 10918345482139041474,
+      "PairedGames": 16,
+      "CandidateMean": 7.5,
+      "ReferenceMean": 7.5,
+      "Difference": 0
+    },
+    {
+      "Index": 76,
+      "DealSeed": 5048370314497430611,
+      "PairedGames": 16,
+      "CandidateMean": 5,
+      "ReferenceMean": 5,
+      "Difference": 0
+    },
+    {
+      "Index": 77,
+      "DealSeed": 14572134881765506243,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 78,
+      "DealSeed": 17480929460824882333,
+      "PairedGames": 16,
+      "CandidateMean": 15.625,
+      "ReferenceMean": 15.625,
+      "Difference": 0
+    },
+    {
+      "Index": 79,
+      "DealSeed": 7538296657535330660,
+      "PairedGames": 16,
+      "CandidateMean": 5,
+      "ReferenceMean": 5,
+      "Difference": 0
+    },
+    {
+      "Index": 81,
+      "DealSeed": 7993321252119201572,
+      "PairedGames": 16,
+      "CandidateMean": -2.5,
+      "ReferenceMean": -2.5,
+      "Difference": 0
+    },
+    {
+      "Index": 82,
+      "DealSeed": 13179231828398265296,
+      "PairedGames": 16,
+      "CandidateMean": -1.25,
+      "ReferenceMean": -1.25,
+      "Difference": 0
+    },
+    {
+      "Index": 83,
+      "DealSeed": 12780871620651509167,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 84,
+      "DealSeed": 15103615583078452,
+      "PairedGames": 16,
+      "CandidateMean": 6.25,
+      "ReferenceMean": 6.25,
+      "Difference": 0
+    },
+    {
+      "Index": 86,
+      "DealSeed": 5755397225674859553,
+      "PairedGames": 16,
+      "CandidateMean": -7.5,
+      "ReferenceMean": -7.5,
+      "Difference": 0
+    },
+    {
+      "Index": 87,
+      "DealSeed": 770349990119752052,
+      "PairedGames": 16,
+      "CandidateMean": 0,
+      "ReferenceMean": 0,
+      "Difference": 0
+    },
+    {
+      "Index": 88,
+      "DealSeed": 2585504484536099648,
+      "PairedGames": 16,
+      "CandidateMean": 1.875,
+      "ReferenceMean": 1.875,
+      "Difference": 0
+    },
+    {
+      "Index": 89,
+      "DealSeed": 16968605572863408904,
+      "PairedGames": 16,
+      "CandidateMean": 2.5,
+      "ReferenceMean": 2.5,
+      "Difference": 0
+    },
+    {
+      "Index": 91,
+      "DealSeed": 431449326836982938,
+      "PairedGames": 16,
+      "CandidateMean": 2.5,
+      "ReferenceMean": 2.5,
+      "Difference": 0
+    },
+    {
+      "Index": 92,
+      "DealSeed": 3569488240885390233,
+      "PairedGames": 16,
+      "CandidateMean": 13.75,
+      "ReferenceMean": 13.75,
+      "Difference": 0
+    },
+    {
+      "Index": 93,
+      "DealSeed": 7674975183698005438,
+      "PairedGames": 16,
+      "CandidateMean": 3.75,
+      "ReferenceMean": 3.75,
+      "Difference": 0
+    },
+    {
+      "Index": 94,
+      "DealSeed": 16196448944923197167,
+      "PairedGames": 16,
+      "CandidateMean": 0,
+      "ReferenceMean": 0,
+      "Difference": 0
+    },
+    {
+      "Index": 95,
+      "DealSeed": 13844682094929541598,
+      "PairedGames": 16,
+      "CandidateMean": -1.25,
+      "ReferenceMean": -1.25,
+      "Difference": 0
+    },
+    {
+      "Index": 98,
+      "DealSeed": 6632602460962590306,
+      "PairedGames": 16,
+      "CandidateMean": 3.125,
+      "ReferenceMean": 3.125,
+      "Difference": 0
+    },
+    {
+      "Index": 99,
+      "DealSeed": 731420497312148139,
+      "PairedGames": 16,
+      "CandidateMean": 1.25,
+      "ReferenceMean": 1.25,
+      "Difference": 0
+    }
+  ],
+  "Examples": [
+    {
+      "RulesVersion": "schafkopf-long-v1",
+      "Seed": 13879685170331710131,
+      "Dealer": 0,
+      "SamplingSeed": 7786720684647588641,
+      "Policies": [
+        "balanced",
+        "conservative",
+        "balanced",
+        "random"
+      ],
+      "PolicyVersions": [
+        "heuristic-v1/balanced",
+        "heuristic-v1/conservative",
+        "heuristic-v1/balanced",
+        "uniform-legal-splitmix64-v1"
+      ],
+      "Actions": [
+        1,
+        0,
+        0,
+        0,
+        3,
+        37,
+        27,
+        25,
+        26,
+        45,
+        28,
+        44,
+        20,
+        40,
+        34,
+        38,
+        30,
+        48,
+        36,
+        46,
+        47,
+        39,
+        29,
+        33,
+        17,
+        18,
+        24,
+        41,
+        23,
+        21,
+        42,
+        32,
+        31,
+        35,
+        43,
+        22,
+        19
+      ],
+      "Rewards": [
+        -10,
+        10,
+        -10,
+        10
+      ],
+      "Contract": {
+        "Player": 1,
+        "GameType": "Ruf",
+        "Suit": "Schellen",
+        "Tout": false
+      },
+      "Roles": [
+        "defender",
+        "declarer",
+        "defender",
+        "partner"
+      ],
+      "AuctionPrefix": [
+        1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "Failure": null
+    },
+    {
+      "RulesVersion": "schafkopf-long-v1",
+      "Seed": 13879685170331710131,
+      "Dealer": 0,
+      "SamplingSeed": 7786720684647588641,
+      "Policies": [
+        "conservative",
+        "conservative",
+        "balanced",
+        "random"
+      ],
+      "PolicyVersions": [
+        "heuristic-v1/conservative",
+        "heuristic-v1/conservative",
+        "heuristic-v1/balanced",
+        "uniform-legal-splitmix64-v1"
+      ],
+      "Actions": [
+        1,
+        0,
+        0,
+        0,
+        3,
+        37,
+        27,
+        25,
+        26,
+        45,
+        28,
+        44,
+        20,
+        40,
+        34,
+        38,
+        30,
+        48,
+        36,
+        46,
+        47,
+        39,
+        29,
+        33,
+        17,
+        18,
+        24,
+        41,
+        23,
+        21,
+        42,
+        32,
+        31,
+        35,
+        43,
+        22,
+        19
+      ],
+      "Rewards": [
+        -10,
+        10,
+        -10,
+        10
+      ],
+      "Contract": {
+        "Player": 1,
+        "GameType": "Ruf",
+        "Suit": "Schellen",
+        "Tout": false
+      },
+      "Roles": [
+        "defender",
+        "declarer",
+        "defender",
+        "partner"
+      ],
+      "AuctionPrefix": [
+        1,
+        0,
+        0,
+        0,
+        3
+      ],
+      "Failure": null
+    }
+  ]
+}

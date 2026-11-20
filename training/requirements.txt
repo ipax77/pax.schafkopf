@@ -1,0 +1,2 @@
+# WSL / Python 3.12. Full resolved versions are recorded by check_environment.py.
+tensorflow[and-cuda]==2.21.0
