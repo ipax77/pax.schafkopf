@@ -99,3 +99,68 @@ was stopped at a completed epoch and resumed in a new process, preserving Adam i
 counts (bidding 1 → 2, playing 3 → 6). Checkpoint reload checks verify optimizer tensors and
 model outputs after every saved epoch. Regression validation: 98 C# tests and 3 TensorFlow
 objective tests passed.
+
+## First warm-started PPO sample — 2026-11-20
+
+The default playing PPO run completed ten updates from the imitation pair above, keeping
+the bidder frozen. It collected **49,152 learner decisions from 4,040 complete training
+games**, starting at training index 2,000,000; the next index is 2,004,040. The target was
+4,096 decisions/update with a pool of 64 games; draining active games accounts for the extra
+decisions. Tables alternated in balanced blocks between self-play and one learner against
+three conservative heuristics. There were no historical opponents or controlled contracts.
+
+The selected .NET SDK 10.0.404, Python 3.12.3, TensorFlow 2.21.0, and RTX 3080 Ti passed the
+full preflight. TensorFlow used a 2 GiB allocator cap. The run recorded 51.66 seconds of
+monotonic elapsed time, including preflight/build/evaluations, and about 117.5 MiB of files.
+All ten updates completed four epochs. Final-update approximate KL was 0.00814, clip fraction
+11.27%, entropy 0.881, value MSE 0.4955, and explained variance 0.6644. These training diagnostics
+measure the sampled rollout, not strength. See [per-update metrics](sample-ppo-metrics.jsonl).
+
+The initial, fifth-update, and final evaluations each used 32 validation seed blocks across
+four seats and dealers (1,024 games each). The [final evaluation](sample-ppo-evaluation.json)
+used masked argmax and had zero illegal actions:
+
+| Comparison | Raw payout change per deal | 95% base-seed bootstrap interval |
+| --- | ---: | --- |
+| Final PPO pair vs conservative reference | -2.46094 | [-3.69189, -1.19092] |
+| Final PPO pair vs its imitation warm start on the same panel | -0.19531 | [-0.52734, 0.11719] |
+
+The sample remains below the teacher and shows **no clear improvement over its warm start**.
+It is a correctness run, not a strength or promotion result. Live bots remain conservative
+heuristics. Longer curricula and independent confirmation are needed before deployment.
+
+All 4,040 saved game traces were replayed through the C# engine with identical payouts.
+Every recorded return was checked against its own seat's terminal payout / 100, including
+terminal placement, learner-only membership, and legal sampled actions. Checkpoint versions
+matched each rollout; bidding weights and its zero Adam-step count stayed unchanged. CPU
+re-evaluation of the old GPU policy statistics differed slightly: maximum absolute difference
+0.001026 in log probability and 0.000815 in value. This is a numerical cross-check, not a
+claim of bitwise CPU/GPU identity. Training retains the original collection statistics.
+
+A separate small alternating run completed a playing update, exited, and resumed in a new
+process for bidding. It restored the saved NumPy RNG and next deal index 2,000,023. Adam
+iterations changed from bidding/play **0/4 to 4/4** while the playing weights stayed identical.
+The checkpoint unit test also verified identical subsequent CPU updates after restoring
+weights, Adam tensors, and RNG. Regression validation: **103 C# tests and 12 Python tests passed**.
+The [verification record](sample-ppo-verification.json) retains counters and numerical checks.
+
+The full resumable sample is on the Linux filesystem:
+
+```text
+/home/pax77/.local/share/pax-schafkopf/runs/ppo-20261120-205437-099b55
+```
+
+Continue it from the repository root in WSL, or watch its saved/current progress:
+
+```bash
+run="$HOME/.local/share/pax-schafkopf/runs/ppo-20261120-205437-099b55"
+bash training/run-sample.sh ppo --resume "$run" --updates 20
+# In another terminal, using the same run path:
+bash training/watch-training.sh "$HOME/.local/share/pax-schafkopf/runs/ppo-20261120-205437-099b55"
+```
+
+Source baseline: `641da85` plus the PPO changes in the working tree. Master seed: 20261120;
+rules: `schafkopf-long-v1`; encoder: `schafkopf-observation-v1`. Final playing optimizer steps:
+120. Models and full rollouts are intentionally excluded from Git. See the
+[launch/watch/resume guide](../README.md#ppo-from-imitation-checkpoints) for fresh runs and
+bidding/alternating modes.

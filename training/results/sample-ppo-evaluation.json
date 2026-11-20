@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "rules_version": "schafkopf-long-v1",
+  "encoder_version": "schafkopf-observation-v1",
+  "master_seed": 20261120,
+  "split": "validation",
+  "start_index": 1000000,
+  "seeds": 32,
+  "completed_games": 1024,
+  "neural_decisions": 2752,
+  "illegal_actions": 0,
+  "selection": "masked-argmax; lowest local action breaks ties",
+  "candidate_payout": {
+    "independent_seeds": 32,
+    "mean": -2.4609375,
+    "lower95": -3.69189453125,
+    "upper95": -1.1909179687500027
+  },
+  "paired_improvement": {
+    "independent_seeds": 32,
+    "mean": -2.4609375,
+    "lower95": -3.69189453125,
+    "upper95": -1.1909179687500027
+  },
+  "candidate_contracts": {
+    "all-pass": 232,
+    "Ruf/normal": 258,
+    "Wenz/normal": 12,
+    "Solo/normal": 10
+  },
+  "blocks": [
+    {
+      "index": 1000000,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000001,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000002,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000003,
+      "candidate": -3.75,
+      "reference": 0,
+      "difference": -3.75
+    },
+    {
+      "index": 1000004,
+      "candidate": -3.75,
+      "reference": 0,
+      "difference": -3.75
+    },
+    {
+      "index": 1000005,
+      "candidate": 2.5,
+      "reference": 0,
+      "difference": 2.5
+    },
+    {
+      "index": 1000006,
+      "candidate": -2.5,
+      "reference": 0,
+      "difference": -2.5
+    },
+    {
+      "index": 1000007,
+      "candidate": -2.5,
+      "reference": 0,
+      "difference": -2.5
+    },
+    {
+      "index": 1000008,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000009,
+      "candidate": -3.75,
+      "reference": 0,
+      "difference": -3.75
+    },
+    {
+      "index": 1000010,
+      "candidate": -5.625,
+      "reference": 0,
+      "difference": -5.625
+    },
+    {
+      "index": 1000011,
+      "candidate": -4.375,
+      "reference": 0,
+      "difference": -4.375
+    },
+    {
+      "index": 1000012,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000013,
+      "candidate": -5.625,
+      "reference": 0,
+      "difference": -5.625
+    },
+    {
+      "index": 1000014,
+      "candidate": -6.25,
+      "reference": 0,
+      "difference": -6.25
+    },
+    {
+      "index": 1000015,
+      "candidate": -4.375,
+      "reference": 0,
+      "difference": -4.375
+    },
+    {
+      "index": 1000016,
+      "candidate": -6.875,
+      "reference": 0,
+      "difference": -6.875
+    },
+    {
+      "index": 1000017,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000018,
+      "candidate": -5,
+      "reference": 0,
+      "difference": -5
+    },
+    {
+      "index": 1000019,
+      "candidate": -7.5,
+      "reference": 0,
+      "difference": -7.5
+    },
+    {
+      "index": 1000020,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000021,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000022,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000023,
+      "candidate": 5.625,
+      "reference": 0,
+      "difference": 5.625
+    },
+    {
+      "index": 1000024,
+      "candidate": 6.25,
+      "reference": 0,
+      "difference": 6.25
+    },
+    {
+      "index": 1000025,
+      "candidate": -6.875,
+      "reference": 0,
+      "difference": -6.875
+    },
+    {
+      "index": 1000026,
+      "candidate": -6.25,
+      "reference": 0,
+      "difference": -6.25
+    },
+    {
+      "index": 1000027,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000028,
+      "candidate": -5.625,
+      "reference": 0,
+      "difference": -5.625
+    },
+    {
+      "index": 1000029,
+      "candidate": 0,
+      "reference": 0,
+      "difference": 0
+    },
+    {
+      "index": 1000030,
+      "candidate": -3.125,
+      "reference": 0,
+      "difference": -3.125
+    },
+    {
+      "index": 1000031,
+      "candidate": -9.375,
+      "reference": 0,
+      "difference": -9.375
+    }
+  ],
+  "purpose": "small neural policy evaluation; not a promotion suite",
+  "ppo_update": 10,
+  "versions": {
+    "bidding": "774134da0dd9be05c67b7f8c772761dc33b2559dc76d427f1987874f0b900155",
+    "playing": "fea072b31c4850b55f59f3a94f0ed2ef7d493e2019846269274a878cf2831a8a"
+  },
+  "versus_warm_start": {
+    "independent_seeds": 32,
+    "mean": -0.1953125,
+    "lower95": -0.52734375,
+    "upper95": 0.1171875
+  }
+}

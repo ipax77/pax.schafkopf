@@ -85,7 +85,7 @@ public static class NeuralEvaluation
             paired_improvement = BlockStatistics.Bootstrap(candidate.Zip(reference, (c, r) => c - r).ToArray(), 2000, 712367),
             candidate_contracts = contracts, blocks = Enumerable.Range(0, seeds).Select(n => new
                 { index = start + (ulong)n, candidate = candidate[n], reference = reference[n], difference = candidate[n] - reference[n] }),
-            purpose = "small imitation smoke evaluation; not a promotion suite"
+            purpose = "small neural policy evaluation; not a promotion suite"
         } });
     }
     private static void Write(object message) { Console.WriteLine(JsonSerializer.Serialize(message, TrainingJson.Options)); Console.Out.Flush(); }

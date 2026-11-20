@@ -50,8 +50,10 @@ The [bot and evaluation guide](training/README.md) covers the implemented heuris
 WSL environment checks, seeded comparisons, and replay commands. Live bot seats use
 `heuristic-v1/conservative`. Start a bounded neural imitation sample in WSL with
 `bash training/run-sample.sh`; it prints progress and saves resumable checkpoints. See the
-[start/watch/resume guide](training/README.md#start-and-watch-sample-training). PPO and neural
-live serving remain pending.
+[start/watch/resume guide](training/README.md#start-and-watch-sample-training). Continue from
+those checkpoints with `bash training/run-sample.sh ppo --warm-start /path/to/imitation/run`;
+the [PPO guide](training/README.md#ppo-from-imitation-checkpoints) covers progress, resume,
+and playing/bidding modes. Neural live serving remains pending.
 
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.

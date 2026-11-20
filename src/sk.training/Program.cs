@@ -18,10 +18,44 @@ try
             sk.training replay-failure report.json.failure.json
             sk.training demonstrate --output directory [--train-games 2000] [--validation-games 256] [--master 20261120]
             sk.training evaluate-neural [--seeds 32] [--master 20261120] [--start 1000000] (batched stdio)
+            sk.training rollout --traces file.jsonl --model playing --target 4096 --pool 64
+              --master 20261120 --start 2000000 --max-games 16384 --bidding-version id --playing-version id
+            sk.training replay-rollout file.jsonl
+            sk.training replay-rollout-failure file.jsonl.failure.json
             Policies: balanced, conservative, random. Each base seed produces 32 games.
             Contract mode uses a forced legal auction, rotates declarer across base seeds,
             and skips seeds where that declaration is illegal. All payouts use raw tariff units.
             """);
+        return 0;
+    }
+    if (args[0] is "replay-rollout" or "replay-rollout-failure")
+    {
+        if (args.Length != 2) throw new ArgumentException("Rollout replay needs one trace path.");
+        bool failure = args[0] == "replay-rollout-failure";
+        IEnumerable<EpisodeTrace> rolloutTraces = failure
+            ? JsonSerializer.Deserialize<EpisodeTrace[]>(File.ReadAllText(args[1]), TrainingJson.Options)
+                ?? throw new ArgumentException("Missing failure traces")
+            : File.ReadLines(args[1]).Select(line => (JsonSerializer.Deserialize<RolloutCompletion>(line, TrainingJson.Options)
+                ?? throw new ArgumentException("Missing rollout trace")).Trace);
+        int count = 0;
+        foreach (var trace in rolloutTraces) { EpisodeRunner.Replay(trace, requireTerminal: !failure); count++; }
+        Console.WriteLine($"Replayed {count} rollout {(failure ? "accepted prefixes" : "complete games with identical payouts")}.");
+        return 0;
+    }
+    if (args[0] == "rollout")
+    {
+        string[] allowed = ["--traces", "--model", "--target", "--pool", "--master", "--start", "--max-games", "--bidding-version", "--playing-version"];
+        var values = new Dictionary<string, string>();
+        for (int i = 1; i < args.Length; i += 2)
+        {
+            if (i + 1 >= args.Length || !allowed.Contains(args[i]) || !values.TryAdd(args[i], args[i + 1]))
+                throw new ArgumentException($"Invalid or duplicate option: {args[i]}");
+        }
+        string Required(string key) => values.GetValueOrDefault(key) ?? throw new ArgumentException($"Missing {key}");
+        int Number(string key) => int.Parse(Required(key), CultureInfo.InvariantCulture);
+        ulong Large(string key) => ulong.Parse(Required(key), CultureInfo.InvariantCulture);
+        RolloutPool.Serve(new(Required("--model"), Number("--target"), Number("--pool"), Number("--max-games"),
+            Large("--master"), Large("--start"), Required("--bidding-version"), Required("--playing-version")), Required("--traces"));
         return 0;
     }
     if (args[0] is "demonstrate" or "evaluate-neural")

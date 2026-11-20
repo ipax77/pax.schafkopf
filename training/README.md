@@ -3,7 +3,118 @@
 Milestones 1–4 of [the training plan](../docs/training-plan.md) are implemented:
 WSL preflight, reusable C# heuristic policies, seeded paired evaluation, playable live
 bot tables, and a versioned observation encoder. A bounded TensorFlow imitation sample
-is available; PPO, training rollouts, and neural live serving remain pending.
+and warm-started PPO are available, including complete-game rollouts and checkpoint resume.
+Neural live serving remains pending.
+
+## PPO from imitation checkpoints
+
+From the repository root **inside WSL**, start with the existing imitation run:
+
+```bash
+bash training/run-sample.sh ppo \
+  --warm-start "$HOME/.local/share/pax-schafkopf/runs/sample-20261120-202018-24475a"
+```
+
+`--warm-start` accepts an imitation run directory, its `models/` directory, or a compatible
+`pair.json`. Both policy/value networks retain their learned weights. The source files are
+copied into the new run and never overwritten; PPO starts with fresh Adam moments. Encoder,
+rules, input/output shapes, and reward scale must match.
+
+The default is a bounded **10-update playing run**: 4,096 learner card decisions per rollout,
+64 simultaneous C# games, up to four PPO epochs, and a frozen imitation bidder. Every active
+game finishes before an update, so actual decision counts can exceed the target. The run
+evaluates the initial pair, every fifth update, and the final pair on 32 validation seeds
+across all seats/dealers. These are small diagnostic evaluations, not promotion gates.
+
+Progress prints the rollout percentage, games, decisions/second, draining status, epoch,
+KL, clip fraction, entropy, value error, evaluations, and checkpoint commits. The script prints
+a unique run directory under `~/.local/share/pax-schafkopf/runs/`. In another WSL terminal:
+
+```bash
+bash training/watch-training.sh /path/printed/by/the/ppo/run
+```
+
+Ctrl+C in the viewer stops only the viewer. Ctrl+C in the training terminal interrupts the
+run. To resume or extend it:
+
+```bash
+bash training/run-sample.sh ppo --resume /path/printed/by/the/ppo/run --updates 20
+```
+
+`--updates` is the **total target**, including completed updates. All other training settings
+on resume come from `run.json`. Resume restores both models, Adam tensors/iterations, the
+NumPy sampling/shuffle RNG, completed decision counts, and the next unused training deal index.
+An interrupted collection or update is rerun from the last committed checkpoint; its partial
+files remain available for inspection. A lock rejects concurrent writers. Checkpoints are
+immutable directories published through an atomic `latest.json` pointer, and every save
+reloads both networks to verify predictions and optimizer tensors. GPU arithmetic can differ
+slightly across executions; saved action traces replay deterministically in C#.
+
+Choose another mode when starting a new run:
+
+| Option | Updated policy | Frozen policy |
+| --- | --- | --- |
+| `--train playing` (default) | Playing | Bidding |
+| `--train bidding` | Bidding | Same neural player in every seat |
+| `--train alternate` | Playing on odd updates, bidding on even updates | The other network for the entire collection/update |
+
+For example, a larger explicitly bounded playing run uses:
+
+```bash
+bash training/run-sample.sh ppo --warm-start /path/to/imitation/run \
+  --updates 100 --decisions 65536 --pool 128 --eval-seeds 128
+```
+
+Other options include `--epochs 4`, `--batch-size 2048` (default automatic: 2,048 playing,
+1,024 bidding), `--eval-every 5`, `--seed 20261120`, `--start-index 2000000`,
+`--gpu-memory-mb 2048`, and `--output /new/run/directory`. Keep outputs on the Linux filesystem.
+The same pinned GPU preflight and selected .NET SDK apply to imitation and PPO.
+
+The collector uses natural deals with a deterministic mix of half self-play and half one
+learner against three conservative heuristics, rotating dealers and focal seats. For bidding
+updates, all seats use the same frozen neural player. Only selected learner decisions enter
+the loss. This first PPO runner uses the batched local stdio transport; HTTP serving,
+controlled-contract curricula, historical opponent pools, and strength/scratch comparisons
+are still pending. It does not install models into live tables.
+
+Each PPO run contains:
+
+- `progress.log` and `status.json`: live human-readable and machine-readable progress.
+- `warm-start/`: source models, source pair manifest, and hashes recorded in `run.json`.
+- `rollouts/update-*/games.jsonl`: complete accepted action traces and four-seat payouts;
+  `trajectories.npz`: selected learner features/masks/actions, old log probabilities/values,
+  per-seat terminal rewards, returns, and advantages; `rollout.json`: both policy versions,
+  seeds/RNG state, contract counts, timings, and row counts; `ppo.json`: epoch/phase metrics.
+- `metrics.jsonl`: completed update metrics, including approximate KL, clipping, entropy,
+  forced fraction, gradient norm, value MSE, and explained variance.
+- `checkpoints/update-*/`: resumable `.keras` files, state, and versioned `pair.json`;
+  `latest.json` points to the last committed pair. These are latest checkpoints, not models
+  selected as strongest by validation.
+- `baseline-evaluation.json`, `evaluation.json`, and `evaluations/`: raw-payout evaluation
+  against three conservative opponents, with base-seed bootstrap intervals; paired change
+  from the warm-start pair uses the same validation seed panel. Bidding-only results evaluate
+  the whole pair and are not a controlled isolation of bidding strength.
+- `run.json` and `environment-*.json`: hyperparameters, source/dependency versions, and GPU.
+
+PPO masks sampling and loss identically, samples at temperature 1, and applies the clipped
+surrogate with clip 0.2, value coefficient 0.5, entropy coefficient 0.01, and global gradient
+norm limit 0.5. Adam uses learning rates 0.0003 (play) / 0.0001 (bid), epsilon 0.00001.
+Remaining epochs stop when full-rollout approximate KL exceeds 0.03. Returns use each seat's
+terminal payout / 100, gamma = lambda = 1, without reward clipping. Forced moves train value
+only; advantage normalization excludes them. Old statistics remain fixed during all epochs,
+and the next update collects fresh data. Invalid/stale actions, nonfinite outputs/losses,
+unfinished trajectories, and exhausted game caps fail the run and retain the last checkpoint.
+
+Replay a completed rollout through the C# engine, including checking its saved payouts:
+
+```bash
+bash training/dotnet.sh run --project src/sk.training -c Release \
+  --artifacts-path /tmp/schafkopf-training-build -- replay-rollout /path/to/rollout/games.jsonl
+```
+
+After a failed collector, use `replay-rollout-failure` with its `games.jsonl.failure.json`
+to replay accepted prefixes without requiring terminal states. Sampling uses the run's NumPy
+RNG, whose states are saved in `rollout.json`; the generic trace's `sampling_seed` is unused.
 
 ## Start and watch sample training
 
@@ -78,14 +189,14 @@ and clipped gradients. Forced moves train only the value head. Best models are s
 held-out policy loss; stop early if neither improves for two epochs. Data are memory-mapped
 in bounded batches. Both networks consume the [same private C# encoding](../docs/observation-encoding.md).
 The sample evaluator uses batches over a local stdio bridge, with C# retaining all rules;
-this is a sample transport, not the planned HTTP inference service or PPO collector.
+this transport also supports the PPO collector above. The planned HTTP service remains pending.
 
 Verification:
 
 ```bash
 bash training/dotnet.sh test src/sk.tests/sk.tests.csproj -c Release \
   --artifacts-path /tmp/schafkopf-training-tests
-"$HOME/.venvs/pax-schafkopf/bin/python" training/test_training.py
+"$HOME/.venvs/pax-schafkopf/bin/python" -m unittest discover -s training -p 'test_*.py'
 ```
 
 The 2026-11-20 sample completed all three epochs and 1,024 evaluation games with zero illegal

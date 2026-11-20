@@ -7,4 +7,11 @@ if [[ ! -x "$training_python" ]]; then
   exit 1
 fi
 cd -- "$repo_root"
+if [[ "${1:-}" == "ppo" || "${1:-}" == "--ppo" ]]; then
+  shift
+  exec "$training_python" -u "$repo_root/training/train_ppo.py" "$@"
+fi
+if [[ "${1:-}" == "imitation" ]]; then
+  shift
+fi
 exec "$training_python" -u "$repo_root/training/train_sample.py" "$@"

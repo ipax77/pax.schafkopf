@@ -1,0 +1,59 @@
+{
+  "run": "/home/pax77/.local/share/pax-schafkopf/runs/ppo-20261120-205437-099b55",
+  "updates": 10,
+  "learner_decisions": 49152,
+  "completed_training_games": 4040,
+  "elapsed_seconds": 51.66,
+  "run_bytes": 123167360,
+  "paired_improvement": {
+    "independent_seeds": 32,
+    "mean": -2.4609375,
+    "lower95": -3.69189453125,
+    "upper95": -1.1909179687500027
+  },
+  "versus_warm_start": {
+    "independent_seeds": 32,
+    "mean": -0.1953125,
+    "lower95": -0.52734375,
+    "upper95": 0.1171875
+  },
+  "optimizer_steps": {
+    "bidding": 0,
+    "playing": 120
+  },
+  "next_index": 2004040,
+  "final_epoch_metrics": {
+    "policy_loss": -0.02925551103272163,
+    "entropy": 0.8808554554839456,
+    "approx_kl": 0.008142390932776229,
+    "clip_fraction": 0.11268910157456005,
+    "value_mse": 0.49548977100296526,
+    "rows": 4832,
+    "choice_rows": 3239,
+    "forced_fraction": 0.32967715231788075,
+    "explained_variance": 0.6644450790870028,
+    "gradient_norm": 0.6460910439491272,
+    "epoch": 4,
+    "early_stop": false
+  },
+  "rollout_replay_verified": true,
+  "old_policy_cpu_crosscheck_max_absolute_error": {
+    "log_probability": 0.0010259151458740234,
+    "value": 0.0008149147033691406
+  },
+  "per_seat_returns_verified": true,
+  "frozen_bidder_verified": true,
+  "resume_verified": {
+    "optimizer_before": {
+      "bidding": 0,
+      "playing": 4
+    },
+    "optimizer_after": {
+      "bidding": 4,
+      "playing": 4
+    },
+    "restored_next_index": 2000023,
+    "rng_restored": true,
+    "frozen_player_verified": true
+  }
+}

@@ -1,6 +1,6 @@
 # WSL training and live bot plan
 
-Status: milestones 1–4 implemented and verified; bounded imitation training runs; PPO and neural serving remain pending.
+Status: milestones 1–4 and 6 implemented and verified; bounded imitation and warm-started PPO run in WSL. HTTP serving, the full training curriculum, historical opponents, and neural live release remain pending.
 Updated: 2026-11-20.
 
 This is the implementation plan following the engine redesign and performance work.
@@ -22,8 +22,12 @@ The repository now has `HeadlessGame`, private observations, `IGamePolicy`, guar
 hooks, heuristic policies, a seeded evaluation harness, and WSL preflight checks. See the
 [implementation guide and recorded results](../training/README.md). The bot seat lifecycle
 and scheduler are implemented, as is the [versioned observation encoder](observation-encoding.md).
-A small conservative-heuristic imitation trainer, checkpoint/resume flow, and batched stdio
-evaluation are available through `training/run-sample.sh`. PPO and HTTP serving remain pending.
+A small conservative-heuristic imitation trainer and warm-started complete-game PPO are
+available through `training/run-sample.sh`, including batched stdio inference/evaluation and
+checkpoint resume. See the [PPO launch/watch guide](../training/README.md#ppo-from-imitation-checkpoints).
+The ten-update playing smoke test and separate playing-to-bidding restart check passed.
+These use natural deals and current/heuristic opponents; the controlled-contract curriculum,
+historical pool, HTTP serving, and strength gates below remain planned work.
 
 | Area | Decision |
 | --- | --- |
@@ -31,7 +35,7 @@ evaluation are available through `training/run-sample.sh`. PPO and HTTP serving 
 | Learning | Python/TensorFlow, initially synchronous PPO |
 | Policies | Separate bidding and playing models, each with its own value head |
 | Seats | Share each model across all four seats; encode positions relative to the acting seat |
-| Transport | Batched local HTTP for the first implementation |
+| Transport | Batched local stdio for sample evaluation/PPO; reusable HTTP service remains planned |
 | Scheduling | Separate bidding and playing queues, served by one Python process |
 | Rollouts | Complete games; learner and opponent versions fixed during collection |
 | Reward | Acting seat's terminal payout divided by 100; no reward clipping |
@@ -216,6 +220,9 @@ decision of either model at lambda 1.0. A seat that declined interest must still
 outcome, and an all-pass sequence must return zero. Include both cases in hand-calculated tests.
 
 Initial PPO settings:
+
+The implemented default smoke run uses 4,096 learner decisions, 64 games in flight, and ten
+updates to check correctness cheaply. The larger targets below remain pilot settings.
 
 | Setting | Playing | Bidding |
 | --- | --- | --- |
@@ -438,10 +445,10 @@ before adding compute. Consider history models or information-set search only af
 | 2. Baseline and evaluator — complete | Versioned heuristic pair, two bidding styles, seeded paired match runner | Deterministic replays, seat/dealer coverage, block confidence intervals, and baseline reports saved |
 | 3. Playable heuristic bot — complete | Server-owned named seats, conservative heuristic scheduler, automatic bot ready handling | Verified 1-3 bots across repeated played/all-pass rounds, stale/duplicate guards, reconnects, cancellation, cleanup, and 10 concurrent tables; browser Wenz/Ruf playthroughs |
 | 4. Encoding — complete | Shared 1,748-feature C# encoder, 17/32 action adapters, golden fixture | Relative seats, history, own-role inference, privacy, masks, and terminal demonstration labels verified |
-| 5. Batched inference and benchmark | Game pool, two TensorFlow endpoints, CPU/GPU and batch sweeps | Full games complete; timings/memory separated; partial queues and historical versions work |
-| 6. Rollout collector and PPO | Per-seat/per-model buffers, losses, checkpoint/resume | Hand-calculated returns, all-pass, forced moves, learner-only data, and rollout draining verified; 10-update smoke test passes |
-| 7. Warm start and playing pilot — imitation sample available | Conservative-teacher imitation runs; controlled-contract data and PPO play pilot pending | Sample checkpoints/restart and paired teacher evaluation verified; strength/scratch comparisons and PPO gates remain pending |
-| 8. Bidding pilot and varied tables | Frozen-play bidding, historical pool, alternating phases | Natural-deal evaluation improves; interest/Tout behavior and unfamiliar partners assessed |
+| 5. Batched inference and benchmark — stdio subset implemented | Bounded game pool and separate model batches; HTTP, historical versions, CPU/GPU sweeps pending | Full games and partial batches complete; transport/inference benchmark gates still pending |
+| 6. Rollout collector and PPO — complete | Per-seat/per-model buffers, masked losses, versioned checkpoint/resume | Hand-calculated returns, all-pass, forced moves, learner-only data, draining and stale guards verified; ten playing updates and a fresh-process bidding resume passed |
+| 7. Warm start and playing pilot — bounded samples available | Conservative imitation and natural-deal PPO run; controlled-contract curriculum pending | 49,152 PPO decisions and paired evaluation recorded; no measured gain over warm start; strength/scratch comparisons pending |
+| 8. Bidding pilot and varied tables — modes implemented | Frozen-play bidding and alternating updates available; historical pool pending | Bidding update and frozen companion verified; strength, interest/Tout behavior, and unfamiliar partners still need assessment |
 | 9. Trained live release | Frozen pair served through the already working bot scheduler | Section 7F strength gates, section 9 latency/reliability gates, and human sessions pass |
 
 Keep the existing random-policy benchmark as a lower-overhead reference. Neural policies choose
@@ -522,9 +529,10 @@ latency budget. Search would need validated state reconstruction/cloning, which 
 does not currently expose; sampled hidden states must be consistent with this seat's observations,
 never the actual unseen deal. Do not make search or a second rules engine a prerequisite for v1.
 
-The immediate next implementation is **milestones 5–6: batched inference and the PPO collector**.
-The reusable encoder and small supervised imitation sample now work. The sample's stdio
-evaluation does not yet provide the planned HTTP serving or rollout protocol. Live tables
-still use the fixed conservative heuristic; the sample model scored below its teacher and
-was not promoted. Local browser checks do not constitute the longer human strength playtests
-required for trained releases.
+The next training work is **the controlled playing curriculum and historical opponent pool**,
+with measured batch/transport benchmarks before scaling. The reusable encoder, imitation
+warm start, and complete-game PPO now work through batched stdio. The ten-update PPO sample
+scored below the conservative teacher and showed no clear gain over its warm start on the
+small validation panel; see [recorded results](../training/results/README.md). Live tables
+still use the fixed conservative heuristic. HTTP serving and the longer human/confirmation
+strength gates remain required before a trained release.
