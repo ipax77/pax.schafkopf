@@ -79,7 +79,8 @@ Schellen, Herz, Gras, Eichel; Seven, Eight, Nine, Unter, Ober, King, Ten, Ace.
 `GameAction.FromId` and `FromCardId` decode IDs; `LegalActionMask()` always has 49 entries.
 Illegal actions, wrong turns, and post-terminal actions throw without changing an engine-owned
 episode. One instance has one owner; parallel workers must use separate instances.
-TensorFlow tensor encoding, batched IPC, and training are later layers.
+The [versioned C# observation encoder](observation-encoding.md) feeds the sample TensorFlow
+imitation trainer and batched stdio evaluator. PPO rollouts and HTTP serving are later layers.
 
 ## Live integration
 

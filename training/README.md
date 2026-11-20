@@ -1,8 +1,98 @@
 # Bot baseline and evaluation
 
-Milestones 1–3 of [the training plan](../docs/training-plan.md) are implemented:
-WSL preflight, reusable C# heuristic policies, seeded paired evaluation, and playable live
-bot tables. Observation tensors and neural training are subsequent milestones.
+Milestones 1–4 of [the training plan](../docs/training-plan.md) are implemented:
+WSL preflight, reusable C# heuristic policies, seeded paired evaluation, playable live
+bot tables, and a versioned observation encoder. A bounded TensorFlow imitation sample
+is available; PPO, training rollouts, and neural live serving remain pending.
+
+## Start and watch sample training
+
+From the repository root **inside WSL**, using the existing environment described below:
+
+```bash
+bash training/run-sample.sh
+```
+
+This performs the full GPU preflight, builds with the selected .NET SDK, generates 2,000
+conservative-teacher games plus 256 held-out games, and trains separate bidding and playing
+networks for up to three epochs. It then evaluates the best saved pair on 32 further deal
+seeds, all four seats and dealers: 512 candidate games plus 512 paired reference games.
+The sample is **supervised heuristic imitation**, the plan's warm-start stage. It is not PPO,
+and the sample model is not installed into live tables.
+
+The script prints its unique run directory under
+`~/.local/share/pax-schafkopf/runs/`, plus stage, epoch, batch, percentage, loss, teacher
+agreement, and estimated remaining batch time. Keep that terminal open. To watch from a
+second WSL terminal, use the printed run directory:
+
+```bash
+bash training/watch-training.sh /path/printed/by/the/run
+```
+
+Ctrl+C in the viewer stops only the viewer. Ctrl+C in the training terminal interrupts the
+run. Resume with the same data, weights, Adam state, and deterministic epoch shuffle:
+
+```bash
+bash training/run-sample.sh --resume /path/printed/by/the/run --epochs 3
+```
+
+`--epochs` is the **total target**, including completed epochs. Other settings on resume
+come from `run.json`. An incomplete epoch is rerun from the latest completed checkpoint.
+Partial data generation is preserved separately and regenerated. Concurrent writers to one
+run are rejected. Completed checkpoints are committed atomically; every save reloads both
+networks and checks predictions and optimizer state. No global shell configuration changes.
+
+A larger explicitly sized run can be started with:
+
+```bash
+bash training/run-sample.sh --games 10000 --validation-games 1000 --epochs 3 --eval-seeds 128
+```
+
+Other options: `--output /new/run/directory`, `--batch-size 512`, `--seed 20261120`, and
+`--gpu-memory-mb 2048`. The output directory must be new; resume existing runs explicitly.
+`SCHAFKOPF_PYTHON` can select another prepared Python environment, which still must pass
+the pinned full preflight. Default GPU allocation is capped at 2 GiB. The verified default
+run used about 503 MiB of disk including data/build/checkpoints and finished in 22 seconds
+on this machine; larger runs consume proportionally more data space. Store outputs on the
+Linux filesystem. Repeated runs use new directories, not overwritten models.
+
+Each run contains:
+
+- `progress.log` and atomically updated `status.json` for live progress.
+- `metrics.jsonl`: per-epoch held-out loss, accuracy excluding forced moves, forced fraction,
+  and terminal-value error. Teacher agreement measures imitation, not game strength.
+- `data/dataset.json`: encoder blocks, seed partitions, teacher version, row format, hashes;
+  binary shards and replayable traces alongside it.
+- `checkpoints/` and `latest.json`: resumable epoch snapshots, including best-so-far models.
+- `models/best-bidding.keras`, `best-playing.keras`, and `pair.json`: the pair selected by
+  validation loss, with action/rules/encoder metadata and `live_promoted: false`.
+- `evaluation.json`: paired raw payouts with base-seed bootstrap intervals, contract counts,
+  legality diagnostics, and every statistical seed block. Evaluation starts at validation
+  index 1,000,000, disjoint from the demonstration validation range.
+- `run.json` and `environment*.json`: settings, selected SDK/runtime, package versions, GPU,
+  source commit, and dirty-state evidence.
+
+Architecture follows the plan: two 128-unit ReLU layers for bidding, two 256-unit layers for
+play, separate policy/value heads, masked cross-entropy plus 0.5 terminal-value MSE, Adam,
+and clipped gradients. Forced moves train only the value head. Best models are selected by
+held-out policy loss; stop early if neither improves for two epochs. Data are memory-mapped
+in bounded batches. Both networks consume the [same private C# encoding](../docs/observation-encoding.md).
+The sample evaluator uses batches over a local stdio bridge, with C# retaining all rules;
+this is a sample transport, not the planned HTTP inference service or PPO collector.
+
+Verification:
+
+```bash
+bash training/dotnet.sh test src/sk.tests/sk.tests.csproj -c Release \
+  --artifacts-path /tmp/schafkopf-training-tests
+"$HOME/.venvs/pax-schafkopf/bin/python" training/test_training.py
+```
+
+The 2026-11-20 sample completed all three epochs and 1,024 evaluation games with zero illegal
+actions. Held-out choice accuracy rose from 63.3% to 77.1% (bidding) and 35.2% to 71.0% (play).
+Paired payout was -2.27 raw units/deal, 95% seed-block interval [-3.44, -1.02], against the
+teacher. It is a working training/checkpoint pipeline, **not an improvement over the live bot**.
+See [recorded results](results/README.md).
 
 ## Live heuristic tables
 

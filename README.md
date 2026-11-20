@@ -48,7 +48,10 @@ staged PPO training, and the implementation milestones.
 
 The [bot and evaluation guide](training/README.md) covers the implemented heuristic policies,
 WSL environment checks, seeded comparisons, and replay commands. Live bot seats use
-`heuristic-v1/conservative`; neural training is not enabled yet.
+`heuristic-v1/conservative`. Start a bounded neural imitation sample in WSL with
+`bash training/run-sample.sh`; it prints progress and saves resumable checkpoints. See the
+[start/watch/resume guide](training/README.md#start-and-watch-sample-training). PPO and neural
+live serving remain pending.
 
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.

@@ -1,6 +1,6 @@
 # WSL training and live bot plan
 
-Status: milestones 1–3 implemented and verified; encoding and neural training remain pending.
+Status: milestones 1–4 implemented and verified; bounded imitation training runs; PPO and neural serving remain pending.
 Updated: 2026-11-20.
 
 This is the implementation plan following the engine redesign and performance work.
@@ -21,7 +21,9 @@ when evaluation demonstrates an improvement. Simulation throughput alone is not 
 The repository now has `HeadlessGame`, private observations, `IGamePolicy`, guarded live-action
 hooks, heuristic policies, a seeded evaluation harness, and WSL preflight checks. See the
 [implementation guide and recorded results](../training/README.md). The bot seat lifecycle
-and scheduler are implemented. The encoder and trainer remain pending.
+and scheduler are implemented, as is the [versioned observation encoder](observation-encoding.md).
+A small conservative-heuristic imitation trainer, checkpoint/resume flow, and batched stdio
+evaluation are available through `training/run-sample.sh`. PPO and HTTP serving remain pending.
 
 | Area | Decision |
 | --- | --- |
@@ -435,10 +437,10 @@ before adding compute. Consider history models or information-set search only af
 | 1. Environment — complete | Selected .NET executable, isolated Python environment, reproducible run manifest | SDK/runtime recorded; GPU check and existing regression tests pass |
 | 2. Baseline and evaluator — complete | Versioned heuristic pair, two bidding styles, seeded paired match runner | Deterministic replays, seat/dealer coverage, block confidence intervals, and baseline reports saved |
 | 3. Playable heuristic bot — complete | Server-owned named seats, conservative heuristic scheduler, automatic bot ready handling | Verified 1-3 bots across repeated played/all-pass rounds, stale/duplicate guards, reconnects, cancellation, cleanup, and 10 concurrent tables; browser Wenz/Ruf playthroughs |
-| 4. Encoding | Reusable C# encoders, 17/32 action adapters, golden fixtures | Stable shapes; relative seats, history, own-role inference, privacy, and masks verified |
+| 4. Encoding — complete | Shared 1,748-feature C# encoder, 17/32 action adapters, golden fixture | Relative seats, history, own-role inference, privacy, masks, and terminal demonstration labels verified |
 | 5. Batched inference and benchmark | Game pool, two TensorFlow endpoints, CPU/GPU and batch sweeps | Full games complete; timings/memory separated; partial queues and historical versions work |
 | 6. Rollout collector and PPO | Per-seat/per-model buffers, losses, checkpoint/resume | Hand-calculated returns, all-pass, forced moves, learner-only data, and rollout draining verified; 10-update smoke test passes |
-| 7. Warm start and playing pilot | Heuristic imitation, controlled-contract play, fresh PPO collection | Saved evaluation versus heuristic and scratch control; no claim of strength from training loss |
+| 7. Warm start and playing pilot — imitation sample available | Conservative-teacher imitation runs; controlled-contract data and PPO play pilot pending | Sample checkpoints/restart and paired teacher evaluation verified; strength/scratch comparisons and PPO gates remain pending |
 | 8. Bidding pilot and varied tables | Frozen-play bidding, historical pool, alternating phases | Natural-deal evaluation improves; interest/Tout behavior and unfamiliar partners assessed |
 | 9. Trained live release | Frozen pair served through the already working bot scheduler | Section 7F strength gates, section 9 latency/reliability gates, and human sessions pass |
 
@@ -520,7 +522,9 @@ latency budget. Search would need validated state reconstruction/cloning, which 
 does not currently expose; sampled hidden states must be consistent with this seat's observations,
 never the actual unseen deal. Do not make search or a second rules engine a prerequisite for v1.
 
-The immediate next implementation is **milestone 4: observation encoding**. Batched inference
-and learning follow with the evaluator and playable live target in place. The current baseline
-is a fixed heuristic, not a trained model. Local browser checks do not constitute the longer
-human strength playtests required for trained releases.
+The immediate next implementation is **milestones 5–6: batched inference and the PPO collector**.
+The reusable encoder and small supervised imitation sample now work. The sample's stdio
+evaluation does not yet provide the planned HTTP serving or rollout protocol. Live tables
+still use the fixed conservative heuristic; the sample model scored below its teacher and
+was not promoted. Local browser checks do not constitute the longer human strength playtests
+required for trained releases.

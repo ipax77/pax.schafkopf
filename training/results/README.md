@@ -54,4 +54,48 @@ excluded before either candidate/reference game ran.
 
 The evaluator aborts on an illegal action or stalled episode. All recorded runs completed,
 and their example action traces replayed with identical terminal payouts. This validates the
-baseline infrastructure; live seat lifecycle, latency, and human playtests remain to be done.
+baseline infrastructure. Live seats and scheduling were subsequently implemented; neural serving
+latency and longer human strength playtests remain pending.
+
+## First neural imitation sample — 2026-11-20
+
+The sample runner completed 2,000 natural conservative-teacher training games and 256 separate
+validation games, producing 63,038 decisions across both splits. Both models trained for three
+epochs on the RTX 3080 Ti with a 2 GiB TensorFlow memory cap, using the selected .NET SDK
+10.0.404, Python 3.12.3, and TensorFlow 2.21.0. Total preflight/build/data/train/evaluation time
+was 22.27 seconds. The run used about 503 MiB on the Linux filesystem.
+
+| Held-out metric | Initial | Epoch 3 |
+| --- | ---: | ---: |
+| Bidding choice accuracy | 63.27% | 77.13% |
+| Playing choice accuracy | 35.25% | 70.96% |
+| Bidding masked cross-entropy | 0.9778 | 0.7490 |
+| Playing masked cross-entropy | 1.2326 | 0.7862 |
+| Bidding terminal-value MSE | 0.1321 | 0.1156 |
+| Playing terminal-value MSE | 0.1563 | 0.0928 |
+
+Accuracy excludes forced moves. These numbers measure imitation of the conservative teacher,
+not optimal play. [Per-epoch metrics](sample-imitation-metrics.jsonl) retain exact values.
+
+The [saved paired evaluation](sample-imitation-evaluation.json) used validation indices
+1,000,000..1,000,031, disjoint from demonstration validation. Across all seats and dealers,
+512 candidate games and 512 reference games completed with zero illegal actions. The trained
+pair's raw payout and paired improvement were both **-2.265625 units/deal**, with 95%
+base-seed bootstrap interval **[-3.4375, -1.015625]**. Candidate games included 258 normal Ruf,
+12 Wenz, 10 Solo, and 232 all-pass. This small evaluation does not certify playing strength;
+the model scored below its teacher and was not promoted to live play.
+
+The resumable run, full environment manifest, data, and models are stored locally at:
+
+```text
+/home/pax77/.local/share/pax-schafkopf/runs/sample-20261120-202018-24475a
+```
+
+Source baseline: `42d1e44` plus the sample-training changes in the working tree. Master seed:
+20261120. Rules: `schafkopf-long-v1`; encoder: `schafkopf-observation-v1`; teacher:
+`heuristic-v1/conservative`. Both selected models came from epoch 3; inference used masked
+argmax. Model/data files are intentionally kept out of Git. The companion 64-game smoke run
+was stopped at a completed epoch and resumed in a new process, preserving Adam iteration
+counts (bidding 1 → 2, playing 3 → 6). Checkpoint reload checks verify optimizer tensors and
+model outputs after every saved epoch. Regression validation: 98 C# tests and 3 TensorFlow
+objective tests passed.

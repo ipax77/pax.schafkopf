@@ -16,10 +16,33 @@ try
               [--bootstrap 2000] [--bootstrap-seed 712367] [--contract 3..16] [--traces games.jsonl]
             sk.training replay report.json
             sk.training replay-failure report.json.failure.json
+            sk.training demonstrate --output directory [--train-games 2000] [--validation-games 256] [--master 20261120]
+            sk.training evaluate-neural [--seeds 32] [--master 20261120] [--start 1000000] (batched stdio)
             Policies: balanced, conservative, random. Each base seed produces 32 games.
             Contract mode uses a forced legal auction, rotates declarer across base seeds,
             and skips seeds where that declaration is illegal. All payouts use raw tariff units.
             """);
+        return 0;
+    }
+    if (args[0] is "demonstrate" or "evaluate-neural")
+    {
+        var allowed = args[0] == "demonstrate"
+            ? new[] { "--output", "--train-games", "--validation-games", "--master" }
+            : new[] { "--seeds", "--master", "--start" };
+        var values = new Dictionary<string, string>();
+        for (int i = 1; i < args.Length; i += 2)
+        {
+            if (i + 1 >= args.Length || !allowed.Contains(args[i]) || !values.TryAdd(args[i], args[i + 1]))
+                throw new ArgumentException($"Invalid or duplicate option: {args[i]}");
+        }
+        ulong master = ulong.Parse(values.GetValueOrDefault("--master", "20261120"), CultureInfo.InvariantCulture);
+        if (args[0] == "demonstrate")
+            ImitationData.Generate(values.GetValueOrDefault("--output") ?? throw new ArgumentException("--output required"),
+                int.Parse(values.GetValueOrDefault("--train-games", "2000"), CultureInfo.InvariantCulture),
+                int.Parse(values.GetValueOrDefault("--validation-games", "256"), CultureInfo.InvariantCulture), master);
+        else
+            NeuralEvaluation.Run(int.Parse(values.GetValueOrDefault("--seeds", "32"), CultureInfo.InvariantCulture), master,
+                ulong.Parse(values.GetValueOrDefault("--start", "1000000"), CultureInfo.InvariantCulture));
         return 0;
     }
     if (args[0] is "replay" or "replay-failure")
