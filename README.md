@@ -40,6 +40,9 @@ Each browser represents one player in the game.
 
 ## Headless engine and bots
 
+The [WSL training plan](docs/training-plan.md) defines separate bidding and playing models,
+staged PPO training, and the implementation milestones.
+
 See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
 stable action IDs, seat-limited observations, and live bot integration hooks.
 Run the simulation check with `dotnet run --project tools/sk.simulation-audit -c Release -- 1000000`.
