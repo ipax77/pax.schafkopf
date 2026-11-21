@@ -59,7 +59,9 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
                "--model", kind, "--target", str(config["decisions"]), "--pool", str(config["pool"]),
                "--master", str(config["seed"]), "--start", str(start), "--max-games", str(config["max_games"]),
                "--bidding-version", versions["bidding"], "--playing-version", versions["playing"],
-               "--controlled-percent", str(config.get("controlled_percent", 0) if kind == "playing" else 0)]
+               "--controlled-percent", str(config.get("controlled_percent", 0) if kind == "playing" else 0),
+               "--bidder", config.get("bidder", "neural"), "--opponents", config.get("opponents", "conservative"),
+               "--self-play-percent", str(config.get("self_play_percent", 50))]
     trajectories = Trajectories(kind)
     started = time.monotonic()
     last_progress = 0.0
@@ -138,7 +140,8 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
                         request = requests[i]
                         probabilities = np.exp(log_probs[j].astype(np.float64))
                         probabilities /= probabilities.sum()
-                        action = int(rng.choice(action_count, p=probabilities))
+                        action = int(np.argmax(np.where(mask[j], logits[j], -np.inf))) if (
+                            model_kind != kind and config.get("frozen_selection") == "argmax") else int(rng.choice(action_count, p=probabilities))
                         log_probability, value = float(log_probs[j, action]), float(values[j])
                         trajectories.add(request, x[j], mask[j], action, log_probability, value)
                         responses[i] = dict(episode_id=request["episode_id"], decision=request["decision"], action=action,
@@ -176,7 +179,8 @@ def collect(directory, cli, env, models, versions, config, kind, start, rng, pro
                     sampling="masked-categorical-temperature-1", numpy_rng_before=initial_rng, numpy_rng_after=rng.bit_generator.state,
                     learner_rows=count, completed_games=final["completed_games"], contracts=contracts,
                     collection_seconds=time.monotonic() - started, feature_bytes=int(arrays["features"].nbytes),
-                    table_mix="half self-play; half one learner and three heuristics; frozen neural play in all seats for bidding updates",
+                    table_mix=dict(self_play_percent=config.get("self_play_percent", 50), opponents=config.get("opponents", "conservative")),
+                    bidder=config.get("bidder", "neural"), bidder_version=config.get("bidder_version"),
                     curriculum="mixed-controlled-v1" if config.get("controlled_percent", 0) and kind == "playing" else "natural-deals",
                     controlled_games=final.get("controlled_games", 0), rejected_deals=final.get("rejected_deals", 0), illegal_actions=0)
     atomic_json(directory / "rollout.json", metadata)

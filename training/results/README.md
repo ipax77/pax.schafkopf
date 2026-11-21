@@ -1,4 +1,57 @@
-# Training and evaluation results — 2026-11-20
+# Training and evaluation results
+
+## Gameplay diagnostics and revised training — 2026-11-21
+
+The [verification record](gameplay-20261121-verification.json) contains the policy comparisons,
+teamwork diagnostics, and bounded training/export checks for the
+[gameplay-first workflow](../README.md#gameplay-first-experiment-2026-11-21).
+The original model exports remain available; no verification model was installed into the API.
+
+The model input already contains all current-trick cards, ordered public history and known
+partnerships. A regression fixture holds the hand and lead card fixed, changes the teammate's
+card, and checks both the encoded trick and the teaching decision. A native audit reproduced
+overtaking even when a known teammate was securely winning and an alternative legal card
+could contribute at least as many points without taking over:
+
+| Model | Such opportunities | Actual overtakes |
+| --- | ---: | ---: |
+| Previous selected update 250 | 122 | 71 |
+| Resumed run's selected update 450 | 162 | 88 |
+
+These counts are from three-neural-seat tables against one conservative heuristic, using 64
+Validation seeds, all four focal seats and dealers. The situations differ as games diverge;
+counts are descriptive and correlated, not independent strength evidence. Taking the lead
+can sometimes justify an overtake, so examples are review candidates. The audit establishes
+a persistent behavior worth targeting, not an overall strength regression between versions.
+Full private-observation examples remain beside the local exports in `gameplay-audit-20261121.json`.
+
+Before choosing a teacher, the changes were separated into bidding-only and playing-only
+policies. Each comparison used the same 256 Validation seeds, master 20261121, start 7000000,
+all seats/dealers, and 8,192 paired games against conservative opponents:
+
+| Change from conservative policy | Paired payout change [95% seed-block interval] |
+| --- | --- |
+| Notes-based bidding and card play | -2.710 [-3.860, -1.626] |
+| Notes-based bidding only | -2.959 [-4.073, -1.841] |
+| Notes-based card play only | +0.244 [-0.198, +0.742] |
+
+The bidder prototype is therefore optional. The recommended preset keeps **exact conservative
+bidding**, uses the card-play teacher and repeats rare partner-feeding demonstrations four
+times during imitation training only. The card-play comparison is inconclusive; these are
+validation findings that informed the implementation, not fresh confirmation.
+
+Verification passed 120 C# and 20 Python tests. A 2,000-game, three-epoch weighted imitation
+run added 927 training rows for teamwork examples while leaving validation unweighted. The
+final fixed-conservative preset completed two PPO updates / 8,816 learner decisions and all
+13 evaluation panels (6,048 paired games per evaluation). Its small validation changes were
+inconclusive and failed contract non-regression checks, so update 0 remained selected. A
+separate fixed-gameplay-bidder pipeline test completed ten updates and resumed through update
+11, restoring Adam steps, RNG and deal cursor. CPU export matched TensorFlow on 512 real
+observations with zero masked-action disagreements; fixed bidder dispatch is covered by
+live-policy tests for both supported rule versions.
+
+These bounded runs verify the revised workflow, not a stronger trained bot. A substantial
+imitation/PPO experiment, fresh confirmation indices, and another human playtest remain needed.
 
 ## Timed trained-bot run
 

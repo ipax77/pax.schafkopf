@@ -12,10 +12,11 @@ public sealed class NeuralPolicy : IGamePolicy
     public const string Format = "dense-f32-v1";
     private sealed record Manifest(int SchemaVersion, string NativeFormat, string EncoderVersion, string RulesVersion,
         int FeatureCount, int RewardScale, string Selection, string PairId,
-        string Bidding, string Playing, string BiddingSha256, string PlayingSha256);
+        string Bidding, string Playing, string BiddingSha256, string PlayingSha256, string BiddingPolicy = "neural");
     private sealed record Network(int Width, int Actions, float[] First, float[] FirstBias,
         float[] Second, float[] SecondBias, float[] Policy, float[] PolicyBias, float[] Value, float ValueBias);
     private readonly Network bidding, playing;
+    private readonly IGamePolicy? fixedBidder;
     public string Id { get; }
 
     public NeuralPolicy(string manifestPath)
@@ -29,6 +30,13 @@ public sealed class NeuralPolicy : IGamePolicy
             manifest.RewardScale != 100 || manifest.Selection != "masked-argmax" || string.IsNullOrWhiteSpace(manifest.PairId))
             throw new InvalidDataException("Incompatible neural policy format, rules, encoder or action selection");
         var directory = Path.GetDirectoryName(path)!;
+        fixedBidder = manifest.BiddingPolicy switch
+        {
+            "neural" => null,
+            GameplayPolicy.Version => new GameplayPolicy(),
+            "heuristic-v1/conservative" => new HeuristicPolicy(BiddingStyle.Conservative),
+            _ => throw new InvalidDataException("Unsupported fixed bidding policy version")
+        };
         bidding = Load(directory, manifest.Bidding, manifest.BiddingSha256, 128, 17);
         playing = Load(directory, manifest.Playing, manifest.PlayingSha256, 256, 32);
         Id = $"neural/{manifest.PairId}";
@@ -103,6 +111,7 @@ public sealed class NeuralPolicy : IGamePolicy
         if (observation.ActivePlayer != observation.Seat || observation.LegalActions.Count == 0)
             throw new InvalidOperationException("A policy needs an active, nonterminal observation");
         if (observation.LegalActions.Count == 1) return observation.LegalActions[0];
+        if (fixedBidder != null && observation.Phase != GameState.Playing) return fixedBidder.ChooseAction(observation);
         var (logits, _) = Predict(ObservationEncoder.ModelKind(observation), ObservationEncoder.Encode(observation));
         // Use only the engine's legal actions, with deterministic lowest-ID tie breaking.
         return observation.LegalActions.OrderByDescending(a => logits[ObservationEncoder.LocalAction(observation, a)])

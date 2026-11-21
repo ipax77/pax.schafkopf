@@ -16,15 +16,18 @@ public sealed record DataShard(string File, string Split, string Model, int Rows
 /// <summary>Bounded demonstration export; only one complete episode is buffered for terminal labels.</summary>
 public static class ImitationData
 {
-    public static void Generate(string output, int trainingGames, int validationGames, ulong master)
+    public static void Generate(string output, int trainingGames, int validationGames, ulong master, string teacherName = "conservative", int tacticalCopies = 1)
     {
-        if (trainingGames < 1 || validationGames < 1) throw new ArgumentException("Both splits need games");
+        if (trainingGames < 1 || validationGames < 1 || tacticalCopies is < 1 or > 16 ||
+            (teacherName == "conservative" && tacticalCopies != 1)) throw new ArgumentException("Invalid imitation sizes or tactical weighting");
         Directory.CreateDirectory(output);
         using var reservation = new FileStream(Path.Combine(output, "generation.lock"), FileMode.CreateNew);
         var shards = new List<DataShard>();
-        var teacher = new HeuristicPolicy(BiddingStyle.Conservative);
+        if (teacherName is not ("conservative" or "gameplay" or "gameplay-playing")) throw new ArgumentException("Unsupported imitation teacher");
+        var teacher = PolicyCatalog.Create(teacherName, 0);
         var timer = Stopwatch.StartNew();
         int total = trainingGames + validationGames, completed = 0, allPass = 0;
+        int tacticalRowsAdded = 0;
         foreach (var (split, count) in new[] { (SeedSplit.Training, trainingGames), (SeedSplit.Validation, validationGames) })
         {
             string splitName = split.ToString().ToLowerInvariant();
@@ -36,7 +39,7 @@ public static class ImitationData
             {
                 ulong seed = SeedSchedule.Deal(master, split, (ulong)n);
                 game.Reset(seed, n % 4);
-                var decisions = new List<(int Seat, string Kind, float[] Features, uint Legal, int Action)>(40);
+                var decisions = new List<(int Seat, string Kind, float[] Features, uint Legal, int Action, bool Tactical)>(40);
                 var actions = new List<int>(40);
                 StepResult result = new(false, new int[4]);
                 while (!game.IsTerminal)
@@ -46,15 +49,21 @@ public static class ImitationData
                     var action = teacher.ChooseAction(observation);
                     if (!observation.LegalActions.Contains(action)) throw new InvalidOperationException("Illegal teacher action");
                     decisions.Add((game.CurrentPlayer, ObservationEncoder.ModelKind(observation), ObservationEncoder.Encode(observation),
-                        ObservationEncoder.LegalMask(observation), ObservationEncoder.LocalAction(observation, action)));
+                        ObservationEncoder.LegalMask(observation), ObservationEncoder.LocalAction(observation, action),
+                        teacherName != "conservative" && GameplayPolicy.PlayAdvice(observation)?.Reason == "preserve-secure-partner-winner"));
                     actions.Add(action.Id);
                     result = game.Step(action);
                 }
                 if (result.Rewards.Sum() != 0) throw new InvalidOperationException("Non-zero-sum result");
                 if (game.Observe(0).Contract == null) allPass++;
                 foreach (var decision in decisions)
+                {
+                    int copies = split == SeedSplit.Training && decision.Tactical ? tacticalCopies : 1;
+                    tacticalRowsAdded += copies - 1;
+                    for (int copy = 0; copy < copies; copy++)
                     (decision.Kind == "bidding" ? bidding : playing).Write(decision.Features, decision.Legal,
                         decision.Action, result.Rewards[decision.Seat] / 100f);
+                }
                 traces.WriteLine(JsonSerializer.Serialize(new { seed, dealer = n % 4, actions, rewards = result.Rewards }, TrainingJson.Options));
                 completed++;
                 if (completed % 100 == 0 || n == count - 1)
@@ -67,8 +76,9 @@ public static class ImitationData
         var manifest = new
         {
             schema_version = 1, encoder_version = ObservationEncoder.Version, rules_version = HeadlessGame.RulesVersion,
-            seed_schedule_version = SeedSchedule.Version, teacher = teacher.Id, master_seed = master,
+            seed_schedule_version = SeedSchedule.Version, teacher = PolicyCatalog.Version(teacherName), master_seed = master,
             training_games = trainingGames, validation_games = validationGames, all_pass_games = allPass,
+            tactical_training_copies = tacticalCopies, tactical_training_rows_added = tacticalRowsAdded,
             feature_count = ObservationEncoder.FeatureCount, feature_blocks = ObservationEncoder.Blocks,
             row_format = "little-endian: float32[feature_count], uint32 legal_mask, int32 local_action, float32 payout/100",
             reward_scale = 100, shards, elapsed_seconds = timer.Elapsed.TotalSeconds

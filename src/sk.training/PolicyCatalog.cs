@@ -12,6 +12,9 @@ public static class PolicyCatalog
         _ when name.StartsWith("neural:", StringComparison.Ordinal) => Load(name).Id,
         "balanced" => $"{HeuristicPolicy.Version}/balanced",
         "conservative" => $"{HeuristicPolicy.Version}/conservative",
+        "gameplay" => GameplayPolicy.Version,
+        "gameplay-bidding" => $"{GameplayPolicy.Version}/bidding+{HeuristicPolicy.Version}/conservative-play",
+        "gameplay-playing" => $"{HeuristicPolicy.Version}/conservative-bidding+{GameplayPolicy.Version}/playing",
         "random" => "uniform-legal-splitmix64-v1",
         _ => throw new ArgumentException($"Unknown policy '{name}'. Use balanced, conservative, or random.")
     };
@@ -20,6 +23,9 @@ public static class PolicyCatalog
         _ when name.StartsWith("neural:", StringComparison.Ordinal) => Load(name),
         "balanced" => new HeuristicPolicy(),
         "conservative" => new HeuristicPolicy(BiddingStyle.Conservative),
+        "gameplay" => new GameplayPolicy(),
+        "gameplay-bidding" => new FixedBiddingPolicy(new GameplayPolicy(), new HeuristicPolicy(BiddingStyle.Conservative)),
+        "gameplay-playing" => new FixedBiddingPolicy(new HeuristicPolicy(BiddingStyle.Conservative), new GameplayPolicy()),
         "random" => new RandomPolicy(seed),
         _ => throw new ArgumentException($"Unknown policy '{name}'.")
     };

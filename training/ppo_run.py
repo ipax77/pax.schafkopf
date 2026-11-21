@@ -24,6 +24,8 @@ def schedule(config, update):
 
 
 def select_best(run, directory, report):
+    if not report.get("selection_eligible", True):
+        return False
     score = report["paired_improvement"]["mean"]
     path = run / "best.json"
     previous = json.loads(path.read_text()) if path.exists() else None
@@ -31,7 +33,7 @@ def select_best(run, directory, report):
         return False
     atomic_json(path, dict(checkpoint=str(directory.relative_to(run)), update=report["ppo_update"],
                           validation_score=score, evaluation=report,
-                          selection="highest mean payout on fixed validation panel; not confirmation", live_promoted=False))
+                          selection=report["selection"] if "panels" in report else "highest mean payout on fixed validation panel; not confirmation", live_promoted=False))
     return True
 
 

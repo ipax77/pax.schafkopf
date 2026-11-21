@@ -1,7 +1,19 @@
 # WSL training and live bot plan
 
 Status: milestones 1–4 and 6 implemented and verified. Timed staged PPO, controlled normal-contract play, best-pair selection, and local CPU neural play are implemented. Historical opponents, broader curriculum/strength comparisons, and public-release gates remain pending.
-Updated: 2026-11-20.
+Updated: 2026-11-21.
+
+The gameplay-first experiment now implements fixed conservative bidding, an optional
+`gameplay-v1` bidder from [gameplay.md](gameplay.md), a versioned card-play imitation teacher, configurable mixed heuristic
+tables, and 13-panel card-play validation including three-neural-seat tables. It records
+contract/role outcomes and concrete teammate-overtaking opportunities, and prevents best-pair
+selection when a contract family's non-regression check fails. Fixed bidding is preserved
+through native export/live inference. See the [runnable workflow](../training/README.md#gameplay-first-experiment-2026-11-21).
+The new defaults (25% self-play, 40% controlled contracts, 0.0001 playing learning rate)
+are hypotheses to test, not demonstrated strength improvements. Historical opponents and
+automatic readiness-based phase transitions remain pending; phase changes are explicit.
+The notes-based bidder regressed in an isolated 256-seed validation comparison, so the
+recommended teacher/preset keeps conservative bidding and applies the notes to card play.
 
 This is the implementation plan following the engine redesign and performance work.
 [engine.md](engine.md) defines the authoritative rules and action IDs.

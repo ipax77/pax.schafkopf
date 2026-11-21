@@ -14,6 +14,7 @@ import numpy as np
 from ppo_math import ppo_terms, summarize
 from ppo_rollout import collect
 from ppo_run import schedule, select_best, prune
+from gameplay_eval import panels, aggregate, compare_panels
 from train_sample import ROOT, ENCODER, RULES, FEATURES, KINDS, Progress, atomic_json, evaluate
 
 
@@ -70,6 +71,7 @@ def checkpoint(run, models, state, rng, config, tf):
     pair = dict(schema_version=1, algorithm="complete-game-ppo", encoder_version=ENCODER, rules_version=RULES,
                 feature_count=FEATURES, reward_scale=100, bidding="bidding.keras", playing="playing.keras",
                 versions=version_pair(models), selection="masked-argmax", training_selection="masked-categorical-temperature-1", live_promoted=False)
+    pair["bidding_policy"] = config.get("bidder_version") if config.get("bidder", "neural") != "neural" else "neural"
     saved = dict(state, rng_state=rng.bit_generator.state, optimizer_steps={k: int(m.optimizer.iterations.numpy()) for k, m in models.items()},
                  versions=pair["versions"], rules_version=RULES, encoder_version=ENCODER, reward_scale=100, config=config)
     atomic_json(temporary / "state.json", saved)
@@ -152,6 +154,8 @@ def update_policy(arrays, functions, kind, config, rng, update, progress):
 
 
 def compare_evaluations(baseline, current):
+    if "panels" in current or "panels" in baseline:
+        return compare_panels(baseline, current)[0]
     if (baseline["master_seed"], baseline["start_index"], baseline["seeds"]) != (current["master_seed"], current["start_index"], current["seeds"]):
         raise ValueError("Evaluation seed panels differ")
     differences = np.asarray([new["candidate"] - old["candidate"] for old, new in zip(baseline["blocks"], current["blocks"], strict=True)])
@@ -164,7 +168,18 @@ def compare_evaluations(baseline, current):
 def evaluation(run, update, cli, env, models, config, progress, tf):
     directory = run / "evaluations" / f"update-{update:04d}-{uuid.uuid4().hex[:8]}"
     directory.mkdir(parents=True)
-    report = evaluate(directory, cli, env, models, config, progress, tf, np)
+    if config.get("eval_suite") == "gameplay":
+        specs = panels(config["eval_start_index"])
+        reports = {}
+        for spec in specs:
+            panel_dir = directory / spec["name"]
+            panel_dir.mkdir()
+            reports[spec["name"]] = evaluate(panel_dir, cli, env, models,
+                dict(config, **{k: v for k, v in spec.items() if k.startswith("eval_")}, eval_panel=spec["name"]), progress, tf, np)
+        report = aggregate(reports, specs)
+        progress.emit(f"GAMEPLAY validation score: {report['paired_improvement']['mean']:+.3f}; includes natural and controlled play")
+    else:
+        report = evaluate(directory, cli, env, models, config, progress, tf, np)
     report["ppo_update"] = update
     report["versions"] = version_pair(models)
     baseline_path = run / "baseline-evaluation.json"
@@ -173,6 +188,12 @@ def evaluation(run, update, cli, env, models, config, progress, tf):
     if baseline_path.exists():
         improvement = compare_evaluations(json.loads(baseline_path.read_text()), report)
         report["versus_warm_start"] = improvement
+        if "panels" in report:
+            _, families = compare_panels(json.loads(baseline_path.read_text()), report)
+            report["contract_changes"] = families
+            report["selection_eligible"] = all(value["lower95"] > -config["contract_regression_margin"] for value in families.values())
+            if not report["selection_eligible"]:
+                progress.emit("Checkpoint retained for inspection; contract non-regression check prevents best-pair selection")
         progress.emit(f"Compared with warm start: {improvement['mean']:+.3f} raw units/deal "
                       f"[{improvement['lower95']:.3f}, {improvement['upper95']:.3f}] (validation only)")
     atomic_json(directory / "evaluation.json", report)
@@ -186,6 +207,13 @@ def main():
     parser.add_argument("--resume", type=Path, help="Existing PPO run; restores optimizer, sampling RNG and next deal index")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--train", choices=["playing", "bidding", "alternate", "staged"], default="playing")
+    parser.add_argument("--bidder", choices=["neural", "conservative", "gameplay"], help="Fixed rules require playing-only training; default inherits source pair")
+    parser.add_argument("--opponents", choices=["conservative", "mixed"], default="conservative")
+    parser.add_argument("--self-play-percent", type=int, default=50)
+    parser.add_argument("--eval-suite", choices=["natural", "gameplay"], default="natural")
+    parser.add_argument("--eval-start-index", type=int, default=1000000)
+    parser.add_argument("--contract-regression-margin", type=float, default=1.0, help="Gameplay suite: lower 95%% bound of each contract family's gain must exceed -margin")
+    parser.add_argument("--playing-learning-rate", type=float, default=.0003)
     parser.add_argument("--minutes", type=float, help="Session time budget; inherits the last session on resume, otherwise 0 (disabled). Finish the current update and final evaluation before stopping")
     parser.add_argument("--warmup-updates", type=int, default=24, help="Staged mode: controlled playing updates before repeating four play / one bidding update")
     parser.add_argument("--bidding-decisions", type=int, default=0, help="0 uses --decisions for both models")
@@ -217,7 +245,9 @@ def main():
             1 <= args.updates <= 100000 and 1 <= args.decisions <= 131072 and 1 <= args.pool <= 256 and
             1 <= args.epochs <= 4 and 0 <= args.batch_size <= 8192 and 2 <= args.eval_seeds <= 10000 and
             1 <= args.eval_every <= 100000 and 0 <= args.seed < 2**64 and 0 <= args.start_index < 2**62 - 100000000 and
-            256 <= args.gpu_memory_mb <= 8192):
+            256 <= args.gpu_memory_mb <= 8192 and 0 <= args.self_play_percent <= 100 and
+            0 <= args.eval_start_index < 2**62 - 200000 and 0 < args.playing_learning_rate <= .003 and
+            0 < args.contract_regression_margin <= 100):
         parser.error("Invalid bounded PPO configuration")
     run = (args.resume or args.output or Path.home() / ".local/share/pax-schafkopf/runs" /
            (datetime.now().strftime("ppo-%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:6])).resolve()
@@ -227,6 +257,14 @@ def main():
             raise ValueError("Resume version mismatch")
     else:
         source_path, source_manifest, files = resolve_warm_start(args.warm_start)
+        source_bidder = source_manifest.get("bidding_policy", "neural")
+        if source_bidder not in ("neural", "gameplay-v1", "heuristic-v1/conservative"):
+            raise ValueError("Unknown source bidding policy")
+        args.bidder = args.bidder or {"gameplay-v1": "gameplay", "heuristic-v1/conservative": "conservative", "neural": "neural"}[source_bidder]
+        if args.bidder != "neural" and args.train != "playing":
+            parser.error("Fixed bidding requires --train playing; use a new --bidder neural run to train bidding")
+        if args.eval_suite == "gameplay" and (args.bidder == "neural" or args.train != "playing"):
+            parser.error("The gameplay evaluation suite requires a fixed --bidder and --train playing")
         run.mkdir(parents=True, exist_ok=False)
         (run / "warm-start").mkdir()
         source_hashes = {}
@@ -239,13 +277,19 @@ def main():
                       warm_start=str(source_path), warm_start_sha256=source_hashes, train=args.train, decisions=args.decisions,
                       warmup_updates=args.warmup_updates, bidding_decisions=args.bidding_decisions, controlled_percent=args.controlled_percent,
                       keep_checkpoints=args.keep_checkpoints, keep_rollouts=args.keep_rollouts,
+                      bidder=args.bidder, bidder_version={"gameplay": "gameplay-v1", "conservative": "heuristic-v1/conservative", "neural": "neural"}[args.bidder],
+                      opponents=args.opponents, self_play_percent=args.self_play_percent, frozen_selection="argmax",
+                      eval_suite=args.eval_suite, eval_start_index=args.eval_start_index, contract_regression_margin=args.contract_regression_margin,
                       pool=args.pool, max_games=max(args.pool, args.decisions * 4), epochs=args.epochs, batch_size=args.batch_size,
                       eval_seeds=args.eval_seeds, eval_every=args.eval_every, seed=args.seed, start_index=args.start_index,
                       gpu_memory_mb=args.gpu_memory_mb, clip=.2, value_coefficient=.5, entropy_coefficient=.01,
                       target_kl=.02, gamma=1., gae_lambda=1., reward_scale=100, gradient_norm_limit=.5,
-                      learning_rates={k: v[2] for k, v in KINDS.items()}, adam_epsilon=1e-5,
+                      learning_rates={k: args.playing_learning_rate if k == "playing" else v[2] for k, v in KINDS.items()}, adam_epsilon=1e-5,
                       created_at_utc=datetime.now(timezone.utc).isoformat())
         atomic_json(run / "run.json", config)
+    if config.get("bidder", "neural") != "neural" and config.get("bidder_version") != {
+            "gameplay": "gameplay-v1", "conservative": "heuristic-v1/conservative"}.get(config["bidder"]):
+        raise ValueError("Fixed bidder version mismatch")
     import fcntl
     with (run / "run.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -339,7 +383,7 @@ def main():
                     report = evaluation(run, update, cli, env, models, config, progress, tf)
                     last_evaluated = update
                     if select_best(run, directory, report):
-                        progress.emit(f"BEST validated pair: update {update}, payout {report['paired_improvement']['mean']:+.3f}")
+                        progress.emit(f"BEST validated pair: update {update}, selection score {report['paired_improvement']['mean']:+.3f}")
                 prune(run, config.get("keep_checkpoints", 0), config.get("keep_rollouts", 0))
             if last_evaluated != state["update"]:
                 report = evaluation(run, state["update"], cli, env, models, config, progress, tf)

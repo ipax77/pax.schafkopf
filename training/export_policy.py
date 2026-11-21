@@ -65,10 +65,14 @@ def export(source, output, tf):
                 stream.write(kernel.T.astype("<f4").tobytes())
                 stream.write(bias.astype("<f4").tobytes())
         hashes[kind] = hashlib.sha256(path.read_bytes()).hexdigest()
-    pair_id = hashlib.sha256((hashes["bidding"] + hashes["playing"]).encode()).hexdigest()
+    bidding_policy = manifest.get("bidding_policy", "neural")
+    if bidding_policy not in ("neural", "gameplay-v1", "heuristic-v1/conservative"):
+        raise ValueError("Unknown fixed bidding policy")
+    identity = hashes["bidding"] + hashes["playing"] + ("" if bidding_policy == "neural" else ":" + bidding_policy)
+    pair_id = hashlib.sha256(identity.encode()).hexdigest()
     atomic_json(temporary / "pair.json", dict(schema_version=1, native_format="dense-f32-v1", encoder_version=ENCODER,
         rules_version=RULES, feature_count=FEATURES, reward_scale=100, selection="masked-argmax", pair_id=pair_id,
-        bidding="bidding.bin", playing="playing.bin", bidding_sha256=hashes["bidding"], playing_sha256=hashes["playing"],
+        bidding="bidding.bin", playing="playing.bin", bidding_sha256=hashes["bidding"], playing_sha256=hashes["playing"], bidding_policy=bidding_policy,
         source_pair=str(source), source_versions=manifest.get("versions"), experimental=True, live_promoted=False))
     temporary.rename(output)
     return output / "pair.json"

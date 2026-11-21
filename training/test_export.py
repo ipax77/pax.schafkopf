@@ -44,6 +44,15 @@ class ExportTests(unittest.TestCase):
                 self.assertEqual(offset, len(weights))
             with self.assertRaises(ValueError):
                 export(source, output, tf)
+            original = json.loads((output / "pair.json").read_text())
+            manifest = json.loads((source / "pair.json").read_text())
+            manifest["bidding_policy"] = "gameplay-v1"
+            (source / "pair.json").write_text(json.dumps(manifest))
+            export(source, source / "fixed", tf)
+            fixed = json.loads((source / "fixed/pair.json").read_text())
+            self.assertEqual(fixed["bidding_policy"], "gameplay-v1")
+            self.assertEqual(fixed["playing_sha256"], original["playing_sha256"])
+            self.assertNotEqual(fixed["pair_id"], original["pair_id"])
 
 
 if __name__ == "__main__":

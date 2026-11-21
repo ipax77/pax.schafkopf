@@ -14,7 +14,12 @@ def main():
     parser.add_argument("run", type=Path)
     parser.add_argument("--output", type=Path, required=True, help="New directory for exported models and reports")
     parser.add_argument("--quick", action="store_true", help="32-seed validation-only pipeline test, not the held-out protocol")
+    parser.add_argument("--confirmation-start", type=int, help="Required for confirmation: choose a previously unused Confirmation deal index")
     args = parser.parse_args()
+    if not args.quick and args.confirmation_start is None:
+        parser.error("Choose a fresh --confirmation-start; the original 2000000 panel has already informed development")
+    if args.confirmation_start is not None and not 0 <= args.confirmation_start < 2**62 - 10000:
+        parser.error("Invalid confirmation start index")
     run, output = args.run.resolve(), args.output.resolve()
     # Do not inspect a moving target: selection is frozen before any held-out result.
     if json.loads((run / "status.json").read_text())["phase"] != "complete":
@@ -25,7 +30,7 @@ def main():
         output.mkdir(parents=True, exist_ok=False)
         protocol = json.loads((ROOT / "training/results/serious-20261120-protocol.json").read_text())
         split = "Validation" if args.quick else protocol["held_out_split"]
-        start = 9000000 if args.quick else protocol["held_out_start_index"]
+        start = 9000000 if args.quick else args.confirmation_start
         config = json.loads((run / "run.json").read_text())
         best = json.loads((run / "best.json").read_text())
         initial = next(p for p in (run / "checkpoints").glob("update-0000-*")

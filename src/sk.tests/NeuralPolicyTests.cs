@@ -94,6 +94,37 @@ public sealed class NeuralPolicyTests
     }
 
     [TestMethod]
+    [DataRow("gameplay-v1")]
+    [DataRow("heuristic-v1/conservative")]
+    public void ExportedFixedBidderIsUsedByLivePolicyAndUnknownVersionsFail(string biddingPolicy)
+    {
+        using var fixture = new Fixture();
+        var manifest = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(fixture.Manifest))!;
+        manifest["bidding_policy"] = biddingPolicy;
+        IGamePolicy expectedBidder = biddingPolicy == GameplayPolicy.Version ? new GameplayPolicy() : new HeuristicPolicy(BiddingStyle.Conservative);
+        File.WriteAllText(fixture.Manifest, manifest.ToJsonString());
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            { ["Bots:ModelManifest"] = fixture.Manifest }).Build();
+        var policy = new ConfiguredBotPolicy(configuration, NullLogger<ConfiguredBotPolicy>.Instance);
+        for (ulong seed = 0; seed < 40; seed++)
+        {
+            var game = new HeadlessGame(); game.Reset(seed);
+            while (!game.IsTerminal)
+            {
+                var observation = game.Observe(game.CurrentPlayer);
+                var action = policy.ChooseAction(observation);
+                if (observation.Phase != GameState.Playing)
+                    Assert.AreEqual(expectedBidder.ChooseAction(observation), action);
+                game.Step(action);
+            }
+        }
+        Assert.AreEqual(0L, policy.FallbackCount);
+        manifest["bidding_policy"] = "gameplay-unknown";
+        File.WriteAllText(fixture.Manifest, manifest.ToJsonString());
+        Assert.Throws<InvalidDataException>(() => new NeuralPolicy(fixture.Manifest));
+    }
+
+    [TestMethod]
     public void NativeLoadRejectsWrongEncoderAndTamperedWeights()
     {
         using var fixture = new Fixture();

@@ -6,13 +6,16 @@ using sk.shared;
 namespace sk.training;
 
 public sealed record RolloutOptions(string Model, int Target, int PoolSize, int MaxGames,
-    ulong Master, ulong Start, string BiddingVersion, string PlayingVersion, int ControlledPercent = 0)
+    ulong Master, ulong Start, string BiddingVersion, string PlayingVersion, int ControlledPercent = 0,
+    string Bidder = "neural", string Opponents = "conservative", int SelfPlayPercent = 50)
 {
     public void Validate()
     {
         if (Model is not ("bidding" or "playing") || Target < 1 || PoolSize is < 1 or > 256 || MaxGames < PoolSize ||
             string.IsNullOrWhiteSpace(BiddingVersion) || string.IsNullOrWhiteSpace(PlayingVersion) ||
-            ControlledPercent is < 0 or > 100 || (Model == "bidding" && ControlledPercent != 0))
+            ControlledPercent is < 0 or > 100 || (Model == "bidding" && ControlledPercent != 0) ||
+            Bidder is not ("neural" or "conservative" or "gameplay") || (Model == "bidding" && Bidder != "neural") ||
+            Opponents is not ("conservative" or "mixed") || SelfPlayPercent is < 0 or > 100)
             throw new ArgumentException("Invalid rollout options");
         if (Start > (ulong.MaxValue >> 2) - (ulong)MaxGames * RolloutPool.CurriculumAttemptLimit) throw new ArgumentOutOfRangeException(nameof(Start));
     }
@@ -30,13 +33,14 @@ public sealed record RolloutBatch(int BatchId, RolloutDecision[] Requests, Rollo
 public sealed class RolloutPool
 {
     public const int CurriculumAttemptLimit = 10000;
-    private sealed class Episode(ulong index, ulong seed, int dealer, bool[] learnerSeats, string[] versions)
+    private sealed class Episode(ulong index, ulong seed, int dealer, bool[] learnerSeats, string[] versions, IGamePolicy opponent)
     {
         public string Id { get; } = index.ToString(System.Globalization.CultureInfo.InvariantCulture);
         public ulong Seed { get; } = seed;
         public int Dealer { get; } = dealer;
         public bool[] LearnerSeats { get; } = learnerSeats;
         public string[] Versions { get; } = versions;
+        public IGamePolicy Opponent { get; } = opponent;
         public HeadlessGame Game { get; } = new();
         public List<int> Actions { get; } = [];
         public int[] Rewards { get; set; } = new int[4];
@@ -45,6 +49,7 @@ public sealed class RolloutPool
 
     private readonly RolloutOptions options;
     private readonly HeuristicPolicy heuristic = new(BiddingStyle.Conservative);
+    private readonly GameplayPolicy gameplay = new();
     private readonly List<Episode> active = [];
     private RolloutDecision[]? pending;
     private int batchId, launched, completed, learnerDecisions;
@@ -91,10 +96,18 @@ public sealed class RolloutPool
             int focal = (int)(scenario / 4 % 4);
             // Half self-play; half one learner with three frozen heuristics. No historical pool yet.
             // Rotate all four dealers and focal seats independently of table composition.
-            bool[] seats = Enumerable.Range(0, 4).Select(s => scenario / 16 % 2 == 0 || s == focal).ToArray();
+            // Preserve legacy rollout assignment on old runs. New presets can reduce self-play.
+            bool selfPlay = options.SelfPlayPercent == 50 ? scenario / 16 % 2 == 0 :
+                StableRandom.Mix(scenario / 16 ^ options.Master) % 100 < (ulong)options.SelfPlayPercent;
+            bool[] seats = Enumerable.Range(0, 4).Select(s => selfPlay || s == focal).ToArray();
+            string opponentName = options.Opponents == "mixed"
+                ? new[] { "conservative", "balanced", "gameplay" }[scenario / 16 % 3] : "conservative";
+            var opponent = PolicyCatalog.Create(opponentName, 0);
+            string opponentVersion = PolicyCatalog.Version(opponentName);
+            string biddingVersion = options.Bidder == "neural" ? options.BiddingVersion : PolicyCatalog.Version(options.Bidder);
             var versions = seats.Select(learner => learner
-                ? $"{options.BiddingVersion}|{options.PlayingVersion}"
-                : $"{heuristic.Id}|{(options.Model == "bidding" ? options.PlayingVersion : heuristic.Id)}").ToArray();
+                ? $"{biddingVersion}|{options.PlayingVersion}"
+                : $"{(options.Bidder != "neural" ? biddingVersion : opponentVersion)}|{(options.Model == "bidding" ? options.PlayingVersion : opponentVersion)}").ToArray();
             var sampler = new StableRandom(StableRandom.Mix(scenario ^ options.Master ^ 0x8e349cb7UL));
             bool force = sampler.Next(100) < options.ControlledPercent;
             int bucket = sampler.Next(10), declarer = sampler.Next(4);
@@ -104,7 +117,7 @@ public sealed class RolloutPool
             for (int attempt = 0; attempt < CurriculumAttemptLimit; attempt++)
             {
                 ulong index = nextIndex++;
-                var episode = new Episode(index, SeedSchedule.Deal(options.Master, SeedSplit.Training, index), (int)(scenario % 4), seats, versions);
+                var episode = new Episode(index, SeedSchedule.Deal(options.Master, SeedSplit.Training, index), (int)(scenario % 4), seats, versions, opponent);
                 episode.Game.Reset(episode.Seed, episode.Dealer);
                 if (force)
                 {
@@ -112,7 +125,8 @@ public sealed class RolloutPool
                     for (int i = 0; i < 4; i++) Step(episode, GameAction.Interest(episode.Game.CurrentPlayer == declarer));
                     var own = episode.Game.Observe(declarer);
                     var bid = GameAction.FromId(bidId);
-                    if (!own.LegalActions.Contains(bid) || (strong && !heuristic.AcceptsContract(own, bid)))
+                    if (!own.LegalActions.Contains(bid) || (strong && !(options.Bidder == "gameplay"
+                        ? gameplay.AcceptsContract(own, bid) : heuristic.AcceptsContract(own, bid))))
                     { rejected++; continue; }
                     Step(episode, bid);
                     episode.AuctionPrefix = episode.Actions.ToArray();
@@ -137,6 +151,11 @@ public sealed class RolloutPool
             {
                 var observation = episode.Game.Observe(episode.Game.CurrentPlayer);
                 string kind = ObservationEncoder.ModelKind(observation);
+                if (kind == "bidding" && options.Bidder != "neural")
+                {
+                    Step(episode, options.Bidder == "gameplay" ? gameplay.ChooseAction(observation) : heuristic.ChooseAction(observation));
+                    continue;
+                }
                 bool learner = episode.LearnerSeats[observation.Seat];
                 // Bidding training uses the same frozen neural player in every seat.
                 if (learner || (options.Model == "bidding" && kind == "playing"))
@@ -146,7 +165,7 @@ public sealed class RolloutPool
                         ObservationEncoder.Encode(observation), observation.LegalActions.Select(a => ObservationEncoder.LocalAction(observation, a)).ToArray(), observation));
                     break;
                 }
-                Step(episode, heuristic.ChooseAction(observation));
+                Step(episode, episode.Opponent.ChooseAction(observation));
             }
         }
         pending = requests.Count > 0 ? requests.ToArray() : null;

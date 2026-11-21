@@ -24,11 +24,22 @@ try
             sk.training replay-rollout-failure file.jsonl.failure.json
             sk.training probe-policy native-pair.json (JSON lines: model, features -> logits, value)
             sk.training audit-policy native-pair.json output.json
+            sk.training audit-gameplay native-pair.json output.json [seeds=64]
             Native evaluation: --candidate neural:/absolute/path/to/native-pair.json
-            Policies: balanced, conservative, random. Each base seed produces 32 games.
+            Policies: balanced, conservative, gameplay, random. Each base seed produces 32 games.
+            demonstrate: --teacher conservative|gameplay-playing|gameplay --tactical-copies 1..16
+            rollout: --bidder neural|conservative|gameplay --opponents conservative|mixed --self-play-percent 0..100
+            evaluate-neural: --bidder neural|conservative|gameplay --opponent conservative|balanced|gameplay --contract 3..16 --neural-seats 1|3
+            Isolated teaching-policy comparisons: --candidate gameplay-bidding or gameplay-playing
             Contract mode uses a forced legal auction, rotates declarer across base seeds,
             and skips seeds where that declaration is illegal. All payouts use raw tariff units.
             """);
+        return 0;
+    }
+    if (args[0] == "audit-gameplay")
+    {
+        if (args.Length is < 3 or > 4) throw new ArgumentException("Gameplay audit needs manifest, output and optional seed count");
+        GameplayAudit.Run(args[1], args[2], args.Length == 4 ? int.Parse(args[3], CultureInfo.InvariantCulture) : 64);
         return 0;
     }
     if (args[0] == "audit-policy")
@@ -68,7 +79,7 @@ try
     }
     if (args[0] == "rollout")
     {
-        string[] allowed = ["--traces", "--model", "--target", "--pool", "--master", "--start", "--max-games", "--bidding-version", "--playing-version", "--controlled-percent"];
+        string[] allowed = ["--traces", "--model", "--target", "--pool", "--master", "--start", "--max-games", "--bidding-version", "--playing-version", "--controlled-percent", "--bidder", "--opponents", "--self-play-percent"];
         var values = new Dictionary<string, string>();
         for (int i = 1; i < args.Length; i += 2)
         {
@@ -80,14 +91,16 @@ try
         ulong Large(string key) => ulong.Parse(Required(key), CultureInfo.InvariantCulture);
         RolloutPool.Serve(new(Required("--model"), Number("--target"), Number("--pool"), Number("--max-games"),
             Large("--master"), Large("--start"), Required("--bidding-version"), Required("--playing-version"),
-            int.Parse(values.GetValueOrDefault("--controlled-percent", "0"), CultureInfo.InvariantCulture)), Required("--traces"));
+            int.Parse(values.GetValueOrDefault("--controlled-percent", "0"), CultureInfo.InvariantCulture),
+            values.GetValueOrDefault("--bidder", "neural"), values.GetValueOrDefault("--opponents", "conservative"),
+            int.Parse(values.GetValueOrDefault("--self-play-percent", "50"), CultureInfo.InvariantCulture)), Required("--traces"));
         return 0;
     }
     if (args[0] is "demonstrate" or "evaluate-neural")
     {
         var allowed = args[0] == "demonstrate"
-            ? new[] { "--output", "--train-games", "--validation-games", "--master" }
-            : new[] { "--seeds", "--master", "--start" };
+            ? new[] { "--output", "--train-games", "--validation-games", "--master", "--teacher", "--tactical-copies" }
+            : new[] { "--seeds", "--master", "--start", "--bidder", "--opponent", "--contract", "--neural-seats" };
         var values = new Dictionary<string, string>();
         for (int i = 1; i < args.Length; i += 2)
         {
@@ -98,10 +111,15 @@ try
         if (args[0] == "demonstrate")
             ImitationData.Generate(values.GetValueOrDefault("--output") ?? throw new ArgumentException("--output required"),
                 int.Parse(values.GetValueOrDefault("--train-games", "2000"), CultureInfo.InvariantCulture),
-                int.Parse(values.GetValueOrDefault("--validation-games", "256"), CultureInfo.InvariantCulture), master);
+                int.Parse(values.GetValueOrDefault("--validation-games", "256"), CultureInfo.InvariantCulture), master,
+                values.GetValueOrDefault("--teacher", "conservative"),
+                int.Parse(values.GetValueOrDefault("--tactical-copies", "1"), CultureInfo.InvariantCulture));
         else
             NeuralEvaluation.Run(int.Parse(values.GetValueOrDefault("--seeds", "32"), CultureInfo.InvariantCulture), master,
-                ulong.Parse(values.GetValueOrDefault("--start", "1000000"), CultureInfo.InvariantCulture));
+                ulong.Parse(values.GetValueOrDefault("--start", "1000000"), CultureInfo.InvariantCulture),
+                values.GetValueOrDefault("--bidder", "neural"), values.GetValueOrDefault("--opponent", "conservative"),
+                values.TryGetValue("--contract", out var contract) ? int.Parse(contract, CultureInfo.InvariantCulture) : null,
+                int.Parse(values.GetValueOrDefault("--neural-seats", "1"), CultureInfo.InvariantCulture));
         return 0;
     }
     if (args[0] is "replay" or "replay-failure")

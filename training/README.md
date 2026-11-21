@@ -7,6 +7,105 @@ and warm-started PPO are available, including complete-game rollouts, controlled
 curricula, timed sessions, and checkpoint resume. Frozen trained pairs can run locally in
 the API on CPU for experimental human play.
 
+## Gameplay-first experiment (2026-11-21)
+
+The human playtest exposed weak card choices and teamwork despite an improved selection
+score. The new `gameplay-playing` teacher translates [the gameplay notes](../docs/gameplay.md)
+into explicit, testable card preferences while keeping conservative bidding. The original
+`heuristic-v1` benchmarks stay unchanged. A 256-seed validation comparison found that the
+first notes-based bidder regressed (-2.959 raw units/deal, 95% interval [-4.073, -1.841]);
+the isolated card changes scored +0.244 [-0.198, +0.742], which is inconclusive. Consequently
+the recommended preset uses exact **conservative bidding**, not the experimental bidder.
+The encoder already includes every card in the current trick, public history, and known
+partnerships; the new regression fixtures check that identical hands/lead cards with a
+different current winner lead to different teaching decisions.
+
+Start a fresh imitation run in WSL so the player learns the new teacher's examples:
+
+```bash
+bash training/run-sample.sh --teacher gameplay-playing --tactical-copies 4 \
+  --games 30000 --validation-games 3000 --epochs 20 --eval-seeds 128 \
+  --seed 20261121 --output "$HOME/.local/share/pax-schafkopf/runs/gameplay-imitation-20261121"
+
+bash training/run-gameplay.sh "$HOME/.local/share/pax-schafkopf/runs/gameplay-imitation-20261121" \
+  --seed 20261121 --minutes 90
+```
+
+Use a new output directory if that name already exists. `run-gameplay.sh` also accepts a
+compatible PPO checkpoint directory or `pair.json` for a continuation experiment. It starts
+a new run with fresh Adam state; existing runs keep their settings on `--resume`.
+
+The experimental preset uses exact conservative C# bidding rules in **every seat**, 25% self-play and
+75% one learner with three fixed players (conservative, balanced, or gameplay teacher).
+40% of games use controlled contracts, retaining the 60/20/20 Ruf/Wenz/Solo mix and
+80% own-hand-accepted / 20% unrestricted legal hands. The remainder use natural auctions.
+Only card choices enter PPO. The learning rate is 0.0001, with 32,768 decisions/update,
+128 concurrent games and the existing 2 GiB GPU cap. These are experiment settings, not
+measured optimal hyperparameters. Historical neural opponents remain future work.
+
+The optional `--bidder gameplay` / `--teacher gameplay` prototype interprets the bidding notes
+as follows. It is retained for isolated experiments, not recommended as the main bidder:
+
+- Ruf: at least five trumps and at most one side suit besides the called suit.
+- Wenz: three side aces, with opening lead or at least two Unter; alternatively, at least
+  two Unter and an ace-headed side suit of at least four cards. Opening lead is preferred.
+- Solo: at least six trumps, at most one side suit without a ten, and one of the top two
+  trumps; rear hand is preferred. This is a conservative proxy for limited losing tricks,
+  not an exact estimate of what opponents can win.
+- Sie and the original sufficient Wenz-Tout condition are retained; forced bids remain legal.
+
+The `gameplay-playing` teacher uses these card-play preferences:
+
+- On lead, the declaring side draws outstanding trumps. Defenders search for an unrevealed
+  called ace and prefer fresh side suits. Once every suit has been led, repeats are allowed;
+  the exhausted-trump exception permits cashing side winners.
+- With a known teammate securely winning, avoid overtaking if a legal non-winning card can
+  contribute at least as many points. Unknown Ruf partners are never guessed. An opponent
+  still to act can invalidate the secure-win assumption. Other overtakes can be useful.
+
+These preferences guide the imitation teacher and diagnostics. They do **not** alter legal
+action masks, force the neural player's choices, or add bonuses/penalties to payout rewards.
+`--tactical-copies 4` gives rare, clear partner-feeding demonstrations four times the sampling
+weight in imitation training. Validation remains unweighted and split by deal, and PPO still
+uses fresh on-policy decisions only. The dataset records the added row count explicitly.
+
+Checkpoint selection uses 13 disjoint validation panels, 64 proposed seeds each by default:
+three natural opponent styles; two tables with three neural seats and one fixed player;
+all three legal Ruf suits, Wenz, and all four normal Solo suits. Auctions are identical
+between candidate/reference controlled games. The fixed bidder is shared by every seat in
+natural evaluations too. The score weights one-neural-seat natural games 25%, three-neural-seat
+natural games 25%, and controlled Ruf/Wenz/Solo equally within the remaining 50%.
+This is a curriculum score, not natural-game payout. Independent base-seed blocks are
+bootstrapped within each panel; ineligible Ruf seeds are reported and skipped in both arms.
+Every 20 updates, and at startup/shutdown, the full suite runs. Selection also requires each
+contract family's lower 95% bound of gain over the initial player to exceed -1 raw unit/deal.
+Small suites can therefore retain the initial pair. This is a validation guard, not a public
+promotion test; use fresh confirmation seeds and human play before strength claims.
+
+Each panel records `by_contract_role` and `gameplay_guidance`: opportunities, preferred choices,
+actual overtakes of a secure known partner, and bounded private-observation examples for review.
+Guidance disagreements are not automatically mistakes. Inspect the three-neural-seat panels
+and Wenz results instead of relying on the pooled score alone.
+
+To audit either existing native export without starting training:
+
+```bash
+bash training/dotnet.sh run --project src/sk.training -c Release \
+  --artifacts-path /tmp/schafkopf-gameplay-audit -- \
+  audit-gameplay models/serious-20261121-update0450/pair.json /tmp/gameplay-audit.json 64
+```
+
+`play-trained.sh` and `export_policy.py` preserve the fixed bidder in `pair.json` as
+`bidding_policy: heuristic-v1/conservative` (or `gameplay-v1` for the experimental bidder).
+The live API uses that exact bidder with the neural player;
+it does not quietly substitute the imitation bidder. Old exports retain neural bidding.
+
+Only begin a separate `--train bidding --bidder neural` experiment after isolated play
+evaluations and playtests are satisfactory. Freeze the selected player, use natural deals,
+and start with `--self-play-percent 0` to keep opposing bidders fixed. The frozen playing
+companion uses argmax in new runs; legacy resumes retain their original sampling behavior.
+Do not automatically switch to bidding after a short number of playing updates.
+
 ## Timed training and trained-bot play
 
 The completed local run's selected pair is ready at `models/serious-20261120/`:
@@ -108,7 +207,7 @@ For the predeclared held-out diagnostics after training finishes:
 
 ```bash
 "$HOME/.venvs/pax-schafkopf/bin/python" training/finish_run.py /path/to/run \
-  --output /new/report-and-model-directory
+  --output /new/report-and-model-directory --confirmation-start 3000000
 ```
 
 This freezes the selected pair before evaluating it, exports initial/best CPU models, checks
@@ -118,6 +217,10 @@ heuristic style and 500 controlled seeds each for Ruf Schellen, Wenz, and Solo S
 compares against the original imitation pair, saves all seed blocks and role/contract diagnostics,
 and writes `playable.json` into the run. This is an experimental diagnostic suite, smaller than
 the public-release gate. `--quick` uses a separate validation panel solely to test this workflow.
+`--confirmation-start` must identify a previously unused Confirmation range; the example
+3,000,000 is suitable only if you have not used it before. The original 2,000,000 panel has
+already informed development and must not be reused as fresh confirmation. Validation and
+Confirmation are separate partitions even when their numeric indices happen to match.
 
 ## PPO from imitation checkpoints
 

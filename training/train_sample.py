@@ -179,9 +179,14 @@ def checkpoint(run, models, state, tf, np, fixture):
 
 
 def evaluate(run, cli, env, models, config, progress, tf, np):
-    progress.emit("Evaluating saved pair against the conservative teacher on separate deal seeds", phase="evaluation")
+    opponent = config.get("eval_opponent", "conservative")
+    progress.emit(f"Evaluating saved pair against {opponent}; panel {config.get('eval_panel', 'natural')}", phase="evaluation")
     args = [env["DOTNET_ROOT"] + "/dotnet", str(cli), "evaluate-neural", "--seeds", str(config["eval_seeds"]),
-            "--master", str(config["seed"]), "--start", "1000000"]
+            "--master", str(config["seed"]), "--start", str(config.get("eval_start_index", 1000000)),
+            "--bidder", config.get("bidder", "neural"), "--opponent", opponent,
+            "--neural-seats", str(config.get("eval_neural_seats", 1))]
+    if config.get("eval_contract") is not None:
+        args += ["--contract", str(config["eval_contract"])]
     # stderr goes directly to the terminal; stdout is the versioned inference protocol.
     with subprocess.Popen(args, cwd=ROOT, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1) as process:
         report = None
@@ -229,8 +234,8 @@ def evaluate(run, cli, env, models, config, progress, tf, np):
     atomic_json(run / "evaluation.json", report)
     payout, difference = report["candidate_payout"], report["paired_improvement"]
     progress.emit(f"EVAL complete: {report['completed_games']} paired games; payout {payout['mean']:.2f}; "
-                  f"improvement {difference['mean']:.2f} [{difference['lower95']:.2f}, {difference['upper95']:.2f}]; "
-                  "zero illegal actions. Smoke result only; not promoted.", phase="evaluation-complete", **report)
+                  f"gain over {opponent} {difference['mean']:.2f} [{difference['lower95']:.2f}, {difference['upper95']:.2f}]; "
+                  "zero illegal actions. Validation only; not promoted.", phase="evaluation-complete", **report)
     return report
 
 
@@ -239,6 +244,8 @@ def main():
     parser.add_argument("--output", type=Path, help="New, empty run directory (default: ~/.local/share/pax-schafkopf/runs/<timestamp>)")
     parser.add_argument("--resume", type=Path, help="Resume an existing run from its latest complete epoch")
     parser.add_argument("--games", type=int, default=2000)
+    parser.add_argument("--teacher", choices=["conservative", "gameplay", "gameplay-playing"], default="conservative")
+    parser.add_argument("--tactical-copies", type=int, default=1, help="Training-only repetition of clear partner-feeding demonstrations; gameplay teacher only")
     parser.add_argument("--validation-games", type=int, default=256)
     parser.add_argument("--epochs", type=int, default=3, help="Total epochs, including epochs already completed on resume")
     parser.add_argument("--batch-size", type=int, default=512)
@@ -250,6 +257,8 @@ def main():
         parser.error("Run inside WSL using bash training/run-sample.sh")
     if args.output and args.resume:
         parser.error("Use --output or --resume, not both")
+    if not args.resume and (not 1 <= args.tactical_copies <= 16 or (args.teacher == "conservative" and args.tactical_copies != 1)):
+        parser.error("--tactical-copies requires 1..16 copies and the gameplay teacher")
     if not (1 <= args.games <= 100000 and 1 <= args.validation_games < 1000000 and 1 <= args.epochs <= 100 and
             1 <= args.batch_size <= 8192 and 2 <= args.eval_seeds <= 10000 and 256 <= args.gpu_memory_mb <= 8192 and 0 <= args.seed < 2**64):
         parser.error("Invalid run size, seed, batch size, epoch count, evaluation size, or GPU memory limit")
@@ -263,6 +272,9 @@ def main():
         run.mkdir(parents=True, exist_ok=False)
         config = {"script_version": 1, "encoder_version": ENCODER, "rules_version": RULES, "kind": "heuristic-imitation",
                   "games": args.games, "validation_games": args.validation_games, "batch_size": args.batch_size,
+                  "teacher": args.teacher, "teacher_version": {"gameplay": "gameplay-v1", "conservative": "heuristic-v1/conservative",
+                      "gameplay-playing": "heuristic-v1/conservative-bidding+gameplay-v1/playing"}[args.teacher],
+                  "tactical_copies": args.tactical_copies,
                   "eval_seeds": args.eval_seeds, "seed": args.seed, "gpu_memory_mb": args.gpu_memory_mb,
                   "created_at_utc": datetime.now(timezone.utc).isoformat()}
         atomic_json(run / "run.json", config)
@@ -289,7 +301,8 @@ def main():
                     dataset.rename(run / ("partial-data-" + uuid.uuid4().hex[:8]))
                 progress.emit(f"Generating {config['games']} training + {config['validation_games']} held-out games", phase="data")
                 progress.command([env["DOTNET_ROOT"] + "/dotnet", cli, "demonstrate", "--output", dataset,
-                                  "--train-games", config["games"], "--validation-games", config["validation_games"], "--master", config["seed"]], env)
+                                  "--train-games", config["games"], "--validation-games", config["validation_games"], "--master", config["seed"],
+                                  "--teacher", config.get("teacher", "conservative"), "--tactical-copies", config.get("tactical_copies", 1)], env)
             os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
             import numpy as np
             import tensorflow as tf
