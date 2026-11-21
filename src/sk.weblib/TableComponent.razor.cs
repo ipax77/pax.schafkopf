@@ -34,12 +34,19 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
     {
         GameState.Bidding1 => "Wer spielt?",
         GameState.Bidding2 => "Das Spiel wird angesagt",
-        GameState.Finished => "Die Runde ist gespielt",
+        GameState.Finished => publicGameState.Bidding2Result?.GetGameTypeString() ?? "Alle haben weitergesagt",
         _ => publicGameState.Bidding2Result?.GetGameTypeString() ?? "Schön, dass du da bist."
     };
+    private string? DeclarerName => publicGameState.Bidding2Result is { } bid
+        ? publicGameState.GameState == GameState.Finished
+            ? publicGameState.PublicGameResult?.GameResult.Player.Name
+            : publicGameState.Table.Players.ElementAtOrDefault(bid.PlayerIndex)?.Player.Name
+        : null;
+    private bool IsLocalDeclarer => publicGameState.GameState == GameState.Playing
+        && publicGameState.Bidding2Result?.PlayerIndex == publicGameState.YourPosition;
     private string TurnLabel => !AllPlayersAvailable ? "Warten auf Mitspieler"
         : publicGameState.GameState == GameState.Finished ? "Runde beendet"
-        : CanAct ? "Du bist am Zug" : "Dein Blatt";
+        : CanAct ? "Du bist am Zug" : "Mitspieler am Zug";
     private List<PlayerViewInfo> playersByView => publicGameState.Table.Players
         .Select((p, i) => new PlayerViewInfo(p, i, (i - (publicGameState.YourPosition ?? 0) + 4) % 4))
         .OrderBy(p => p.ViewIndex).ToList();

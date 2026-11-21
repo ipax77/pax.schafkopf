@@ -1,10 +1,13 @@
 @using sk.shared
 
-<div class="player-panel @(IsActive ? "is-active" : "") @(IsEmpty ? "is-empty" : "")">
+<div class="player-panel @(IsActive ? "is-active" : "") @(IsDeclarer ? "is-declarer" : "") @(IsEmpty ? "is-empty" : "")">
     <span class="player-avatar" aria-hidden="true">@(IsEmpty ? "+" : PlayerViewInfo.TablePlayer.Player.Name[..Math.Min(1, PlayerViewInfo.TablePlayer.Player.Name.Length)].ToUpperInvariant())</span>
     <div class="player-identity">
         <strong class="player-name" title="@PlayerViewInfo.TablePlayer.Player.Name">@(IsEmpty ? "Freier Platz" : PlayerViewInfo.TablePlayer.Player.Name)</strong>
-        <span class="player-detail">@Status</span>
+        <span class="player-detail">
+            @if (IsDeclarer) { <span class="declarer-badge">Ansage</span> }
+            <span>@Status</span>
+        </span>
     </div>
     @if (PlayerViewInfo.TablePlayer.IsBot) { <span class="seat-tag">Bot</span> }
     <TrickStack Count="@(PlayerViewInfo.TablePlayer.Tricks.Count / 4)" ViewIndex="PlayerViewInfo.ViewIndex" />
@@ -24,14 +27,17 @@
     [CascadingParameter] public PublicGameState PublicGameState { get; set; } = default!;
     [Parameter, EditorRequired] public PlayerViewInfo PlayerViewInfo { get; set; } = default!;
     private bool IsEmpty => PlayerViewInfo.TablePlayer.Player.Guid == Guid.Empty;
+    private bool IsDeclarer => !IsEmpty && PublicGameState.GameState == GameState.Playing
+        && PublicGameState.Bidding2Result?.PlayerIndex == PlayerViewInfo.ServerIndex;
     private bool IsActive => !IsEmpty && PublicGameState.ActivePlayer == PlayerViewInfo.ServerIndex
+        && PublicGameState.Table.Players.All(p => p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected))
         && PublicGameState.GameState is GameState.Bidding1 or GameState.Bidding2 or GameState.Playing;
     private string Status => IsEmpty ? "Nimm Platz"
         : !PlayerViewInfo.TablePlayer.IsConnected && !PlayerViewInfo.TablePlayer.IsBot ? "Verbindung unterbrochen"
         : PublicGameState.GameState == GameState.Finished ? (PlayerViewInfo.TablePlayer.ReadyForNextRound ? "Bereit" : "Runde beendet")
+        : IsActive ? "Am Zug"
         : PublicGameState.GameState == GameState.Bidding1 && PublicGameState.Bidding1Result?.InterestedPlayers.Contains(PlayerViewInfo.ServerIndex) == true ? "Spielt mit"
         : PublicGameState.GameState == GameState.Bidding1 && PublicGameState.Bidding1Result?.DeclinedPlayers.Contains(PlayerViewInfo.ServerIndex) == true ? "Weiter"
-        : PublicGameState.Bidding2Result?.PlayerIndex == PlayerViewInfo.ServerIndex ? PublicGameState.Bidding2Result.GetGameTypeString()
         : PublicGameState.PublicTeammate == PlayerViewInfo.ServerIndex ? "Mitspieler"
-        : IsActive ? "Am Zug" : $"{PlayerViewInfo.TablePlayer.Hand.Count} Karten";
+        : $"{PlayerViewInfo.TablePlayer.Hand.Count} Karten";
 }

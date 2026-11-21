@@ -6,7 +6,13 @@ The hand fits its width with a ResizeObserver; approximately its lower half is
 cropped at the table edge to keep ranks and suits large. Short and small phone
 screens use an overlapping row of trick cards; other layouts use an overlapping
 four-seat arrangement. Trick layers follow play order, including after reconnect
-and in the last-trick report: the latest card is always on top.
+and in the last-trick report: the latest card is always on top. Desktop trick
+cards grow up to 340px tall with a tighter overlap; shorter HD/laptop windows
+spread the pile sideways to use their available width without crowding the hand.
+The toolbar names the game and its declarer explicitly. Blue player panels and
+“Ansage” badges identify the declarer; gold panels indicate whose turn it is.
+Your turn also gets a large banner and a highlighted hand area, with a live text
+announcement so the distinction does not depend on colour alone.
 
 Bootstrap **5.3.9** is vendored locally (CSS, bundled JavaScript, and source maps)
 from `https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/`. Update all four files

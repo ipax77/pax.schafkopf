@@ -10,6 +10,19 @@
             <button class="btn btn-table" aria-label="Letzter Stich" disabled="@(publicGameState.Table.PreviouseTrick is null)" @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)"><i class="bi bi-stack" aria-hidden="true"></i><span>Letzter Stich</span></button>
             <button class="btn btn-table leave-button" @onclick="LeaveTable" aria-label="Verlassen" title="Tisch verlassen"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Verlassen</span></button>
         </div>
+        <div class="game-summary" aria-label="Laufendes Spiel">
+            <div class="game-summary-copy">
+                <span class="game-contract" title="@ContractLabel">Spiel: <strong>@ContractLabel</strong></span>
+                @if (DeclarerName is { } declarer)
+                {
+                    <span class="contract-declarer" title="@($"Ansage: {declarer}")">Ansage: <strong>@declarer</strong></span>
+                }
+            </div>
+            @if (publicGameState.GameState == GameState.Playing)
+            {
+                <span class="trick-progress">Stich @Math.Min(publicGameState.Turn + 1, 8) / 8</span>
+            }
+        </div>
     </header>
     <CascadingValue Value="publicGameState">
         <div class="table-frame">
@@ -31,19 +44,23 @@
                             <button class="btn btn-table" @onclick="CopyLink"><i class="bi bi-link-45deg" aria-hidden="true"></i> @(linkCopied ? "Einladung kopiert" : "Einladungslink kopieren")</button>
                         </div>
                     }
-                    else
-                    {
-                        <div class="contract-label"><span class="eyebrow">@(publicGameState.GameState == GameState.Playing ? $"STICH {Math.Min(publicGameState.Turn + 1, 8)} / 8" : "AM STAMMTISCH")</span><strong>@ContractLabel</strong></div>
-                    }
                     <div class="live-trick @(publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty) ? "d-none" : "")">
                         <TrickComponent @ref="trickComponent" Players="playersByView" OnTrickFinished="TrickFinished" />
                     </div>
                 </section>
-                <section class="local-seat" aria-label="Dein Platz">
+                <section class="local-seat @(CanAct ? "is-active" : "")" aria-label="Dein Platz">
                     <div class="local-status">
-                        <span class="turn-indicator @(CanAct ? "your-turn" : "")" role="status">@TurnLabel</span>
-                        <strong class="local-name">@Player.Name <small>DU</small></strong>
-                        <TrickStack Count="@(playersByView[0].TablePlayer.Tricks.Count / 4)" ViewIndex="0" />
+                        <span class="turn-indicator @(CanAct ? "your-turn" : "")" role="status" aria-atomic="true">
+                            @if (CanAct) { <i class="bi bi-arrow-up-circle-fill" aria-hidden="true"></i> }
+                            @TurnLabel
+                        </span>
+                        <div class="local-player @(CanAct ? "is-active" : "") @(IsLocalDeclarer ? "is-declarer" : "")">
+                            <div class="local-identity">
+                                <strong class="local-name" title="@Player.Name">@Player.Name <small>DU</small></strong>
+                                @if (IsLocalDeclarer) { <span class="declarer-badge">Ansage</span> }
+                            </div>
+                            <TrickStack Count="@(playersByView[0].TablePlayer.Tricks.Count / 4)" ViewIndex="0" />
+                        </div>
                         @if (publicGameState.GameState == GameState.Finished)
                         {
                             <button class="btn btn-table btn-sm" @onclick="() => gameResultModal?.Show(publicGameState, playersByView)">Ergebnis / Plätze</button>
