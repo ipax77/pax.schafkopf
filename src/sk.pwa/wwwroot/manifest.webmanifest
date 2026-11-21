@@ -1,11 +1,11 @@
 {
-  "name": "sk.pwa",
-  "short_name": "sk.pwa",
+  "name": "Schafkopf · Die digitale Wirtsstube",
+  "short_name": "Schafkopf",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "background_color": "#3c291d",
+  "theme_color": "#194c3c",
   "prefer_related_applications": false,
   "icons": [
     {

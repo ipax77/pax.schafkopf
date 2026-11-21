@@ -2,160 +2,103 @@
 @using sk.shared
 @inject IJSRuntime JSRuntime
 
-<div class="modal" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"
-     aria-labelledby="@modalId" tabindex="-1">
-
+<div class="modal" id="gameResultModal" data-bs-backdrop="static" data-bs-keyboard="false"
+     aria-hidden="true" aria-labelledby="gameResultTitle" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title">Spielergebnis</h5>
+            <div class="modal-header report-heading">
+                <div><span class="eyebrow">DAS WAR EIN GUTES ZUSAMMENSPIEL</span><h5 class="modal-title" id="gameResultTitle">Runde @result.RoundNumber — Spielergebnis</h5></div>
             </div>
-
             <div class="modal-body">
-                <BotSeatControls State="publicGameState" />
-                @if (publicGameState.PublicGameResult != null)
+                @if (result.GameResult.GameType == GameType.None)
                 {
-                    @if (publicGameState.PublicGameResult.GameResult.GameType == GameType.None)
-                    {
-                        <p>Kein Spieler.</p>
-                    }
-                    else
-                    {
-                        <!-- Game summary -->
-                        <div class="mb-3 p-3 bg-transparent rounded">
-                            <div class="mb-1">
-                                <span class="text-muted">Augen:</span>
-                                <span class="fw-bold ms-1">
-                                    @publicGameState.PublicGameResult.GameResult.PlayerPoints
-                                </span>
-                            </div>
-
-                            <div class="mb-1">
-                                @if (isSchneider)
-                                {
-                                    <span class="badge bg-secondary me-1">Schneider</span>
-                                }
-                                @if (isSchwarz)
-                                {
-                                    <span class="badge bg-dark me-1">Schwarz</span>
-                                }
-                                @if (hasRunners)
-                                {
-                                    <span class="text-muted">
-                                        @(publicGameState.PublicGameResult.GameResult.WithoutRunners ? "ohne" : "mit") <span class="fw-bold">
-                                            @publicGameState.PublicGameResult.GameResult.Runners
-                                        </span> Läufern
-                                    </span>
-                                }
-                            </div>
-
-                            <div>
-                                <span class="text-muted">Spielpreis:</span>
-                                <span class="fw-bold ms-1">
-                                    @publicGameState.PublicGameResult.GameResult.Cost
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Result table -->
-                        <div class="table-responsive">
-                            <table class="table table-sm table-striped align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Spieler</th>
-                                        <th class="text-end">Total</th>
-                                        <th class="text-end">Change</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (publicGameState.PublicGameResult.PlayerCashes.Count == 4)
-                                    {
-                                        @foreach (var player in playerViewInfos.OrderBy(o => o.ServerIndex))
-                                        {
-                                            var cash = publicGameState.PublicGameResult.PlayerCashes[player.ServerIndex];
-                                            var change = publicGameState.PublicGameResult.PlayerChanges.ElementAtOrDefault(player.ServerIndex);
-
-                                            <tr>
-                                                <td>@player.TablePlayer.Player.Name</td>
-                                                <td class="text-end">
-                                                    <span class="@(cash > 0 ? "text-success" : "text-danger")">
-                                                        @cash
-                                                    </span>
-                                                </td>
-                                                <td class="text-end">
-                                                    <span class="@(change > 0 ? "text-success" : "text-danger")">
-                                                        @change
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        }
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
+                    <div class="result-summary"><span class="eyebrow">ALLE HABEN WEITERGESAGT</span><h2>Kein Spieler.</h2><p class="mb-0">Neue Karten, neues Glück. Diese Runde bleibt ohne Wertung.</p></div>
                 }
+                else
+                {
+                    <div class="result-summary">
+                        <span class="eyebrow">DAS GESPIELTE SPIEL</span>
+                        <h2>@Contract</h2>
+                        <p>@result.GameResult.Player.Name@(result.GameResult.Player2 is { } partner ? $" & {partner.Name}" : "")</p>
+                        <span class="result-outcome">@(result.GameResult.DeclarerWins ? "Spielerpartei gewinnt" : "Gegenspieler gewinnen")</span>
+                        <div class="result-metrics">
+                            <div><strong>@result.GameResult.PlayerPoints <small>/ 120</small></strong><span>Augen der Spielerpartei</span></div>
+                            <div><strong>@result.GameResult.PlayerTricks <small>/ 8</small></strong><span>Stiche der Spielerpartei</span></div>
+                            <div><strong>@result.GameResult.Cost</strong><span>Spielpreis</span></div>
+                        </div>
+                        <div class="mt-3 small text-muted">
+                            @if (result.GameResult.Schneider) { <span class="me-3">Schneider</span> }
+                            @if (result.GameResult.Schwarz) { <span class="me-3">Schwarz</span> }
+                            @if (result.GameResult.Runners >= (result.GameResult.GameType == GameType.Wenz ? 2 : 3))
+                            {
+                                <span>@(result.GameResult.WithoutRunners ? "Ohne" : "Mit") @result.GameResult.Runners Läufern</span>
+                            }
+                        </div>
+                    </div>
+                }
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Am Tisch</th><th class="text-end">Diese Runde</th><th class="text-end">Gesamt</th></tr></thead>
+                        <tbody>
+                            @foreach (var player in playerViewInfos.OrderBy(p => p.ServerIndex))
+                            {
+                                var change = result.PlayerChanges.ElementAtOrDefault(player.ServerIndex);
+                                var cash = result.PlayerCashes.ElementAtOrDefault(player.ServerIndex);
+                                <tr><td>@player.TablePlayer.Player.Name</td><td class="text-end"><strong class="@(change > 0 ? "text-success" : change < 0 ? "text-danger" : "text-muted")">@Signed(change)</strong></td><td class="text-end">@Signed(cash)</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="result-seat-controls"><BotSeatControls State="seatState" /></div>
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-secondary" @onclick="ShowStartingHands">Start Hände</button>
-                <button type="button" class="btn btn-sm btn-primary" @onclick="Next">
-                    Weiter
-                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="ShowStartingHands">Starthände ansehen</button>
+                <button type="button" class="btn btn-primary" disabled="@readyPending" @onclick="Next">Weiter <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
             </div>
-
         </div>
     </div>
 </div>
-
 <StartingHandsModal @ref="startingHandsModal" />
 
 @code {
-    private string modalId = "gameResultModal";
-    
-    StartingHandsModal? startingHandsModal;
-
-    [Parameter]
-    public EventCallback OnReady { get; set; }
-
-    private PublicGameState publicGameState = new();
+    [Parameter] public EventCallback OnReady { get; set; }
+    private StartingHandsModal? startingHandsModal;
+    private PublicGameResult result = new();
+    private PublicGameState seatState = new();
     private List<PlayerViewInfo> playerViewInfos = [];
-    bool isSchneider => publicGameState.PublicGameResult?.GameResult.Schneider == true;
-    bool isSchwarz => publicGameState.PublicGameResult?.GameResult.Schwarz == true;
-    bool hasRunners => publicGameState.PublicGameResult?.GameResult.GameType == GameType.Wenz ?
-        publicGameState.PublicGameResult?.GameResult.Runners >= 2 : publicGameState.PublicGameResult?.GameResult.Runners >= 3;
+    private bool readyPending;
+    private string Contract => new Bidding2Result { GameType = result.GameResult.GameType,
+        Suit = result.GameResult.Suit, Tout = result.GameResult.Tout }.GetGameTypeString();
+    private static string Signed(int amount) => amount > 0 ? $"+{amount}" : amount.ToString();
 
-    public void Show(PublicGameState publicGameState, List<PlayerViewInfo> playerViewInfos)
+    public void Show(PublicGameState state, List<PlayerViewInfo> players)
     {
-        this.publicGameState = publicGameState;
-        // Results belong to the completed lineup, even if a bot is replaced here.
-        this.playerViewInfos = playerViewInfos.Select(p => p with
+        result = state.PublicGameResult ?? new();
+        seatState = state;
+        readyPending = false;
+        playerViewInfos = players.Select(p => p with
         {
-            TablePlayer = new TablePlayer
-            {
-                Position = p.TablePlayer.Position,
-                Player = publicGameState.PublicGameResult?.Players.ElementAtOrDefault(p.ServerIndex) ?? p.TablePlayer.Player
-            }
+            TablePlayer = new TablePlayer { Position = p.TablePlayer.Position,
+                Player = result.Players.ElementAtOrDefault(p.ServerIndex) ?? p.TablePlayer.Player }
         }).ToList();
         InvokeAsync(StateHasChanged);
-        JSRuntime.InvokeVoidAsync("openModalById", modalId);
+        JSRuntime.InvokeVoidAsync("openModalById", "gameResultModal");
     }
-
-    public void Close()
+    public void Refresh(PublicGameState state)
     {
-        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
+        seatState = state;
+        InvokeAsync(StateHasChanged);
     }
-
     private async Task Next()
     {
-        await OnReady.InvokeAsync();
-        Close();
+        if (readyPending) return;
+        readyPending = true;
+        try
+        {
+            await OnReady.InvokeAsync();
+            await JSRuntime.InvokeVoidAsync("closeModalById", "gameResultModal");
+        }
+        finally { readyPending = false; }
     }
-
-    private void ShowStartingHands()
-    {
-        JSRuntime.InvokeVoidAsync("closeModalById", modalId);
-        startingHandsModal?.Show(publicGameState.PublicGameResult?.StartingHands ?? [], playerViewInfos);
-    }
+    private void ShowStartingHands() => startingHandsModal?.Show(result.StartingHands, playerViewInfos);
 }

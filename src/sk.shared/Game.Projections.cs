@@ -24,16 +24,20 @@ public partial class Game
         }
         var bidding1 = GetPublicBidding1Result();
         var result = GameResults.LastOrDefault();
+        var roundNumber = GameState == GameState.None ? 0
+            : GameResults.Count + (GameState == GameState.Finished ? 0 : 1);
         return new()
         {
             ShortCode = ShortCode, GameState = GameState, LeadingPlayer = leadingPlayer,
             ActivePlayer = ActivePlayer, YourPosition = forPlayer, Turn = Turn,
+            RoundNumber = roundNumber, Revision = Revision,
             Bidding1Result = bidding1 == null ? null : new()
             { InterestedPlayers = bidding1.InterestedPlayers.ToArray(), DeclinedPlayers = bidding1.DeclinedPlayers.ToArray() },
             Bidding2Result = GetPublicBidding2Result(), PublicTeammate = PublicTeammate, DrunterDurch = DrunterDurch,
             Table = table,
             PublicGameResult = GameState != GameState.Finished ? null : new()
             {
+                RoundNumber = roundNumber,
                 StartingHands = Table.Players.Select(p => p.StartingHand.ToList()).ToList(),
                 PlayerCashes = Table.Players.Select(p => p.Cash).ToList(),
                 Players = _roundPlayers.Select(CopyPlayer).ToList(),

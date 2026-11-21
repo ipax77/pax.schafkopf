@@ -8,6 +8,8 @@ public partial class PublicGameState
     public int ActivePlayer { get; set; }
     public int? YourPosition { get; set; }
     public int Turn { get; set; }
+    public int RoundNumber { get; set; }
+    public long Revision { get; set; }
     public Bidding1Result? Bidding1Result { get; set; }
     public Bidding2Result? Bidding2Result { get; set; }
     public bool DrunterDurch { get; set; }

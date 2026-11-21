@@ -5,7 +5,7 @@ public interface IGameHubClient
 {
     PublicGameState? GameState { get; }
 
-    event Action? OnStateChanged;
+    event Action<PublicGameState, bool>? OnStateChanged;
     event Action? OnGameInitialized;
 
     ValueTask DisposeAsync();

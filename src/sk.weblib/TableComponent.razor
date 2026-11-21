@@ -1,133 +1,63 @@
-﻿@using sk.shared
+@using sk.shared
 @using sk.weblib.Modals
-<div class="container-fluid vh-100 p-0 cardtable overflow-hidden">
-    <div class="schafkopf-table h-100 w-100">
-        @{
-            var players = GetPlayersByView();
-        }
-        <CascadingValue Value="publicGameState">
-            @* top *@
-            <div class="d-inline-flex vw-100" style="height: 15vh;">
-                <div class="d-flex bg-transparent" style="width: 37.5%;">
-                    <div class="btn-block">
-                        <input type="button" class="btn btn-sm btn-outline-secondary" id="screentoggle"
-                               value="Display aus" />
-                        <button type="button" class="btn btn-sm btn-outline-light"
-                                @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)">Letzter Stich</button>
-                    </div>
-                </div>
 
-                <div class="d-flex position-relative" style="width: 25vw">
-                    <OppPlayerComponent PlayerViewInfo="players[2]" />
-                </div>
-
-                <div class="d-flex align-items-end justify-content-end bg-transparent" style="width: 37.5%;">
-                    <div class="align-self-start">
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                @onclick="LeaveTable">Verlassen</button>
-                        <div>
-                            <span class="small">v0.3.2</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            @* middle *@
-            <div class="d-inline-flex vw-100" style="height: 50vh;">
-                <div class="d-flex position-relative w-25">
-                    <OppPlayerComponent PlayerViewInfo="players[1]" />
-                </div>
-                <div
-                    class="d-flex align-items-center justify-content-center w-50 bg-secondary-subtle rounded rounded-4">
-                    @if (publicGameState.Table.Players.Any(a => a.Player.Guid == Guid.Empty))
+<main class="game-shell">
+    <header class="game-toolbar">
+        <a class="wordmark" href="/" @onclick="LeaveTable" @onclick:preventDefault="true"><span class="brand-acorn" aria-hidden="true">♧</span> Schafkopf<span class="brand-sub">DIE DIGITALE WIRTSSTUBE</span></a>
+        <div class="table-meta"><span>Tisch <strong>@publicGameState.ShortCode</strong></span><span class="round-chip">@(publicGameState.RoundNumber > 0 ? $"Runde {publicGameState.RoundNumber}" : "Willkommen")</span></div>
+        <div class="toolbar-actions">
+            <button class="btn btn-table" id="screentoggle" title="Display eingeschaltet lassen" aria-label="Display anlassen" aria-pressed="false"><i class="bi bi-brightness-high" aria-hidden="true"></i><span>Display anlassen</span></button>
+            <button class="btn btn-table" aria-label="Letzter Stich" disabled="@(publicGameState.Table.PreviouseTrick is null)" @onclick="() => lastTrickModal?.Show(publicGameState, playersByView)"><i class="bi bi-stack" aria-hidden="true"></i><span>Letzter Stich</span></button>
+            <button class="btn btn-table leave-button" @onclick="LeaveTable" aria-label="Verlassen" title="Tisch verlassen"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Verlassen</span></button>
+        </div>
+    </header>
+    <CascadingValue Value="publicGameState">
+        <div class="table-frame">
+            <div class="game-table">
+                @foreach (var opponent in playersByView.Where(p => p.ViewIndex != 0))
+                {
+                    <section class="opponent-seat seat-@opponent.ViewIndex" aria-label="@opponent.TablePlayer.Player.Name">
+                        <OppPlayerComponent PlayerViewInfo="opponent" />
+                    </section>
+                }
+                <section class="table-center">
+                    @if (publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty))
                     {
-                        <div class="w-75">
-                            <h3 class="fw-semibold">Warten auf andere Spieler ...</h3>
+                        <div class="waiting-panel">
+                            <span class="eyebrow">GUTE GESELLSCHAFT. GUTE KARTEN.</span>
+                            <h1>Ein Platz ist noch frei.</h1>
+                            <p>Lade deine Freunde ein oder spiel eine Runde mit unseren Bots.</p>
                             <BotSeatControls State="publicGameState" />
-                            <div class="input-group w-100 mb-3">
-                                <input type="text" class="form-control"
-                                       value="@($"{NavigationManager.BaseUri}?TableId={publicGameState.ShortCode}")"
-                                       readonly />
-                                <button class="btn btn-primary" @onclick="CopyLink">
-                                    <i class="bi bi-share"></i> Copy Invite Link
-                                </button>
-                            </div>
+                            <button class="btn btn-table" @onclick="CopyLink"><i class="bi bi-link-45deg" aria-hidden="true"></i> @(linkCopied ? "Einladung kopiert" : "Einladungslink kopieren")</button>
                         </div>
                     }
                     else
                     {
-                        @if (!AllPlayersAvailable)
-                        {
-                            <div role="status">Warten auf die Verbindung aller Spieler …</div>
-                        }
-                        <div id="trick" class="w-100 h-100" style="z-index: 10;">
- 
-                            <TrickComponent @ref="trickComponent" OnTrickFinished="TrickFinished" />
-                        </div>
+                        <div class="contract-label"><span class="eyebrow">@(publicGameState.GameState == GameState.Playing ? $"STICH {Math.Min(publicGameState.Turn + 1, 8)} / 8" : "AM STAMMTISCH")</span><strong>@ContractLabel</strong></div>
                     }
-                </div>
-                <div class="d-flex position-relative w-25">
-                    <OppPlayerComponent PlayerViewInfo="players[3]" />
-                </div>
-            </div>
-
-            @* bottom *@
-            <div class="d-inline-flex vw-100" style="height: 35vh;">
-                <div class="bg-transparent overflow-hidden" style="width: 20%;">
-                    <div class="text-center">
-                        <div>
-                            @if (publicGameState.YourPosition.HasValue
-                                                                                                                                                && publicGameState.LeadingPlayer == publicGameState.YourPosition.Value)
-                            {
-                                <span class="badge bg-secondary">Erster</span>
-                            }
-                        </div>
-                        <div>
-                            @if (publicGameState.GameState == GameState.Playing
-                                                                                                                                                && publicGameState.YourPosition.HasValue
-                                                                                                                                                && publicGameState.Bidding2Result != null
-                                                                                                                                                && publicGameState.Bidding2Result.PlayerIndex == publicGameState.YourPosition.Value)
-                            {
-                                <span class="badge bg-secondary">Du spielst
-                                    @publicGameState.Bidding2Result.GetGameTypeString()</span>
-                                }
-                            else if (publicGameState.PublicTeammate == players[0].ServerIndex)
-                                {
-                                    <span class="badge bg-info">@publicGameState.Bidding2Result?.GetTeammateString()</span>
-                                }
-                            </div>
-                            <div>
-                                @if (publicGameState.GameState == GameState.None)
-                                {
-                                    <span class="badge bg-secondary">Warten auf andere Spieler.</span>
-                                }
-                                else if (IsMyTurn)
-                                {
-                                    <span class="badge bg-secondary">Du bist am Zug!</span>
-                                }
-                            </div>
-                        </div>
+                    <div class="live-trick @(publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty) ? "d-none" : "")">
+                        <TrickComponent @ref="trickComponent" Players="playersByView" OnTrickFinished="TrickFinished" />
                     </div>
-
-                    <div class="d-flex align-items-center justify-content-center w-100 rounded rounded-2 @(CanAct ? "bg-warning" : "")"
-                         style="width: 80%">
-                        <PlayerComponent @ref="playerComponent" PlayerViewInfo="players[0]" OnCardPlayed="PlayCard" />
-                    </div>
-
-                    <div class="bg-transparent" style="width: 20%;">
+                </section>
+                <section class="local-seat" aria-label="Dein Platz">
+                    <div class="local-status">
+                        <span class="turn-indicator @(CanAct ? "your-turn" : "")" role="status">@TurnLabel</span>
+                        <strong class="local-name">@Player.Name <small>DU</small></strong>
+                        <TrickStack Count="@(playersByView[0].TablePlayer.Tricks.Count / 4)" ViewIndex="0" />
                         @if (publicGameState.GameState == GameState.Finished)
                         {
-                            <button class="btn btn-sm btn-outline-light"
-                                    @onclick="() => gameResultModal?.Show(publicGameState, playersByView)">Ergebnis / Plätze</button>
+                            <button class="btn btn-table btn-sm" @onclick="() => gameResultModal?.Show(publicGameState, playersByView)">Ergebnis / Plätze</button>
                         }
                     </div>
-                </div>
-            </CascadingValue>
+                    <PlayerComponent PlayerViewInfo="playersByView[0]" OnCardPlayed="PlayCard" />
+                </section>
+                <span class="table-signature" aria-hidden="true">A GUADS BLADL!</span>
+            </div>
         </div>
-    </div>
-
-    <Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
-    <Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
-    <LastTrickModal @ref="lastTrickModal" />
-    <GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />
+    </CascadingValue>
+    <footer class="game-footer"><span>Vier Spieler. Ein Stammtisch.</span><span class="mouse-guidance">Klicken oder nach oben ziehen, um zu spielen.</span><span class="touch-guidance">Seitlich wählen · hochziehen und loslassen zum Spielen</span></footer>
+</main>
+<Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
+<Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
+<LastTrickModal @ref="lastTrickModal" />
+<GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />

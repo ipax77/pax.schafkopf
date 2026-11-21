@@ -1,31 +1,33 @@
 @using sk.shared
+@using sk.weblib.Presentation
 
-<div class="w-100 h-100 d-flex align-items-center justify-content-center" @ondragover:preventDefault="true"  
-    style="z-index: 8; width: 90%; max-width: 1200px;">
-    <div class="hand-container">
-        @{
-            var cards = GetOrderedCards().ToList();
-            var cardCount = cards.Count;
-            for (int i = 0; i < cardCount; i++)
-            {
-                var card = cards[i];
-                var rotation = (i - (cardCount - 1) / 2.0) * 4; // Adjust for more/less fan
-
-                <div class="hand-card @(draggedCard == card ? "dragging" : "")"
-                          style="
-                            --rotation: @rotation;
-                            --drag-x: @(draggedCard == card ? $"{dragOffsetX}px" : "0px");
-                            --drag-y: @(draggedCard == card ? $"{dragOffsetY}px" : "0px");
-                        ">
-                    <div id="@card.GetElementId()" class="draggable skcard @card.GetCssClass() @(IsValidCard(card) ? "border border-3 rounded border-info" : "")"
-                        @onpointerdown="e => OnPointerDown(e, card)"
-                        @onpointermove="OnPointerMove"
-                        @onpointerup="OnPointerUp"
-                        @onpointercancel="OnPointerCancel">
-                    </div>
-
-                </div>
-            }
-        }
+<div class="hand-container" @ref="handElement" aria-label="Deine Karten">
+    @{
+        var cards = GetOrderedCards();
+        var legal = validCards;
+    }
+    @for (var i = 0; i < cards.Count; i++)
+    {
+        var card = cards[i];
+        var playable = !pending && legal.Contains(card);
+        var position = i - (cards.Count - 1) / 2.0;
+        <div @key="card" class="hand-card" style="@System.FormattableString.Invariant($"--position:{position}")">
+            <button type="button" id="@card.GetElementId()" class="skcard @card.GetCssClass() @(playable ? "is-playable" : "")"
+                    data-card-id="@GameAction.ToCardId(card)" data-playable="@(playable ? "true" : "false")"
+                    aria-label="@CardText.Label(card)" aria-disabled="@(playable ? "false" : "true")" title="@CardText.Label(card)">
+            </button>
+        </div>
+    }
+    <div class="touch-selection" hidden>
+        <div class="touch-selection-copy" role="status" aria-live="polite" aria-atomic="true">
+            <strong class="touch-selection-name"></strong>
+            <span class="touch-selection-hint"></span>
+        </div>
+        <button type="button" class="btn btn-primary touch-play" disabled>Spielen</button>
+        <button type="button" class="touch-dismiss" aria-label="Kartenauswahl aufheben">×</button>
     </div>
 </div>
+@if (error is not null)
+{
+    <div class="play-error" role="alert">@error</div>
+}

@@ -1,166 +1,63 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using sk.shared;
 
 namespace sk.weblib;
 
-public partial class PlayerComponent
+public partial class PlayerComponent : IAsyncDisposable
 {
-    [Inject]
-    public IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] public IJSRuntime JSRuntime { get; set; } = default!;
+    [CascadingParameter] public PublicGameState PublicGameState { get; set; } = default!;
+    [Parameter, EditorRequired] public PlayerViewInfo PlayerViewInfo { get; set; } = default!;
+    [Parameter] public EventCallback<Card> OnCardPlayed { get; set; }
 
-    [CascadingParameter]
-    public PublicGameState PublicGameState { get; set; } = default!;
-
-    [Parameter, EditorRequired]
-    public PlayerViewInfo PlayerViewInfo { get; set; } = default!;
-
-    [Parameter]
-    public EventCallback<Card> OnCardPlayed { get; set; }
-
-    GameType gameType => PublicGameState.Bidding2Result?.GameType ?? GameType.Ruf;
-    Suit suit => PublicGameState.Bidding2Result?.Suit ?? Suit.Herz;
-    List<Card> validCards => PublicGameState.Table.Players.All(p =>
+    private ElementReference handElement;
+    private DotNetObjectReference<PlayerComponent>? reference;
+    private bool pending;
+    private string? error;
+    private List<Card> validCards => PublicGameState.Table.Players.All(p =>
         p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected)) ? PublicGameState.GetValidCards() : [];
 
-    private Card? draggedCard;
-    private double dragStartY;
-    private double dragStartX;
-    private double dragOffsetY;
-    private double dragOffsetX;
-    private double dragThreshold = 50;
+    private List<Card> GetOrderedCards() => PlayerViewInfo.TablePlayer.Hand
+        .OrderByDescending(c => c.GetCardOrder(PublicGameState.Bidding2Result?.GameType ?? GameType.Ruf,
+            PublicGameState.Bidding2Result?.Suit ?? Suit.Herz)).ToList();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        reference ??= DotNetObjectReference.Create(this);
+        await JSRuntime.InvokeVoidAsync("skTable.bindHand", handElement, reference);
+    }
+
+    [JSInvokable]
+    public async Task<bool> PlayFromHand(int cardId)
+    {
+        if (pending || cardId is < 0 or > 31) return false;
+        var card = GameAction.FromCardId(cardId);
+        if (!validCards.Contains(card)) return false;
+        pending = true;
+        error = null;
+        await InvokeAsync(StateHasChanged);
+        try
         {
-            var cardHeight = await JSRuntime.InvokeAsync<double>("getCardHeight");
-            if (cardHeight > 0)
-            {
-                dragThreshold = cardHeight * 0.3;
-            }
+            await OnCardPlayed.InvokeAsync(card);
+            return true;
         }
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void PlayCard(Card card)
-    {
-        if (!IsValidCard(card))
+        catch
         {
-            return;
+            error = "Die Karte konnte nicht gespielt werden. Bitte versuche es erneut.";
+            return false;
         }
-        OnCardPlayed.InvokeAsync(card);
-    }
-
-    private List<Card> GetOrderedCards()
-    {
-        return PlayerViewInfo.TablePlayer.Hand.OrderByDescending(o => o.GetCardOrder(gameType, suit)).ToList();
-    }
-
-    private bool IsValidCard(Card card)
-    {
-        return validCards.Contains(card);
-    }
-
-    private bool isDragging;
-
-    private async Task OnPointerDown(PointerEventArgs e, Card card)
-    {
-        draggedCard = card;
-        dragStartX = e.ClientX;
-        dragStartY = e.ClientY;
-        isDragging = false;
-
-        await JSRuntime.InvokeVoidAsync("blazorSetPointerCapture", card.GetElementId(), e.PointerId);
-    }
-
-    private void OnPointerMove(PointerEventArgs e)
-    {
-        if (draggedCard is null) return;
-
-        dragOffsetX = e.ClientX - dragStartX;
-        dragOffsetY = e.ClientY - dragStartY;
-
-        if (Math.Abs(dragOffsetY) > 5 || Math.Abs(dragOffsetX) > 5)
+        finally
         {
-            isDragging = true;
+            pending = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 
-
-    private void OnPointerUp(PointerEventArgs e)
+    public async ValueTask DisposeAsync()
     {
-        if (draggedCard is null) return;
-
-        var deltaY = dragStartY - e.ClientY;
-
-        if (deltaY > dragThreshold)
-        {
-            PlayCard(draggedCard);
-        }
-        else if (!isDragging)
-        {
-            // Tap behavior (optional)
-            PlayCard(draggedCard);
-        }
-
-        draggedCard = null;
-        isDragging = false;
+        try { await JSRuntime.InvokeVoidAsync("skTable.unbindHand", handElement); }
+        catch (JSDisconnectedException) { }
+        reference?.Dispose();
     }
-
-    private void OnPointerCancel(PointerEventArgs e)
-    {
-        draggedCard = null;
-        isDragging = false;
-    }
-
-
-    // private void OnDragStart(MouseEventArgs e, Card card)
-    // {
-    //     draggedCard = card;
-    //     dragStartY = e.ClientY;
-    // }
-
-    // private void OnDragStart(TouchEventArgs e, Card card)
-    // {
-    //     if (e.Touches.Length > 0)
-    //     {
-    //         draggedCard = card;
-    //         dragStartY = e.Touches[0].ClientY;
-    //     }
-    // }
-
-    // private void OnDragEnd(MouseEventArgs e)
-    // {
-    //     if (draggedCard != null)
-    //     {
-    //         var currentDragDistance = Math.Abs(dragStartY - e.ClientY);
-    //         // Only play if the final position is past the threshold
-    //         if (currentDragDistance > DragThreshold)
-    //         {
-    //             PlayCard(draggedCard);
-    //         }
-
-    //         // Reset state
-    //         draggedCard = null;
-    //     }
-    // }
-
-    // private void OnDragEnd(TouchEventArgs e)
-    // {
-    //     // Use ChangedTouches because Touches is empty on 'touchend'
-    //     if (draggedCard != null && e.ChangedTouches.Length > 0)
-    //     {
-    //         var currentDragDistance = Math.Abs(dragStartY - e.ChangedTouches[0].ClientY);
-
-    //         if (currentDragDistance > DragThreshold)
-    //         {
-    //             PlayCard(draggedCard);
-    //         }
-
-    //         // Reset state
-    //         draggedCard = null;
-    //     }
-    // }
 }
