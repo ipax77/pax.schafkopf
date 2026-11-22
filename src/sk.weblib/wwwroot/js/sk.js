@@ -1,3 +1,39 @@
+// Programmatic Bootstrap dialogs need the same focus restoration as trigger buttons.
+(() => {
+    const returnFocus = new WeakMap();
+
+    document.addEventListener("show.bs.modal", event => {
+        if (!event.target.matches(".modal")) return;
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && active !== document.body && !active.closest(".modal")) {
+            returnFocus.set(event.target, active);
+        }
+    });
+
+    document.addEventListener("hide.bs.modal", event => {
+        if (event.defaultPrevented || !event.target.matches(".modal")) return;
+        const active = document.activeElement;
+        // Bootstrap sets aria-hidden before hidden.bs.modal, so release focus now.
+        if (active instanceof HTMLElement && event.target.contains(active)) active.blur();
+    });
+
+    document.addEventListener("hidden.bs.modal", event => {
+        if (!event.target.matches(".modal")) return;
+        const opener = returnFocus.get(event.target);
+        returnFocus.delete(event.target);
+        // A newer dialog or another control may already have taken focus.
+        if (document.querySelector(".modal.show") || document.activeElement !== document.body) return;
+        if (opener?.isConnected && !opener.matches(":disabled") &&
+            !opener.closest('[inert], [aria-hidden="true"]') && opener.getClientRects().length) {
+            opener.focus({ preventScroll: true });
+        }
+        // Automatic dialogs can outlive the card or button that previously had focus.
+        if (document.activeElement === document.body) {
+            document.querySelector('main[tabindex="-1"]')?.focus({ preventScroll: true });
+        }
+    });
+})();
+
 // Bootstrap dialogs are sequenced so focus and backdrops survive switching reports.
 async function openModalById(id) {
     const element = document.getElementById(id);

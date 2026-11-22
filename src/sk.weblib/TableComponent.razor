@@ -1,7 +1,7 @@
 @using sk.shared
 @using sk.weblib.Modals
 
-<main class="game-shell">
+<main class="game-shell" tabindex="-1">
     <header class="game-toolbar">
         <a class="wordmark" href="/" @onclick="LeaveTable" @onclick:preventDefault="true"><span class="brand-acorn" aria-hidden="true">♧</span> Schafkopf<span class="brand-sub">DIE DIGITALE WIRTSSTUBE</span></a>
         <div class="table-meta"><span>Tisch <strong>@publicGameState.ShortCode</strong></span><span class="round-chip">@(publicGameState.RoundNumber > 0 ? $"Runde {publicGameState.RoundNumber}" : "Willkommen")</span></div>
