@@ -20,10 +20,11 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
     private readonly Queue<(PublicGameState State, bool Resync)> incoming = new();
     private bool receiving, rendered, disposed, trickFinished = true, linkCopied;
     private string? shownModal;
+    private bool compactViewport;
+    private readonly BiddingDecision bidding = new();
+    private bool InlineBidding => compactViewport && bidding.Active && !bidding.Submitted;
     private DotNetObjectReference<TableComponent>? reference;
     private TrickComponent? trickComponent;
-    private Bidding1Modal? bidding1Modal;
-    private Bidding2Modal? bidding2Modal;
     private LastTrickModal? lastTrickModal;
     private GameResultModal? gameResultModal;
 
@@ -55,6 +56,7 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
     protected override void OnInitialized()
     {
         publicGameState = GameHubClient.GameState ?? new();
+        bidding.Update(publicGameState);
         GameHubClient.OnStateChanged += HandleStateChanged;
     }
 
@@ -78,6 +80,7 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
                 // Measure the old DOM before exposing the new hand to Blazor.
                 var origins = await JSRuntime.InvokeAsync<Dictionary<string, CardOrigin>>("skTable.captureSources");
                 publicGameState = update.State;
+                bidding.Update(publicGameState, update.Resync);
                 gameResultModal?.Refresh(publicGameState);
                 if (update.Resync) shownModal = null;
                 if (trickComponent is not null)
@@ -91,20 +94,28 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender) return;
-        reference = DotNetObjectReference.Create(this);
-        await JSRuntime.InvokeVoidAsync("skTable.init", reference);
-        rendered = true;
-        if (trickComponent is not null) await trickComponent.UpdateAsync(publicGameState, [], true);
-        ShowModals();
-        await ReceiveAsync();
+        if (firstRender)
+        {
+            reference = DotNetObjectReference.Create(this);
+            compactViewport = await JSRuntime.InvokeAsync<bool>("skTable.init", reference);
+            rendered = true;
+            if (trickComponent is not null) await trickComponent.UpdateAsync(publicGameState, [], true);
+            ShowModals();
+            await ReceiveAsync();
+            StateHasChanged();
+            return;
+        }
+        await JSRuntime.InvokeVoidAsync("skTable.presentBidding", compactViewport,
+            bidding.Active && !bidding.Submitted, bidding.Id);
     }
 
     [JSInvokable]
-    public async Task ViewportChanged()
+    public async Task ViewportChanged(bool compact)
     {
-        if (disposed || trickComponent is null) return;
-        await trickComponent.UpdateAsync(publicGameState, [], true);
+        if (disposed) return;
+        compactViewport = compact;
+        if (trickComponent is not null) await trickComponent.UpdateAsync(publicGameState, [], true);
+        StateHasChanged();
     }
 
     private void ShowModals()
@@ -114,20 +125,11 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
         {
             GameState.Finished when trickFinished && !publicGameState.Table.Players.Any(p =>
                 p.Player.Guid == Player.Guid && p.ReadyForNextRound) => $"result-{publicGameState.RoundNumber}",
-            GameState.Bidding1 when CanAct => $"bid1-{publicGameState.RoundNumber}",
-            GameState.Bidding2 when CanAct => $"bid2-{publicGameState.RoundNumber}",
             _ => null
         };
         if (next == shownModal) return;
         shownModal = next;
         if (next?.StartsWith("result-") == true) gameResultModal?.Show(publicGameState, playersByView);
-        else if (next?.StartsWith("bid1-") == true) bidding1Modal?.Show(publicGameState.Bidding1Result?.InterestedPlayers.Count > 0);
-        else if (next?.StartsWith("bid2-") == true) bidding2Modal?.Show(publicGameState);
-        else
-        {
-            bidding1Modal?.Close();
-            bidding2Modal?.Close();
-        }
     }
 
     private void TrickFinished(bool finished)
@@ -141,8 +143,21 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
         await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", $"{NavigationManager.BaseUri}?TableId={publicGameState.ShortCode}");
         linkCopied = true;
     }
-    private Task SubmitBidding1(bool wouldPlay) => GameHubClient.SubmitBidding1(wouldPlay);
-    private Task SubmitBidding2(Bidding2Result? result) => GameHubClient.SubmitBidding2(result);
+    private Task SubmitBidding1(bool wouldPlay) => bidding.Phase == GameState.Bidding1
+        ? SubmitBid(() => GameHubClient.SubmitBidding1(wouldPlay)) : Task.CompletedTask;
+    private Task SubmitBidding2()
+    {
+        if (bidding.Phase != GameState.Bidding2) return Task.CompletedTask;
+        var result = bidding.Result;
+        return SubmitBid(() => GameHubClient.SubmitBidding2(result));
+    }
+    private async Task SubmitBid(Func<Task> submit)
+    {
+        if (!bidding.TrySubmit()) return;
+        var decisionId = bidding.Id;
+        try { await submit(); }
+        catch { bidding.FailSubmission(decisionId); }
+    }
     private Task PlayCard(Card card) => GameHubClient.PlayCard(card);
     private async Task LeaveTable()
     {

@@ -29,6 +29,8 @@ jobs:
         node-version: '22'
     - name: Test PWA updates
       run: node --test ../tools/pwa-tests/*.test.mjs
+    - name: Test table animations
+      run: node --test ../tools/table-tests/*.test.mjs
     - name: Build
       run: dotnet build --no-restore
     - name: Test

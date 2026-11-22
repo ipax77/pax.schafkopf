@@ -1,0 +1,15 @@
+@using sk.weblib.Presentation
+
+<div class="modal bidding-modal" id="biddingModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" aria-labelledby="biddingModalTitle" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <BiddingControls Decision="Decision" TitleId="biddingModalTitle" OnInterest="OnInterest" OnBid="OnBid" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public BiddingDecision Decision { get; set; } = default!;
+    [Parameter] public EventCallback<bool> OnInterest { get; set; }
+    [Parameter] public EventCallback OnBid { get; set; }
+}

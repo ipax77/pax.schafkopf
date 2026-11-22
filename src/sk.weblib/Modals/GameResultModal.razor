@@ -8,6 +8,10 @@
         <div class="modal-content">
             <div class="modal-header report-heading">
                 <div><span class="eyebrow">DAS WAR EIN GUTES ZUSAMMENSPIEL</span><h5 class="modal-title" id="gameResultTitle">Runde @result.RoundNumber — Spielergebnis</h5></div>
+                @if (result.GameResult.GameType != GameType.None)
+                {
+                    <div class="result-price"><span>Spielpreis</span><strong>@result.GameResult.Cost</strong></div>
+                }
             </div>
             <div class="modal-body">
                 @if (result.GameResult.GameType == GameType.None)

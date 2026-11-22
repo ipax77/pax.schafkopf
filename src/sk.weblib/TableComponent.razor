@@ -26,7 +26,7 @@
     </header>
     <CascadingValue Value="publicGameState">
         <div class="table-frame">
-            <div class="game-table">
+            <div class="game-table @(InlineBidding ? "has-bidding-panel" : "") @(publicGameState.GameState == GameState.Playing ? "is-playing" : "")">
                 @foreach (var opponent in playersByView.Where(p => p.ViewIndex != 0))
                 {
                     <section class="opponent-seat seat-@opponent.ViewIndex" aria-label="@opponent.TablePlayer.Player.Name">
@@ -34,6 +34,12 @@
                     </section>
                 }
                 <section class="table-center">
+                    @if (InlineBidding)
+                    {
+                        <section class="bidding-panel" aria-labelledby="biddingPanelTitle">
+                            <BiddingControls Decision="bidding" TitleId="biddingPanelTitle" OnInterest="SubmitBidding1" OnBid="SubmitBidding2" />
+                        </section>
+                    }
                     @if (publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty))
                     {
                         <div class="waiting-panel">
@@ -44,7 +50,7 @@
                             <button class="btn btn-table" @onclick="CopyLink"><i class="bi bi-link-45deg" aria-hidden="true"></i> @(linkCopied ? "Einladung kopiert" : "Einladungslink kopieren")</button>
                         </div>
                     }
-                    <div class="live-trick @(publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty) ? "d-none" : "")">
+                    <div class="live-trick @(InlineBidding || publicGameState.Table.Players.Any(p => p.Player.Guid == Guid.Empty) ? "d-none" : "")">
                         <TrickComponent @ref="trickComponent" Players="playersByView" OnTrickFinished="TrickFinished" />
                     </div>
                 </section>
@@ -66,7 +72,7 @@
                             <button class="btn btn-table btn-sm" @onclick="() => gameResultModal?.Show(publicGameState, playersByView)">Ergebnis / Plätze</button>
                         }
                     </div>
-                    <PlayerComponent PlayerViewInfo="playersByView[0]" OnCardPlayed="PlayCard" />
+                    <PlayerComponent PlayerViewInfo="playersByView[0]" OnCardPlayed="PlayCard" Compact="compactViewport" />
                 </section>
                 <span class="table-signature" aria-hidden="true">A GUADS BLADL!</span>
             </div>
@@ -82,7 +88,6 @@
         }
     </footer>
 </main>
-<Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
-<Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />
+<BiddingModal Decision="bidding" OnInterest="SubmitBidding1" OnBid="SubmitBidding2" />
 <LastTrickModal @ref="lastTrickModal" />
 <GameResultModal @ref="gameResultModal" OnReady="() => GameHubClient.Ready()" />

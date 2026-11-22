@@ -1,0 +1,60 @@
+@using sk.shared
+@using sk.weblib.Presentation
+
+<div class="bidding-controls">
+    <h5 class="bidding-title modal-title" id="@TitleId" tabindex="-1">@(Decision.Phase == GameState.Bidding1 ? "Ein gutes Blatt. Spielst du?" : "Deine Ansage")</h5>
+    <div class="bidding-options">
+        @if (Decision.Error is { } error)
+        {
+            <p class="text-danger" role="alert">@error</p>
+        }
+        @if (Decision.Phase == GameState.Bidding1)
+        {
+            <div class="btn-group bidding-interest" role="group" aria-label="Spielst du?">
+                <button type="button" class="btn btn-outline-warning" disabled="@(!Decision.Active || Decision.Submitted)" @onclick="() => OnInterest.InvokeAsync(true)">@(Decision.Also ? "Spiele auch!" : "Spiele")</button>
+                <button type="button" class="btn btn-outline-light" disabled="@(!Decision.Active || Decision.Submitted)" @onclick="() => OnInterest.InvokeAsync(false)">@(Decision.Also ? "Ist recht!" : "Weiter")</button>
+            </div>
+        }
+        else if (Decision.Phase == GameState.Bidding2)
+        {
+            <div class="bidding-field">
+                <span class="bidding-label">Spielart wählen:</span>
+                <div class="btn-group" role="group" aria-label="Spielart Auswahl">
+                    @foreach (var type in Decision.GameTypes)
+                    {
+                        <button type="button" class="btn @(Decision.Selected && Decision.GameType == type ? "btn-primary" : "btn-outline-primary")" aria-pressed="@(Decision.Selected && Decision.GameType == type ? "true" : "false")" disabled="@Decision.Submitted" @onclick="() => Decision.SelectGameType(type)">@(type == GameType.None ? "Weiter" : type.ToString())</button>
+                    }
+                </div>
+            </div>
+            @if (Decision.Suits.Count > 0)
+            {
+                <div class="bidding-field">
+                    <span class="bidding-label">Farbe wählen:</span>
+                    <div class="btn-group" role="group" aria-label="Farbe Auswahl">
+                        @foreach (var suit in Decision.Suits)
+                        {
+                            <button type="button" class="btn @(Decision.Suit == suit ? "btn-secondary" : "btn-outline-secondary")" aria-pressed="@(Decision.Suit == suit ? "true" : "false")" disabled="@Decision.Submitted" @onclick="() => Decision.SelectSuit(suit)">@suit</button>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    @if (Decision.Phase == GameState.Bidding2)
+    {
+        <div class="bidding-confirm">
+            @if (Decision.GameType is GameType.Wenz or GameType.Solo)
+            {
+                <button type="button" class="btn btn-outline-warning" aria-pressed="@(Decision.Tout ? "true" : "false")" disabled="@Decision.Submitted" @onclick="Decision.ToggleTout"><i class="bi bi-star-fill" aria-hidden="true"></i> Tout @(Decision.Tout ? "✓" : "")</button>
+            }
+            <button type="button" class="btn btn-primary" disabled="@(!Decision.CanSubmit)" @onclick="() => OnBid.InvokeAsync()">Ansagen</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public BiddingDecision Decision { get; set; } = default!;
+    [Parameter, EditorRequired] public string TitleId { get; set; } = "";
+    [Parameter] public EventCallback<bool> OnInterest { get; set; }
+    [Parameter] public EventCallback OnBid { get; set; }
+}
