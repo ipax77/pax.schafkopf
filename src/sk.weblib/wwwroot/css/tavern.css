@@ -193,6 +193,11 @@ a { color: #296149; }
 .modal .btn-group { flex-wrap: wrap; gap: 5px; background: transparent!important; }
 .modal .btn-group .btn { border-radius: .5rem!important; }
 .report-heading .eyebrow { color:#8b7142; }
+.report-heading { gap:12px; }
+.report-heading > div:first-child { min-width:0; }
+.result-price { flex:0 0 auto; min-width:78px; padding:8px 12px; border:1px solid #d5c29a; border-radius:10px; background:#fff9ed; text-align:center; }
+.result-price span { display:block; margin-bottom:4px; color:var(--muted); font-size:.65rem; }
+.result-price strong { display:block; font:1.65rem/1 Georgia,serif; color:var(--ink); }
 .result-summary { padding: 23px; background: #fff9ed; border: 1px solid #dbcfb9; border-radius: 12px; margin-bottom: 24px; }
 .result-summary h2 { margin: 7px 0 10px; font-size: 1.9rem; }
 .result-summary p { font-size:.85rem; color:var(--muted); }
