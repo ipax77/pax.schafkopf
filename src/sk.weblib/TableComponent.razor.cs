@@ -14,6 +14,7 @@ public partial class TableComponent : ComponentBase, IAsyncDisposable
     [Inject] public IJSRuntime JSRuntime { get; set; } = default!;
     [Parameter, EditorRequired] public Player Player { get; set; } = default!;
     [Parameter] public EventCallback OnTableLeft { get; set; }
+    [Parameter] public string? Version { get; set; }
 
     private PublicGameState publicGameState = new();
     private readonly Queue<(PublicGameState State, bool Resync)> incoming = new();

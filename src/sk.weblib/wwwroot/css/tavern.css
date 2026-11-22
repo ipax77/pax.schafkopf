@@ -151,7 +151,8 @@ a { color: #296149; }
 .card-flight { position: fixed; top: 0; left: 0; z-index: 1040; pointer-events: none; margin: 0; transform-origin: center; will-change: transform; }
 .play-error { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); background: #fff4df; color: #9a3528; border-radius: 5px; padding: 5px 12px; font-size: .75rem; z-index: 40; }
 .table-signature { position: absolute; bottom: 20px; right: 24px; opacity: .35; font-size: .52rem; letter-spacing: .2em; writing-mode: vertical-rl; }
-.game-footer { flex: 0 0 34px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1600px; margin: auto; color: #ac9b83; font-size: .62rem; }
+.game-footer { flex: 0 0 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 1600px; margin: auto; color: #ac9b83; font-size: .62rem; }
+.app-version { font-size: .65rem; white-space: nowrap; }
 .waiting-panel { text-align: center; max-width: 430px; padding: 14px; z-index: 2; }
 .waiting-panel .eyebrow { color: #cbbb8b; font-size: .55rem; }
 .waiting-panel h1 { font-size: clamp(1.5rem,2.6vw,2.5rem); margin: 10px 0; }

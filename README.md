@@ -41,6 +41,25 @@ uses a separate browser or browser profile. Bots automatically ready after each 
 click **Weiter** in the result dialog to start the next one. Remove bots in that dialog
 between rounds to make room for friends.
 
+## PWA versions and updates
+
+The lobby and table footers display the version from `src/sk.pwa/sk.pwa.csproj`.
+Bump its `<Version>` for a release; published asset hashes detect updates even
+when the display version has not changed.
+
+The published PWA checks for updates on launch, foregrounding, reconnection, and
+every 60 seconds while visible and online. It downloads updates in the background
+and reloads automatically once every open app window is outside a table. Creating
+or joining a table also defers activation. An unresponsive window delays the
+update until it responds or closes. Failed downloads leave the installed app usable.
+Older installations without this updater need all app windows closed and reopened
+once to receive it.
+
+Run `node --test tools/pwa-tests/*.test.mjs` with Node 22 or later for the update
+lifecycle checks. Validate updates against successive Release publishes served
+from the same HTTPS origin (or localhost); the development worker does not cache
+the app. Node is only needed for these tests, not to build or run the PWA.
+
 ## Headless engine and bots
 
 The [WSL training plan](docs/training-plan.md) defines separate bidding and playing models,

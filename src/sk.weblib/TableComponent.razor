@@ -72,7 +72,15 @@
             </div>
         </div>
     </CascadingValue>
-    <footer class="game-footer"><span>Vier Spieler. Ein Stammtisch.</span><span class="mouse-guidance">Klicken oder nach oben ziehen, um zu spielen.</span><span class="touch-guidance">Seitlich wählen · hochziehen und loslassen zum Spielen</span></footer>
+    <footer class="game-footer">
+        <span>Vier Spieler. Ein Stammtisch.</span>
+        <span class="mouse-guidance">Klicken oder nach oben ziehen, um zu spielen.</span>
+        <span class="touch-guidance">Seitlich wählen · hochziehen und loslassen zum Spielen</span>
+        @if (!string.IsNullOrWhiteSpace(Version))
+        {
+            <span class="app-version" aria-label="@($"Version {Version}")">v @Version</span>
+        }
+    </footer>
 </main>
 <Bidding1Modal @ref="bidding1Modal" OnWouldPlay="SubmitBidding1" />
 <Bidding2Modal @ref="bidding2Modal" OnWouldPlay="SubmitBidding2" />

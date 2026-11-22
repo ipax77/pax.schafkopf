@@ -8,13 +8,13 @@
 @inject IGameHubClient GameHubClient
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>Schafkopf · Die digitale Wirtsstube</PageTitle>
 
 @if (GameHubClient.GameState is not null && ConnectState.Current is not null)
 {
-    <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" />
+    <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" Version="@AppVersion" />
 }
 else
 {
@@ -62,7 +62,7 @@ else
                 @if (error is not null) { <p class="text-danger mt-3 mb-0" role="alert">@error</p> }
             </section>
         </div>
-        <footer class="lobby-footer"><span>Mit Herz gespielt. Mit Freunden geteilt.</span><span>pax.schafkopf</span></footer>
+        <footer class="lobby-footer"><span>Mit Herz gespielt. Mit Freunden geteilt.</span><span>pax.schafkopf · <span class="app-version" aria-label="@($"Version {AppVersion}")">v @AppVersion</span></span></footer>
     </main>
 }
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
@@ -70,7 +70,8 @@ else
 @code {
     [SupplyParameterFromQuery] public string? TableId { get; set; }
     private ConnectModal? connectModal;
-    private bool starting;
+    private bool starting, initialized;
+    private static readonly string AppVersion = typeof(App).Assembly.GetName().Version!.ToString(3);
     private string? _inputTableId, error;
     private Player CurrentPlayer => new() { Name = ConnectState.Current?.UserName ?? "Gast", Guid = ConnectState.Current?.Guid ?? Guid.Empty };
 
@@ -78,7 +79,10 @@ else
     {
         GameHubClient.OnGameInitialized += GameReadyHandler;
         await ConnectState.LoadAsync();
+        initialized = true;
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender) =>
+        await JSRuntime.InvokeVoidAsync("skPwaUpdates.setReady", initialized && !starting && GameHubClient.GameState is null);
     private void GameReadyHandler() => _ = InvokeAsync(GameReady);
     private async Task Connect(ConnectInfo info)
     {
@@ -95,11 +99,16 @@ else
     }
     private async Task BeginAsync(Func<Task> action)
     {
-        if (starting) return;
+        if (!initialized || starting) return;
         starting = true;
         error = null;
         try
         {
+            if (!await JSRuntime.InvokeAsync<bool>("skPwaUpdates.tryBeginTable"))
+            {
+                error = "Die App wird gerade aktualisiert. Bitte versuche es gleich erneut.";
+                return;
+            }
             await action();
             if (GameHubClient.GameState is null) error = "Der Tisch ist gerade nicht erreichbar. Bitte versuche es erneut.";
         }
@@ -117,5 +126,9 @@ else
         await InvokeAsync(StateHasChanged);
     }
     private void ShowConnect() => connectModal?.Show(new());
-    public void Dispose() => GameHubClient.OnGameInitialized -= GameReadyHandler;
+    public async ValueTask DisposeAsync()
+    {
+        GameHubClient.OnGameInitialized -= GameReadyHandler;
+        await JSRuntime.InvokeVoidAsync("skPwaUpdates.setReady", false);
+    }
 }
