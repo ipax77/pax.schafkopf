@@ -370,12 +370,14 @@ window.skTable = (() => {
             // Opponent positions are private. Every card leaves the same hand-center
             // anchor, independent of its identity, sort order, or number of trumps.
             const back = hand.querySelector(".card-back");
-            if (!back) return;
-            const rect = hand.getBoundingClientRect();
-            const style = getComputedStyle(back);
+            // Compact layouts hide the backs. Never animate from a display:none
+            // hand's zero rectangle; use that seat's visible name panel instead.
+            const anchor = geometry(hand) ?? geometry(hand.closest(".opponent-seat")?.querySelector(".player-panel"));
+            if (!anchor) return;
+            const style = back ? getComputedStyle(back) : null;
             sources["seat-" + hand.dataset.handSeat] = {
-                x: rect.x + rect.width / 2, y: rect.y + rect.height / 2,
-                width: parseFloat(style.width), height: parseFloat(style.height), angle: 0
+                x: anchor.x, y: anchor.y,
+                width: parseFloat(style?.width) || 28, height: parseFloat(style?.height) || 50, angle: 0
             };
         });
         return Object.fromEntries(Object.entries(sources).filter(([, value]) => value));

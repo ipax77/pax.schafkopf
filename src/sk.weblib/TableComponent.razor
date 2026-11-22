@@ -26,7 +26,7 @@
     </header>
     <CascadingValue Value="publicGameState">
         <div class="table-frame">
-            <div class="game-table @(InlineBidding ? "has-bidding-panel" : "")">
+            <div class="game-table @(InlineBidding ? "has-bidding-panel" : "") @(publicGameState.GameState == GameState.Playing ? "is-playing" : "")">
                 @foreach (var opponent in playersByView.Where(p => p.ViewIndex != 0))
                 {
                     <section class="opponent-seat seat-@opponent.ViewIndex" aria-label="@opponent.TablePlayer.Player.Name">
