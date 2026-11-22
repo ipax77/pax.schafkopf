@@ -10,6 +10,8 @@ public partial class PlayerComponent : IAsyncDisposable
     [CascadingParameter] public PublicGameState PublicGameState { get; set; } = default!;
     [Parameter, EditorRequired] public PlayerViewInfo PlayerViewInfo { get; set; } = default!;
     [Parameter] public EventCallback<Card> OnCardPlayed { get; set; }
+    [Parameter] public bool Compact { get; set; }
+    private bool Inspecting => Compact && PublicGameState.GameState is GameState.Bidding1 or GameState.Bidding2;
 
     private ElementReference handElement;
     private DotNetObjectReference<PlayerComponent>? reference;

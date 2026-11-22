@@ -68,6 +68,10 @@ window.skTable = (() => {
     const animations = new Set();
     const overlays = new Set();
     let controller, resizeTimer, noSleep, awake = false, pauseResolve, pauseTimer;
+    let biddingPresentation;
+    // CSS owns the breakpoint so presentation and card geometry cannot disagree.
+    const compact = () => getComputedStyle(document.documentElement).getPropertyValue("--compact-table").trim() === "1";
+    const inspecting = hand => compact() && hand.element.dataset.inspectOnly === "true";
     const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function geometry(element) {
@@ -150,12 +154,14 @@ window.skTable = (() => {
         if (!button) return;
         if (!hand.element.contains(button)) { clearSelection(hand); return; }
         const playable = button.dataset.playable === "true";
+        const inspect = inspecting(hand);
         const panel = hand.element.querySelector(".touch-selection");
         panel.hidden = false;
         panel.querySelector(".touch-selection-name").textContent = button.getAttribute("aria-label");
-        panel.querySelector(".touch-selection-hint").textContent = !playable ? "Gerade nicht spielbar" :
+        panel.querySelector(".touch-selection-hint").textContent = inspect ? "" : !playable ? "Gerade nicht spielbar" :
             hand.drag?.armed ? "Loslassen zum Spielen" : "Nach oben ziehen oder bestätigen";
         panel.querySelector(".touch-play").disabled = !playable || hand.busy;
+        panel.querySelector(".touch-play").hidden = inspect;
     }
     function selectTouchCard(hand, button) {
         if (hand.selected !== button) {
@@ -185,6 +191,11 @@ window.skTable = (() => {
             if (Math.abs(drag.dx) > 6) selectTouchCard(hand, cardAt(drag.slots, drag.x + drag.dx));
         }
         const button = hand.selected;
+        if (inspecting(hand)) {
+            drag.armed = false;
+            updateSelection(hand);
+            return;
+        }
         const baseLift = matchMedia("(max-height: 500px)").matches ? 32 : 52;
         button.closest(".hand-card").style.setProperty("--touch-lift", -Math.max(baseLift, lift) + "px");
         const bounds = hand.element.getBoundingClientRect();
@@ -231,7 +242,7 @@ window.skTable = (() => {
             hand.layout = () => {
                 const count = element.querySelectorAll(".hand-card").length;
                 const bounds = element.getBoundingClientRect();
-                const layoutKey = [count, bounds.width, bounds.height].join(":");
+                const layoutKey = [count, bounds.width, bounds.height, element.dataset.inspectOnly].join(":");
                 if (hand.layoutKey !== layoutKey) {
                     resetDrag(hand);
                     clearSelection(hand);
@@ -239,9 +250,18 @@ window.skTable = (() => {
                 }
                 // Only the upper part needs to fit. Cropping the bottoms makes
                 // ranks and suits substantially easier to read on phones.
-                const width = Math.min(180, Math.max(54, (bounds.height - 24) / .55 * 156.3 / 283.86),
+                const isCompact = compact();
+                const short = matchMedia("(max-height: 500px)").matches;
+                const minimum = short ? (bounds.width >= 650 ? 110 : 88) : 80;
+                const maxStepRatio = isCompact ? 1.08 : .68;
+                const fullHandWidth = count === 8 ? (bounds.width - 16) / (1 + 7 * maxStepRatio) : 0;
+                const width = isCompact ? Math.max(0, Math.min(180,
+                    Math.max(minimum, (bounds.height - 20) * .95, fullHandWidth),
+                    (bounds.width - 16) / (1 + Math.max(0, count - 1) * .35))) :
+                    Math.min(180, Math.max(54, (bounds.height - 24) / .55 * 156.3 / 283.86),
                     Math.max(54, bounds.width / 2.5), Math.max(54, bounds.width - Math.max(0, count - 1) * 24 - 18));
-                const step = count > 1 ? Math.min(width * .68, Math.max(0, (bounds.width - width - 18) / (count - 1))) : 0;
+                const step = count > 1 ? Math.min(width * maxStepRatio,
+                    Math.max(0, (bounds.width - width - (isCompact ? 16 : 18)) / (count - 1))) : 0;
                 element.style.setProperty("--hand-card-width", width + "px");
                 element.style.setProperty("--hand-step", step + "px");
             };
@@ -264,6 +284,11 @@ window.skTable = (() => {
                     return;
                 }
                 const button = event.target.closest("[data-card-id]");
+                if (button && inspecting(hand)) {
+                    event.preventDefault();
+                    selectTouchCard(hand, button);
+                    return;
+                }
                 if (!button || button.dataset.playable !== "true") return;
                 clearSelection(hand);
                 event.preventDefault();
@@ -317,6 +342,7 @@ window.skTable = (() => {
                 const button = event.target.closest("[data-card-id]");
                 if (button) {
                     event.preventDefault();
+                    if (inspecting(hand)) { selectTouchCard(hand, button); return; }
                     if (event.detail === 0 && !event.sourceCapabilities?.firesTouchEvents) void submit(hand, button);
                 }
             }, options);
@@ -413,10 +439,11 @@ window.skTable = (() => {
     function init(reference) {
         controller?.abort();
         controller = new AbortController();
+        biddingPresentation = null;
         window.addEventListener("resize", () => {
             cancelAnimations();
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => reference.invokeMethodAsync("ViewportChanged").catch(() => {}), 150);
+            resizeTimer = setTimeout(() => reference.invokeMethodAsync("ViewportChanged", compact()).catch(() => {}), 150);
         }, { signal: controller.signal });
         const toggle = document.getElementById("screentoggle");
         toggle?.addEventListener("click", async () => {
@@ -429,6 +456,21 @@ window.skTable = (() => {
                 toggle.classList.toggle("is-on", awake);
             } catch { /* Wake lock may be unavailable in a browser. */ }
         }, { signal: controller.signal });
+        return compact();
+    }
+    async function presentBidding(isCompact, active, decisionId) {
+        const presentation = [isCompact, active, decisionId].join(":");
+        if (biddingPresentation === presentation) return;
+        biddingPresentation = presentation;
+        if (!active || isCompact) closeModalById("biddingModal");
+        if (active && isCompact) {
+            closeModals();
+            document.getElementById("biddingPanelTitle")?.focus({ preventScroll: true });
+        } else if (active) {
+            await openModalById("biddingModal");
+        } else if (document.activeElement === document.body) {
+            document.querySelector('main[tabindex="-1"]')?.focus({ preventScroll: true });
+        }
     }
     function dispose() {
         controller?.abort();
@@ -438,5 +480,5 @@ window.skTable = (() => {
         awake = false;
         closeModals();
     }
-    return { init, dispose, bindHand, unbindHand, captureSources, flyCard, collectTrick, pauseTrick, cancelAnimations, closeModals };
+    return { init, dispose, presentBidding, bindHand, unbindHand, captureSources, flyCard, collectTrick, pauseTrick, cancelAnimations, closeModals };
 })();

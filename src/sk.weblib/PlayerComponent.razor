@@ -1,7 +1,7 @@
 @using sk.shared
 @using sk.weblib.Presentation
 
-<div class="hand-container" @ref="handElement" aria-label="Deine Karten">
+<div class="hand-container" @ref="handElement" aria-label="Deine Karten" data-inspect-only="@(Inspecting ? "true" : "false")">
     @{
         var cards = GetOrderedCards();
         var legal = validCards;
@@ -14,7 +14,7 @@
         <div @key="card" class="hand-card" style="@System.FormattableString.Invariant($"--position:{position}")">
             <button type="button" id="@card.GetElementId()" class="skcard @card.GetCssClass() @(playable ? "is-playable" : "")"
                     data-card-id="@GameAction.ToCardId(card)" data-playable="@(playable ? "true" : "false")"
-                    aria-label="@CardText.Label(card)" aria-disabled="@(playable ? "false" : "true")" title="@CardText.Label(card)">
+                    aria-label="@CardText.Label(card)" aria-disabled="@(playable || Inspecting ? "false" : "true")" title="@CardText.Label(card)">
             </button>
         </div>
     }

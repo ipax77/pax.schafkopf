@@ -1,4 +1,5 @@
 :root {
+    --compact-table: 0;
     --ink: #332b22;
     --cream: #f5eedf;
     --paper: #fffaf0;
@@ -425,4 +426,84 @@ a { color: #296149; }
     .card-back,.seat-2 .card-back { flex-basis:14px; width:14px; height:26px; margin-left:-5px; border-width:2px; }
     .card-back:first-child { margin-left:0; }
     .hand-count { left:auto; right:1px; top:20px; min-width:14px; height:14px; font-size:.48rem; }
+}
+
+/* Both bidding presentations share controls and a single selection state. */
+.bidding-controls { display:flex; flex-direction:column; min-height:0; width:100%; max-height:100%; }
+.bidding-title { flex:none; margin:0; padding:18px 22px; }
+.bidding-options { min-height:0; overflow:auto; overscroll-behavior:contain; padding:0 22px 18px; }
+.bidding-field + .bidding-field { margin-top:14px; }
+.bidding-label { display:block; font-size:.82rem; font-weight:600; margin-bottom:6px; }
+.bidding-controls .btn-group { display:flex; flex-wrap:wrap; gap:5px; width:100%; }
+.bidding-controls .btn-group .btn { border-radius:7px!important; margin:0; }
+.bidding-controls .btn { min-height:44px; }
+.bidding-confirm { flex:none; display:flex; justify-content:flex-end; gap:8px; border-top:1px solid #dbcfb9; padding:12px 22px; }
+.bidding-confirm .btn[aria-pressed="true"] { background:#ead6ac; color:#4b3210; }
+.bidding-modal .bidding-controls { max-height:calc(100dvh - 64px); }
+.bidding-panel { display:flex; min-height:0; max-height:100%; width:100%; max-width:680px; border:1px solid #d5c29a; border-radius:12px; background:var(--cream); color:var(--ink); box-shadow:0 5px 18px #071f2630; overflow:hidden; }
+
+/* The full safe width belongs to the hand, including short landscape windows. */
+@media (max-width:1024px), (max-height:500px) {
+    :root { --compact-table:1; }
+    .game-shell { padding-left:max(4px,env(safe-area-inset-left)); padding-right:max(4px,env(safe-area-inset-right)); }
+    .table-frame { padding:4px; }
+    .game-table { padding-left:3px; padding-right:3px; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:100px minmax(0,1fr) clamp(180px,32dvh,300px); gap:4px 8px; }
+    .seat-1,.seat-2,.seat-3 { grid-row:1; align-self:start; width:100%; max-width:260px; justify-self:center; }
+    .seat-1 { grid-column:1; }
+    .seat-2 { grid-column:2; }
+    .seat-3 { grid-column:3; }
+    .table-center { grid-column:1 / -1; grid-row:2; }
+    .has-bidding-panel { grid-template-rows:40px minmax(0,1fr) clamp(180px,32dvh,300px); }
+    .has-bidding-panel .opponent-hand,.has-bidding-panel .player-detail { display:none; }
+    .has-bidding-panel .player-panel { flex-wrap:nowrap; padding:6px; }
+    .has-bidding-panel .player-identity { flex-basis:auto; text-align:left; }
+    .game-shell:has(.has-bidding-panel) .game-footer { display:none; }
+    .local-seat { max-width:none; }
+    .local-status { flex-basis:36px; gap:6px; }
+    .hand-card { top:12px; --fan:calc(var(--position)*.35deg); }
+    .bidding-title { padding:8px 12px; font-size:1.15rem; }
+    .bidding-label { display:none; }
+    .bidding-field + .bidding-field { margin-top:8px; }
+    .bidding-options { padding:0 12px 8px; }
+    .bidding-confirm { padding:6px 12px; }
+    .bidding-controls .btn { padding:6px 10px; font-size:.82rem; }
+    .table-signature { display:none; }
+    .hand-container[data-inspect-only="true"] .skcard { filter:none; }
+    .hand-container[data-inspect-only="true"] .is-touch-selected { transform:translate(-50%,0) rotate(0); }
+    .hand-container[data-inspect-only="true"] .touch-selection { top:-34px; bottom:auto; padding:0 8px; width:auto; max-width:100%; height:34px; white-space:nowrap; }
+    .hand-container[data-inspect-only="true"] .touch-selection-hint,
+    .hand-container[data-inspect-only="true"] .touch-play { display:none; }
+    .hand-container[data-inspect-only="true"] .touch-dismiss { min-height:32px; height:32px; min-width:44px; font-size:1.3rem; }
+    .local-seat:has([data-inspect-only="true"] .is-touch-selected) .local-status { visibility:hidden; }
+}
+@media (max-width:600px) and (min-height:501px) {
+    .game-table { grid-template-rows:94px minmax(0,1fr) clamp(180px,32dvh,280px); }
+    .game-table.has-bidding-panel { grid-template-rows:40px minmax(0,1fr) clamp(180px,32dvh,280px); }
+    .bidding-title { font-size:1rem; }
+    .bidding-controls .btn { padding-left:7px; padding-right:7px; }
+}
+@media (max-height:500px) {
+    .game-shell { padding-top:env(safe-area-inset-top); }
+    .game-toolbar { flex-basis:44px; }
+    .game-footer { display:none; }
+    .game-table { padding-top:4px; padding-bottom:2px; grid-template-rows:40px minmax(0,1fr) clamp(128px,40dvh,200px); gap:3px 8px; }
+    .player-panel { padding:4px 7px; }
+    .opponent-hand,.seat-1 .opponent-hand,.seat-2 .opponent-hand,.seat-3 .opponent-hand { display:none; }
+    .local-status { flex-basis:28px; }
+    .local-player { padding:2px 6px; }
+    .hand-card { top:10px; }
+    .has-bidding-panel { grid-template-rows:28px minmax(0,1fr) clamp(112px,36dvh,170px); }
+    .has-bidding-panel .player-detail { display:none; }
+    .bidding-panel { max-width:none; }
+    .bidding-controls { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto minmax(0,1fr); padding:5px 7px; gap:3px 8px; }
+    .bidding-title { grid-column:1 / -1; padding:0; font-size:.95rem; }
+    .bidding-controls:has(.bidding-confirm) .bidding-title { grid-column:1; }
+    .bidding-options { grid-column:1 / -1; padding:0; display:flex; flex-wrap:wrap; gap:4px 8px; }
+    .bidding-controls:has(.bidding-confirm) .bidding-options { grid-column:1; }
+    .bidding-field { flex:1 1 200px; }
+    .bidding-field + .bidding-field { margin-top:0; }
+    .bidding-label { display:none; }
+    .bidding-controls .btn { padding:4px 7px; font-size:.75rem; }
+    .bidding-confirm { grid-column:2; grid-row:1 / 3; padding:0; border:0; flex-direction:column; justify-content:flex-end; gap:4px; }
+    .bidding-interest { align-self:start; }
 }
