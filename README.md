@@ -34,9 +34,37 @@ cd pax.schafkopf/src/sk.pwa
 dotnet run
 ```
 
-Open http://localhost:5027
- in four different browsers or browser profiles.
-Each browser represents one player in the game.
+Open http://localhost:5027, set a nickname, and create a table. Click
+**Freie Plätze mit Bots füllen** to fill the empty seats with conservative heuristic bots.
+For a mixed table, invite other humans before filling the remaining seats. Each human
+uses a separate browser or browser profile. Bots automatically ready after each deal;
+click **Weiter** in the result dialog to start the next one. Remove bots in that dialog
+between rounds to make room for friends.
+
+## Headless engine and bots
+
+The [WSL training plan](docs/training-plan.md) defines separate bidding and playing models,
+staged PPO training, and the implementation milestones.
+
+The [bot and evaluation guide](training/README.md) covers the implemented heuristic policies,
+WSL environment checks, seeded comparisons, and replay commands. By default, live bot seats use
+`heuristic-v1/conservative`. Start a bounded neural imitation sample in WSL with
+`bash training/run-sample.sh`; it prints progress and saves resumable checkpoints. See the
+[start/watch/resume guide](training/README.md#start-and-watch-sample-training). Continue from
+those checkpoints with `bash training/run-sample.sh ppo --warm-start /path/to/imitation/run`;
+the [PPO guide](training/README.md#ppo-from-imitation-checkpoints) covers progress, resume,
+and playing/bidding modes. Use `bash training/run-serious.sh /path/to/imitation/run` for the
+90-minute preset, then `bash training/play-trained.sh /path/to/ppo/run` for local play against
+three trained bots. See the [timed training and play guide](training/README.md#timed-training-and-trained-bot-play).
+The completed experimental pair is available locally via
+`bash training/play-trained.sh models/serious-20261120`; see its
+[held-out results and limitations](training/results/README.md#timed-trained-bot-run).
+
+See [the engine contract](docs/engine.md) for deterministic simulation, supported rules,
+stable action IDs, seat-limited observations, and live bot integration hooks.
+Run the simulation check with `dotnet run --project tools/sk.simulation-audit -c Release -- 1000000`.
+See [engine benchmarks](src/sk.benchmarks/README.md) for repeatable throughput/allocation measurements
+and the results of the first two optimization rounds.
 
 # Contributing
 

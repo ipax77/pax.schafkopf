@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-11-20T18:41:32.015159+00:00",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "scope": "full",
+  "ready": true,
+  "errors": [],
+  "checks": {
+    "sdk": {
+      "command": [
+        "/home/pax77/.dotnet/dotnet",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "10.0.404",
+      "stderr": ""
+    },
+    "dotnet_info": {
+      "command": [
+        "/home/pax77/.dotnet/dotnet",
+        "--info"
+      ],
+      "exit_code": 0,
+      "stdout": ".NET SDK:\n Version:           10.0.404\n Commit:            2ab2854867\n Workload version:  10.0.400-manifests.fcd82060\n MSBuild version:   18.9.15+2ab285486\n\nRuntime Environment:\n OS Name:     ubuntu\n OS Version:  24.04\n OS Platform: Linux\n RID:         linux-x64\n Base Path:   /home/pax77/.dotnet/sdk/10.0.404/\n\n.NET workloads installed:\nThere are no installed workloads to display.\nConfigured to use workload sets when installing new manifests.\nNo workload sets are installed. Run \"dotnet workload restore\" to install a workload set.\n\nHost:\n  Version:      10.0.15\n  Architecture: x64\n  Commit:       8e0f8ed231\n\n.NET SDKs installed:\n  10.0.101 [/home/pax77/.dotnet/sdk]\n  10.0.103 [/home/pax77/.dotnet/sdk]\n  10.0.203 [/home/pax77/.dotnet/sdk]\n  10.0.301 [/home/pax77/.dotnet/sdk]\n  10.0.400 [/home/pax77/.dotnet/sdk]\n  10.0.404 [/home/pax77/.dotnet/sdk]\n\n.NET runtimes installed:\n  Microsoft.AspNetCore.App 10.0.1 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.3 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.7 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.9 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.11 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.AspNetCore.App 10.0.15 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\n  Microsoft.NETCore.App 10.0.1 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.3 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.7 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.9 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.11 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n  Microsoft.NETCore.App 10.0.15 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\n\nOther architectures found:\n  None\n\nEnvironment variables:\n  DOTNET_ROOT                              [/home/pax77/.dotnet]\n\nglobal.json file:\n  Not found\n\nLearn more:\n  https://aka.ms/dotnet/info\n\nDownload .NET:\n  https://aka.ms/dotnet/download",
+      "stderr": ""
+    },
+    "runtimes": {
+      "command": [
+        "/home/pax77/.dotnet/dotnet",
+        "--list-runtimes"
+      ],
+      "exit_code": 0,
+      "stdout": "Microsoft.AspNetCore.App 10.0.1 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.3 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.7 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.9 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.11 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.AspNetCore.App 10.0.15 [/home/pax77/.dotnet/shared/Microsoft.AspNetCore.App]\nMicrosoft.NETCore.App 10.0.1 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.3 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.7 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.9 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.11 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]\nMicrosoft.NETCore.App 10.0.15 [/home/pax77/.dotnet/shared/Microsoft.NETCore.App]",
+      "stderr": ""
+    },
+    "git_commit": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "984c6a820dd77f9223bff0b71ce6912fd97c9d1e",
+      "stderr": ""
+    },
+    "git_status": {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "M .github/workflows/dotnet.yml\n M .gitignore\n M CODE_OF_CONDUCT.md\n M CONTRIBUTING.md\n M LICENSE\n M README.md\n M docs/tensorflow.md\n M docs/training-plan.md\n M src/.aspire/settings.json\n M src/sk.AppHost/AppHost.cs\n M src/sk.AppHost/Properties/launchSettings.json\n M src/sk.AppHost/ResourceBuilderExtensions.cs\n M src/sk.AppHost/appsettings.Development.json\n M src/sk.AppHost/appsettings.json\n M src/sk.AppHost/sk.AppHost.csproj\n M src/sk.ServiceDefaults/Extensions.cs\n M src/sk.ServiceDefaults/sk.ServiceDefaults.csproj\n M src/sk.api/Program.cs\n M src/sk.api/Properties/launchSettings.json\n M src/sk.api/Services/GameHubService.cs\n M src/sk.api/appsettings.Development.json\n M src/sk.api/appsettings.json\n M src/sk.api/sk.api.csproj\n M src/sk.api/sk.api.http\n M src/sk.pwa/App.razor\n M src/sk.pwa/Layout/MainLayout.razor\n M src/sk.pwa/Layout/MainLayout.razor.css\n M src/sk.pwa/Pages/Home.razor\n M src/sk.pwa/Pages/NotFound.razor\n M src/sk.pwa/Program.cs\n M src/sk.pwa/Properties/launchSettings.json\n M src/sk.pwa/Services/ConnectInfoState.cs\n M src/sk.pwa/Services/GameHubClient.cs\n M src/sk.pwa/_Imports.razor\n M src/sk.pwa/sk.pwa.csproj\n M src/sk.pwa/wwwroot/css/app.css\n M src/sk.pwa/wwwroot/index.html\n M src/sk.pwa/wwwroot/manifest.webmanifest\n M src/sk.pwa/wwwroot/sample-data/weather.json\n M src/sk.pwa/wwwroot/service-worker.js\n M src/sk.pwa/wwwroot/service-worker.published.js\n M src/sk.shared/Bidding1Result.cs\n M src/sk.shared/Bidding2Result.cs\n M src/sk.shared/BiddingState.cs\n M src/sk.shared/Card.Logic.cs\n M src/sk.shared/Card.cs\n M src/sk.shared/ConnectInfo.cs\n M src/sk.shared/Enums.cs\n M src/sk.shared/Game.Bidding.cs\n M src/sk.shared/Game.Engine.cs\n M src/sk.shared/Game.Lifecycle.cs\n M src/sk.shared/Game.Play.cs\n M src/sk.shared/Game.Players.cs\n M src/sk.shared/Game.Projections.cs\n M src/sk.shared/Game.cs\n M src/sk.shared/GameAction.cs\n M src/sk.shared/GameResult.cs\n M src/sk.shared/GameRules.cs\n M src/sk.shared/Interfaces/IGameHubClient.cs\n M src/sk.shared/Player.cs\n M src/sk.shared/PlayerCard.cs\n M src/sk.shared/PlayerViewInfo.cs\n M src/sk.shared/PublicGameResult.cs\n M src/sk.shared/PublicGameState.Logic.cs\n M src/sk.shared/PublicGameState.cs\n M src/sk.shared/Table.cs\n M src/sk.shared/TablePlayer.cs\n M src/sk.shared/sk.shared.csproj\n M src/sk.slnx\n M src/sk.tests/BiddingTests.cs\n M src/sk.tests/CountTests.cs\n M src/sk.tests/GameTests.cs\n M src/sk.tests/MSTestSettings.cs\n M src/sk.tests/PlayTests.cs\n M src/sk.tests/sk.tests.csproj\n M src/sk.weblib/Modals/Bidding1Modal.razor\n M src/sk.weblib/Modals/Bidding2Modal.razor\n M src/sk.weblib/Modals/ConnectModal.razor\n M src/sk.weblib/Modals/GameResultModal.razor\n M src/sk.weblib/Modals/LastTrickModal.razor\n M src/sk.weblib/Modals/StartingHandsModal.razor\n M src/sk.weblib/OppPlayerComponent.razor\n M src/sk.weblib/PlayerComponent.razor\n M src/sk.weblib/PlayerComponent.razor.cs\n M src/sk.weblib/PlayerComponent.razor.css\n M src/sk.weblib/TableComponent.razor\n M src/sk.weblib/TableComponent.razor.cs\n M src/sk.weblib/TrickComponent.razor\n M src/sk.weblib/_Imports.razor\n M src/sk.weblib/sk.weblib.csproj\n M src/sk.weblib/wwwroot/css/bootstrap-icons/bootstrap-icons.css\n M src/sk.weblib/wwwroot/css/bootstrap-icons/bootstrap-icons.json\n M src/sk.weblib/wwwroot/css/bootstrap-icons/bootstrap-icons.min.css\n M src/sk.weblib/wwwroot/css/bootstrap-icons/bootstrap-icons.scss\n M src/sk.weblib/wwwroot/css/bootstrap.min.css\n M src/sk.weblib/wwwroot/css/sk.css\n M src/sk.weblib/wwwroot/images/noto/AceEichel.svg\n M src/sk.weblib/wwwroot/images/noto/AceGras.svg\n M src/sk.weblib/wwwroot/images/noto/AceHerz.svg\n M src/sk.weblib/wwwroot/images/noto/AceSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/EightEichel.svg\n M src/sk.weblib/wwwroot/images/noto/EightGras.svg\n M src/sk.weblib/wwwroot/images/noto/EightHerz.svg\n M src/sk.weblib/wwwroot/images/noto/EightSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/KingEichel.svg\n M src/sk.weblib/wwwroot/images/noto/KingGras.svg\n M src/sk.weblib/wwwroot/images/noto/KingHerz.svg\n M src/sk.weblib/wwwroot/images/noto/KingSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/NineEichel.svg\n M src/sk.weblib/wwwroot/images/noto/NineGras.svg\n M src/sk.weblib/wwwroot/images/noto/NineHerz.svg\n M src/sk.weblib/wwwroot/images/noto/NineSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/OberEichel.svg\n M src/sk.weblib/wwwroot/images/noto/OberGras.svg\n M src/sk.weblib/wwwroot/images/noto/OberHerz.svg\n M src/sk.weblib/wwwroot/images/noto/OberSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/SevenEichel.svg\n M src/sk.weblib/wwwroot/images/noto/SevenGras.svg\n M src/sk.weblib/wwwroot/images/noto/SevenHerz.svg\n M src/sk.weblib/wwwroot/images/noto/SevenSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/TenEichel.svg\n M src/sk.weblib/wwwroot/images/noto/TenGras.svg\n M src/sk.weblib/wwwroot/images/noto/TenHerz.svg\n M src/sk.weblib/wwwroot/images/noto/TenSchellen.svg\n M src/sk.weblib/wwwroot/images/noto/UnterEichel.svg\n M src/sk.weblib/wwwroot/images/noto/UnterGras.svg\n M src/sk.weblib/wwwroot/images/noto/UnterHerz.svg\n M src/sk.weblib/wwwroot/images/noto/UnterSchellen.svg\n M src/sk.weblib/wwwroot/js/NoSleep.min.js\n M src/sk.weblib/wwwroot/js/bootstrap.bundle.min.js\n M src/sk.weblib/wwwroot/js/chart.umd.min.js\n M src/sk.weblib/wwwroot/js/sk.js\n M tools/sk.simulation-audit/Program.cs\n M tools/sk.simulation-audit/README.md\n?? .gitattributes\n?? src/sk.bot/\n?? src/sk.tests/BotPolicyTests.cs\n?? src/sk.tests/EvaluationTests.cs\n?? src/sk.training/\n?? training/",
+      "stderr": ""
+    },
+    "python": {
+      "command": [
+        "/home/pax77/.venvs/pax-schafkopf/bin/python",
+        "-c",
+        "import json,sys; print(json.dumps(dict(version=sys.version, executable=sys.executable, venv=sys.prefix != sys.base_prefix)))"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"version\": \"3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]\", \"executable\": \"/home/pax77/.venvs/pax-schafkopf/bin/python\", \"venv\": true}",
+      "stderr": ""
+    },
+    "gpu": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,driver_version",
+        "--format=csv,noheader"
+      ],
+      "exit_code": 0,
+      "stdout": "NVIDIA GeForce RTX 3080 Ti, 12288 MiB, 621.24",
+      "stderr": ""
+    },
+    "tensorflow": {
+      "command": [
+        "/home/pax77/.venvs/pax-schafkopf/bin/python",
+        "-c",
+        "import json, sys, tensorflow as tf\ngpus = tf.config.list_physical_devices('GPU')\nfor gpu in gpus: tf.config.experimental.set_memory_growth(gpu, True)\nif not gpus: raise RuntimeError('No TensorFlow GPU discovered')\ntf.config.set_soft_device_placement(False)\nwith tf.device('/GPU:0'): value = tf.reduce_sum(tf.matmul(tf.ones((32,32)), tf.ones((32,32))))\nprint(json.dumps(dict(version=tf.__version__, gpus=[g.name for g in gpus], device=value.device, value=float(value.numpy()))))\nassert tf.__version__ == '2.21.0', 'Expected pinned TensorFlow 2.21.0'\nassert sys.prefix != sys.base_prefix, 'Use a dedicated Python virtual environment'\nassert sys.version_info[:2] == (3, 12), 'Expected Python 3.12'\nassert float(value.numpy()) == 32768.0"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"version\": \"2.21.0\", \"gpus\": [\"/physical_device:GPU:0\"], \"device\": \"/job:localhost/replica:0/task:0/device:GPU:0\", \"value\": 32768.0}",
+      "stderr": "WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1795200089.958458  126413 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nI0000 00:00:1795200089.990121  126413 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1795200090.872088  126413 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nI0000 00:00:1795200091.314279  126413 gpu_device.cc:2043] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 9534 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3080 Ti, pci bus id: 0000:01:00.0, compute capability: 8.6"
+    },
+    "packages": {
+      "command": [
+        "/home/pax77/.venvs/pax-schafkopf/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "exit_code": 0,
+      "stdout": "absl-py==2.5.1\nastunparse==1.6.3\ncertifi==2026.10.23\ncharset-normalizer==3.5.2\nflatbuffers==25.12.19\ngast==0.7.0\ngoogle-pasta==0.2.0\ngrpcio==1.85.3\nh5py==3.14.0\nidna==3.20\nkeras==3.15.1\nlibclang==18.1.1\nmarkdown-it-py==4.3.0\nmdurl==0.1.2\nml_dtypes==0.7.0\nnamex==0.1.0\nnumpy==2.5.5\nnvidia-cublas-cu12==12.9.3.13\nnvidia-cuda-cupti-cu12==12.9.79\nnvidia-cuda-nvcc-cu12==12.9.86\nnvidia-cuda-nvrtc-cu12==12.9.86\nnvidia-cuda-runtime-cu12==12.9.79\nnvidia-cudnn-cu12==9.28.1.4\nnvidia-cufft-cu12==11.4.1.4\nnvidia-curand-cu12==10.3.10.19\nnvidia-cusolver-cu12==11.7.5.82\nnvidia-cusparse-cu12==12.5.10.65\nnvidia-nccl-cu12==2.32.6\nnvidia-nvjitlink-cu12==12.9.86\nopt_einsum==3.4.0\noptree==0.20.0\npackaging==26.3\npip==26.3\nprotobuf==7.36.2\nPygments==2.21.0\nrequests==2.34.2\nrich==15.0.0\nsetuptools==84.2.1\nsix==1.17.0\ntensorflow==2.21.0\ntermcolor==3.3.0\ntyping_extensions==4.16.0\nurllib3==2.8.0\nwheel==0.48.0\nwrapt==2.5.2",
+      "stderr": ""
+    },
+    "pip_check": {
+      "command": [
+        "/home/pax77/.venvs/pax-schafkopf/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "stdout": "No broken requirements found.",
+      "stderr": ""
+    }
+  }
+}

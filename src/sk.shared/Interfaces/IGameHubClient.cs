@@ -5,7 +5,7 @@ public interface IGameHubClient
 {
     PublicGameState? GameState { get; }
 
-    event Action? OnStateChanged;
+    event Action<PublicGameState, bool>? OnStateChanged;
     event Action? OnGameInitialized;
 
     ValueTask DisposeAsync();
@@ -16,4 +16,6 @@ public interface IGameHubClient
     Task SubmitBidding2(Bidding2Result? result);
     Task LeaveTable();
     Task Ready();
+    Task FillBotSeats();
+    Task RemoveBot(int position);
 }

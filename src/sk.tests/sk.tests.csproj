@@ -18,7 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\sk.bot\sk.bot.csproj" />
+    <ProjectReference Include="..\sk.training\sk.training.csproj" />
     <ProjectReference Include="..\sk.shared\sk.shared.csproj" />
+    <ProjectReference Include="..\sk.weblib\sk.weblib.csproj" />
     <ProjectReference Include="..\sk.api\sk.api.csproj" />
     <ProjectReference Include="..\sk.ServiceDefaults\sk.ServiceDefaults.csproj" />
   </ItemGroup>

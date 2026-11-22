@@ -1,0 +1,4568 @@
+{
+  "SchemaVersion": 1,
+  "RulesVersion": "schafkopf-long-v1",
+  "SeedScheduleVersion": "splitmix64-partition-v1",
+  "Runtime": ".NET 10.0.15",
+  "BuildSdk": "10.0.404",
+  "OS": "Ubuntu 24.04.5 LTS",
+  "SourceCommit": "984c6a820dd77f9223bff0b71ce6912fd97c9d1e",
+  "SourceDirty": true,
+  "CreatedAtUtc": "2026-11-20T18:43:58.9805058+00:00",
+  "Options": {
+    "Seeds": 500,
+    "StartIndex": 0,
+    "MasterSeed": 20261120,
+    "Split": "Validation",
+    "Candidate": "conservative",
+    "Reference": "random",
+    "Opponents": [
+      "random",
+      "random",
+      "random"
+    ],
+    "BootstrapSamples": 2000,
+    "BootstrapSeed": 712367,
+    "ContractAction": null
+  },
+  "PolicyVersions": {
+    "random": "uniform-legal-splitmix64-v1",
+    "conservative": "heuristic-v1/conservative"
+  },
+  "SelectionMode": "heuristic: deterministic, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+  "CompletedGames": 16000,
+  "SkippedSeeds": 0,
+  "ElapsedSeconds": 2.559496,
+  "ActionChecksum": "F782D196A09B7FB7",
+  "CandidatePayout": {
+    "IndependentSeeds": 500,
+    "Mean": 57.1275,
+    "Lower95": 54.99490625,
+    "Upper95": 59.2263125
+  },
+  "ReferencePayout": {
+    "IndependentSeeds": 500,
+    "Mean": 0,
+    "Lower95": 0,
+    "Upper95": 0
+  },
+  "PairedImprovement": {
+    "IndependentSeeds": 500,
+    "Mean": 57.1275,
+    "Lower95": 54.99490625,
+    "Upper95": 59.2263125
+  },
+  "CandidateTotals": {
+    "Games": 8000,
+    "AllPass": 820,
+    "Interests": 13832,
+    "ToutGames": 4011,
+    "ToutWins": 1,
+    "FocalDeclarations": 411,
+    "FocalDeclarationWins": 370,
+    "RawPayout": 457020,
+    "ByContractRole": {
+      "Solo/Eichel/tout/defender": {
+        "Games": 819,
+        "Wins": 819,
+        "Payout": 70580,
+        "MeanPayout": 86.17826617826618
+      },
+      "Solo/Herz/normal/defender": {
+        "Games": 506,
+        "Wins": 471,
+        "Payout": 22210,
+        "MeanPayout": 43.89328063241107
+      },
+      "Solo/Herz/tout/defender": {
+        "Games": 801,
+        "Wins": 800,
+        "Payout": 68960,
+        "MeanPayout": 86.09238451935082
+      },
+      "Solo/Gras/tout/defender": {
+        "Games": 863,
+        "Wins": 863,
+        "Payout": 71600,
+        "MeanPayout": 82.96639629200463
+      },
+      "Wenz/None/normal/defender": {
+        "Games": 355,
+        "Wins": 334,
+        "Payout": 14940,
+        "MeanPayout": 42.08450704225352
+      },
+      "Solo/Eichel/normal/defender": {
+        "Games": 498,
+        "Wins": 462,
+        "Payout": 20490,
+        "MeanPayout": 41.144578313253014
+      },
+      "Wenz/None/tout/defender": {
+        "Games": 734,
+        "Wins": 734,
+        "Payout": 59260,
+        "MeanPayout": 80.73569482288828
+      },
+      "Solo/Schellen/normal/defender": {
+        "Games": 496,
+        "Wins": 468,
+        "Payout": 22480,
+        "MeanPayout": 45.32258064516129
+      },
+      "Ruf/Schellen/normal/defender": {
+        "Games": 94,
+        "Wins": 51,
+        "Payout": 120,
+        "MeanPayout": 1.2765957446808511
+      },
+      "Ruf/Schellen/normal/declarer": {
+        "Games": 136,
+        "Wins": 121,
+        "Payout": 2590,
+        "MeanPayout": 19.044117647058822
+      },
+      "all-pass": {
+        "Games": 820,
+        "Wins": 0,
+        "Payout": 0,
+        "MeanPayout": 0
+      },
+      "Ruf/Schellen/normal/partner": {
+        "Games": 50,
+        "Wins": 31,
+        "Payout": 290,
+        "MeanPayout": 5.8
+      },
+      "Ruf/Gras/normal/declarer": {
+        "Games": 107,
+        "Wins": 95,
+        "Payout": 2430,
+        "MeanPayout": 22.710280373831775
+      },
+      "Solo/Schellen/tout/defender": {
+        "Games": 794,
+        "Wins": 794,
+        "Payout": 72220,
+        "MeanPayout": 90.95717884130983
+      },
+      "Ruf/Eichel/normal/declarer": {
+        "Games": 76,
+        "Wins": 69,
+        "Payout": 1950,
+        "MeanPayout": 25.657894736842106
+      },
+      "Ruf/Eichel/normal/defender": {
+        "Games": 94,
+        "Wins": 55,
+        "Payout": 30,
+        "MeanPayout": 0.3191489361702128
+      },
+      "Solo/Gras/normal/defender": {
+        "Games": 429,
+        "Wins": 393,
+        "Payout": 18400,
+        "MeanPayout": 42.89044289044289
+      },
+      "Solo/Eichel/normal/declarer": {
+        "Games": 17,
+        "Wins": 15,
+        "Payout": 1380,
+        "MeanPayout": 81.17647058823529
+      },
+      "Ruf/Eichel/normal/partner": {
+        "Games": 49,
+        "Wins": 23,
+        "Payout": -410,
+        "MeanPayout": -8.36734693877551
+      },
+      "Ruf/Gras/normal/defender": {
+        "Games": 135,
+        "Wins": 77,
+        "Payout": 160,
+        "MeanPayout": 1.1851851851851851
+      },
+      "Ruf/Gras/normal/partner": {
+        "Games": 52,
+        "Wins": 31,
+        "Payout": 230,
+        "MeanPayout": 4.423076923076923
+      },
+      "Solo/Schellen/normal/declarer": {
+        "Games": 16,
+        "Wins": 15,
+        "Payout": 1080,
+        "MeanPayout": 67.5
+      },
+      "Wenz/None/normal/declarer": {
+        "Games": 18,
+        "Wins": 18,
+        "Payout": 2550,
+        "MeanPayout": 141.66666666666666
+      },
+      "Solo/Gras/normal/declarer": {
+        "Games": 15,
+        "Wins": 12,
+        "Payout": 1320,
+        "MeanPayout": 88
+      },
+      "Solo/Herz/normal/declarer": {
+        "Games": 26,
+        "Wins": 25,
+        "Payout": 2160,
+        "MeanPayout": 83.07692307692308
+      }
+    }
+  },
+  "ReferenceTotals": {
+    "Games": 8000,
+    "AllPass": 572,
+    "Interests": 16064,
+    "ToutGames": 4772,
+    "ToutWins": 4,
+    "FocalDeclarations": 1857,
+    "FocalDeclarationWins": 127,
+    "RawPayout": 0,
+    "ByContractRole": {
+      "Solo/Eichel/tout/defender": {
+        "Games": 750,
+        "Wins": 750,
+        "Payout": 62280,
+        "MeanPayout": 83.04
+      },
+      "Solo/Eichel/tout/declarer": {
+        "Games": 250,
+        "Wins": 0,
+        "Payout": -62280,
+        "MeanPayout": -249.12
+      },
+      "Solo/Gras/tout/defender": {
+        "Games": 795,
+        "Wins": 795,
+        "Payout": 64680,
+        "MeanPayout": 81.35849056603773
+      },
+      "Solo/Gras/tout/declarer": {
+        "Games": 265,
+        "Wins": 0,
+        "Payout": -64680,
+        "MeanPayout": -244.0754716981132
+      },
+      "Solo/Herz/tout/declarer": {
+        "Games": 240,
+        "Wins": 1,
+        "Payout": -62640,
+        "MeanPayout": -261
+      },
+      "Solo/Herz/tout/defender": {
+        "Games": 720,
+        "Wins": 717,
+        "Payout": 62640,
+        "MeanPayout": 87
+      },
+      "Solo/Eichel/normal/defender": {
+        "Games": 369,
+        "Wins": 324,
+        "Payout": 14460,
+        "MeanPayout": 39.1869918699187
+      },
+      "Solo/Eichel/normal/declarer": {
+        "Games": 123,
+        "Wins": 15,
+        "Payout": -14460,
+        "MeanPayout": -117.5609756097561
+      },
+      "Ruf/Schellen/normal/defender": {
+        "Games": 66,
+        "Wins": 30,
+        "Payout": 120,
+        "MeanPayout": 1.8181818181818181
+      },
+      "Ruf/Schellen/normal/declarer": {
+        "Games": 33,
+        "Wins": 18,
+        "Payout": -60,
+        "MeanPayout": -1.8181818181818181
+      },
+      "Ruf/Schellen/normal/partner": {
+        "Games": 33,
+        "Wins": 18,
+        "Payout": -60,
+        "MeanPayout": -1.8181818181818181
+      },
+      "all-pass": {
+        "Games": 572,
+        "Wins": 0,
+        "Payout": 0,
+        "MeanPayout": 0
+      },
+      "Wenz/None/tout/declarer": {
+        "Games": 195,
+        "Wins": 0,
+        "Payout": -48240,
+        "MeanPayout": -247.3846153846154
+      },
+      "Wenz/None/tout/defender": {
+        "Games": 585,
+        "Wins": 585,
+        "Payout": 48240,
+        "MeanPayout": 82.46153846153847
+      },
+      "Solo/Herz/normal/defender": {
+        "Games": 357,
+        "Wins": 318,
+        "Payout": 14700,
+        "MeanPayout": 41.1764705882353
+      },
+      "Solo/Herz/normal/declarer": {
+        "Games": 119,
+        "Wins": 13,
+        "Payout": -14700,
+        "MeanPayout": -123.52941176470588
+      },
+      "Solo/Schellen/normal/declarer": {
+        "Games": 124,
+        "Wins": 16,
+        "Payout": -15000,
+        "MeanPayout": -120.96774193548387
+      },
+      "Solo/Schellen/normal/defender": {
+        "Games": 372,
+        "Wins": 324,
+        "Payout": 15000,
+        "MeanPayout": 40.32258064516129
+      },
+      "Solo/Schellen/tout/declarer": {
+        "Games": 243,
+        "Wins": 0,
+        "Payout": -68640,
+        "MeanPayout": -282.4691358024691
+      },
+      "Solo/Schellen/tout/defender": {
+        "Games": 729,
+        "Wins": 729,
+        "Payout": 68640,
+        "MeanPayout": 94.15637860082305
+      },
+      "Ruf/Eichel/normal/declarer": {
+        "Games": 36,
+        "Wins": 13,
+        "Payout": -210,
+        "MeanPayout": -5.833333333333333
+      },
+      "Ruf/Eichel/normal/defender": {
+        "Games": 72,
+        "Wins": 46,
+        "Payout": 420,
+        "MeanPayout": 5.833333333333333
+      },
+      "Ruf/Eichel/normal/partner": {
+        "Games": 36,
+        "Wins": 13,
+        "Payout": -210,
+        "MeanPayout": -5.833333333333333
+      },
+      "Solo/Gras/normal/defender": {
+        "Games": 300,
+        "Wins": 264,
+        "Payout": 12180,
+        "MeanPayout": 40.6
+      },
+      "Solo/Gras/normal/declarer": {
+        "Games": 100,
+        "Wins": 12,
+        "Payout": -12180,
+        "MeanPayout": -121.8
+      },
+      "Wenz/None/normal/declarer": {
+        "Games": 82,
+        "Wins": 11,
+        "Payout": -9000,
+        "MeanPayout": -109.7560975609756
+      },
+      "Wenz/None/normal/defender": {
+        "Games": 246,
+        "Wins": 213,
+        "Payout": 9000,
+        "MeanPayout": 36.58536585365854
+      },
+      "Ruf/Gras/normal/defender": {
+        "Games": 94,
+        "Wins": 38,
+        "Payout": -120,
+        "MeanPayout": -1.2765957446808511
+      },
+      "Ruf/Gras/normal/partner": {
+        "Games": 47,
+        "Wins": 28,
+        "Payout": 60,
+        "MeanPayout": 1.2765957446808511
+      },
+      "Ruf/Gras/normal/declarer": {
+        "Games": 47,
+        "Wins": 28,
+        "Payout": 60,
+        "MeanPayout": 1.2765957446808511
+      }
+    }
+  },
+  "Blocks": [
+    {
+      "Index": 0,
+      "DealSeed": 12601640897787201416,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 1,
+      "DealSeed": 13879685170331710131,
+      "PairedGames": 16,
+      "CandidateMean": 62.5,
+      "ReferenceMean": 0,
+      "Difference": 62.5
+    },
+    {
+      "Index": 2,
+      "DealSeed": 1349328851938871927,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 3,
+      "DealSeed": 12301037469889327925,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 4,
+      "DealSeed": 3958297057698557473,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 5,
+      "DealSeed": 6975684110923883607,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 6,
+      "DealSeed": 9537105211450647024,
+      "PairedGames": 16,
+      "CandidateMean": 33.75,
+      "ReferenceMean": 0,
+      "Difference": 33.75
+    },
+    {
+      "Index": 7,
+      "DealSeed": 4767328030909402363,
+      "PairedGames": 16,
+      "CandidateMean": 25,
+      "ReferenceMean": 0,
+      "Difference": 25
+    },
+    {
+      "Index": 8,
+      "DealSeed": 1983396346271605355,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 9,
+      "DealSeed": 3561473542606157288,
+      "PairedGames": 16,
+      "CandidateMean": 121.25,
+      "ReferenceMean": 0,
+      "Difference": 121.25
+    },
+    {
+      "Index": 10,
+      "DealSeed": 5383728271904088349,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 11,
+      "DealSeed": 8534481563146131857,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 12,
+      "DealSeed": 8404400983624689014,
+      "PairedGames": 16,
+      "CandidateMean": 100,
+      "ReferenceMean": 0,
+      "Difference": 100
+    },
+    {
+      "Index": 13,
+      "DealSeed": 303292926621802478,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 14,
+      "DealSeed": 15289746227461727810,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 15,
+      "DealSeed": 17439702615368401252,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 16,
+      "DealSeed": 3891674610966722586,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 17,
+      "DealSeed": 4863184660492505842,
+      "PairedGames": 16,
+      "CandidateMean": 60,
+      "ReferenceMean": 0,
+      "Difference": 60
+    },
+    {
+      "Index": 18,
+      "DealSeed": 11093676401337627868,
+      "PairedGames": 16,
+      "CandidateMean": 66.25,
+      "ReferenceMean": 0,
+      "Difference": 66.25
+    },
+    {
+      "Index": 19,
+      "DealSeed": 7826541347459993885,
+      "PairedGames": 16,
+      "CandidateMean": 30.625,
+      "ReferenceMean": 0,
+      "Difference": 30.625
+    },
+    {
+      "Index": 20,
+      "DealSeed": 16804446386315813234,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 21,
+      "DealSeed": 9540852357235306752,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 22,
+      "DealSeed": 1065696671310927465,
+      "PairedGames": 16,
+      "CandidateMean": 70,
+      "ReferenceMean": 0,
+      "Difference": 70
+    },
+    {
+      "Index": 23,
+      "DealSeed": 3644771086071800498,
+      "PairedGames": 16,
+      "CandidateMean": 61.25,
+      "ReferenceMean": 0,
+      "Difference": 61.25
+    },
+    {
+      "Index": 24,
+      "DealSeed": 4709786880556199579,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 25,
+      "DealSeed": 18018822172639364070,
+      "PairedGames": 16,
+      "CandidateMean": 48.75,
+      "ReferenceMean": 0,
+      "Difference": 48.75
+    },
+    {
+      "Index": 26,
+      "DealSeed": 6187850450759079567,
+      "PairedGames": 16,
+      "CandidateMean": 23.125,
+      "ReferenceMean": 0,
+      "Difference": 23.125
+    },
+    {
+      "Index": 27,
+      "DealSeed": 2779973740271226096,
+      "PairedGames": 16,
+      "CandidateMean": 51.25,
+      "ReferenceMean": 0,
+      "Difference": 51.25
+    },
+    {
+      "Index": 28,
+      "DealSeed": 9121291406774517470,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 29,
+      "DealSeed": 15733834578881699232,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 30,
+      "DealSeed": 7686910127696594790,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 31,
+      "DealSeed": 2763775421228843592,
+      "PairedGames": 16,
+      "CandidateMean": 55.625,
+      "ReferenceMean": 0,
+      "Difference": 55.625
+    },
+    {
+      "Index": 32,
+      "DealSeed": 14298016522927542092,
+      "PairedGames": 16,
+      "CandidateMean": 27.5,
+      "ReferenceMean": 0,
+      "Difference": 27.5
+    },
+    {
+      "Index": 33,
+      "DealSeed": 13588915077127240356,
+      "PairedGames": 16,
+      "CandidateMean": 85.625,
+      "ReferenceMean": 0,
+      "Difference": 85.625
+    },
+    {
+      "Index": 34,
+      "DealSeed": 5923481895873273826,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 35,
+      "DealSeed": 11649872379655875329,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 36,
+      "DealSeed": 17335555514492072618,
+      "PairedGames": 16,
+      "CandidateMean": 86.25,
+      "ReferenceMean": 0,
+      "Difference": 86.25
+    },
+    {
+      "Index": 37,
+      "DealSeed": 13625487405958617520,
+      "PairedGames": 16,
+      "CandidateMean": 31.875,
+      "ReferenceMean": 0,
+      "Difference": 31.875
+    },
+    {
+      "Index": 38,
+      "DealSeed": 5639872388092099968,
+      "PairedGames": 16,
+      "CandidateMean": 72.5,
+      "ReferenceMean": 0,
+      "Difference": 72.5
+    },
+    {
+      "Index": 39,
+      "DealSeed": 1017367174027089083,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 40,
+      "DealSeed": 14761898401249303097,
+      "PairedGames": 16,
+      "CandidateMean": 96.875,
+      "ReferenceMean": 0,
+      "Difference": 96.875
+    },
+    {
+      "Index": 41,
+      "DealSeed": 11170500884689804026,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 42,
+      "DealSeed": 12897070817512951598,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 43,
+      "DealSeed": 384080827532460205,
+      "PairedGames": 16,
+      "CandidateMean": 70.625,
+      "ReferenceMean": 0,
+      "Difference": 70.625
+    },
+    {
+      "Index": 44,
+      "DealSeed": 10784454053938259099,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 45,
+      "DealSeed": 13412339570089341038,
+      "PairedGames": 16,
+      "CandidateMean": 63.125,
+      "ReferenceMean": 0,
+      "Difference": 63.125
+    },
+    {
+      "Index": 46,
+      "DealSeed": 17624823249524447456,
+      "PairedGames": 16,
+      "CandidateMean": 41.875,
+      "ReferenceMean": 0,
+      "Difference": 41.875
+    },
+    {
+      "Index": 47,
+      "DealSeed": 7326463199620588274,
+      "PairedGames": 16,
+      "CandidateMean": 41.25,
+      "ReferenceMean": 0,
+      "Difference": 41.25
+    },
+    {
+      "Index": 48,
+      "DealSeed": 15850370899558419660,
+      "PairedGames": 16,
+      "CandidateMean": 99.375,
+      "ReferenceMean": 0,
+      "Difference": 99.375
+    },
+    {
+      "Index": 49,
+      "DealSeed": 2265599862440651788,
+      "PairedGames": 16,
+      "CandidateMean": 45,
+      "ReferenceMean": 0,
+      "Difference": 45
+    },
+    {
+      "Index": 50,
+      "DealSeed": 8202717037095140280,
+      "PairedGames": 16,
+      "CandidateMean": 83.75,
+      "ReferenceMean": 0,
+      "Difference": 83.75
+    },
+    {
+      "Index": 51,
+      "DealSeed": 4513119556262956587,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 52,
+      "DealSeed": 3768025633486395520,
+      "PairedGames": 16,
+      "CandidateMean": 79.375,
+      "ReferenceMean": 0,
+      "Difference": 79.375
+    },
+    {
+      "Index": 53,
+      "DealSeed": 12412338831023989930,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 54,
+      "DealSeed": 18348154291414204204,
+      "PairedGames": 16,
+      "CandidateMean": 58.125,
+      "ReferenceMean": 0,
+      "Difference": 58.125
+    },
+    {
+      "Index": 55,
+      "DealSeed": 5729600472730129673,
+      "PairedGames": 16,
+      "CandidateMean": 71.25,
+      "ReferenceMean": 0,
+      "Difference": 71.25
+    },
+    {
+      "Index": 56,
+      "DealSeed": 11755532996167883264,
+      "PairedGames": 16,
+      "CandidateMean": 71.25,
+      "ReferenceMean": 0,
+      "Difference": 71.25
+    },
+    {
+      "Index": 57,
+      "DealSeed": 4019023069622704684,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 58,
+      "DealSeed": 16636764177876562174,
+      "PairedGames": 16,
+      "CandidateMean": 63.75,
+      "ReferenceMean": 0,
+      "Difference": 63.75
+    },
+    {
+      "Index": 59,
+      "DealSeed": 14754513138731371807,
+      "PairedGames": 16,
+      "CandidateMean": 10,
+      "ReferenceMean": 0,
+      "Difference": 10
+    },
+    {
+      "Index": 60,
+      "DealSeed": 10733576170594694236,
+      "PairedGames": 16,
+      "CandidateMean": 25,
+      "ReferenceMean": 0,
+      "Difference": 25
+    },
+    {
+      "Index": 61,
+      "DealSeed": 9952868341143439044,
+      "PairedGames": 16,
+      "CandidateMean": 103.125,
+      "ReferenceMean": 0,
+      "Difference": 103.125
+    },
+    {
+      "Index": 62,
+      "DealSeed": 15560802464897549048,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 63,
+      "DealSeed": 16918830022204842170,
+      "PairedGames": 16,
+      "CandidateMean": 110.625,
+      "ReferenceMean": 0,
+      "Difference": 110.625
+    },
+    {
+      "Index": 64,
+      "DealSeed": 13683297633517583408,
+      "PairedGames": 16,
+      "CandidateMean": 31.875,
+      "ReferenceMean": 0,
+      "Difference": 31.875
+    },
+    {
+      "Index": 65,
+      "DealSeed": 9381120182315841196,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 66,
+      "DealSeed": 3117760668623089151,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 67,
+      "DealSeed": 949512285479527694,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 68,
+      "DealSeed": 17488206093122395372,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 69,
+      "DealSeed": 7656221827832430337,
+      "PairedGames": 16,
+      "CandidateMean": 94.375,
+      "ReferenceMean": 0,
+      "Difference": 94.375
+    },
+    {
+      "Index": 70,
+      "DealSeed": 8545223112152870373,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 71,
+      "DealSeed": 15340295011557984676,
+      "PairedGames": 16,
+      "CandidateMean": 83.125,
+      "ReferenceMean": 0,
+      "Difference": 83.125
+    },
+    {
+      "Index": 72,
+      "DealSeed": 15521198961074364280,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 73,
+      "DealSeed": 13865869060962553497,
+      "PairedGames": 16,
+      "CandidateMean": 127.5,
+      "ReferenceMean": 0,
+      "Difference": 127.5
+    },
+    {
+      "Index": 74,
+      "DealSeed": 10918345482139041474,
+      "PairedGames": 16,
+      "CandidateMean": 65.625,
+      "ReferenceMean": 0,
+      "Difference": 65.625
+    },
+    {
+      "Index": 75,
+      "DealSeed": 13704577876445433958,
+      "PairedGames": 16,
+      "CandidateMean": 135.625,
+      "ReferenceMean": 0,
+      "Difference": 135.625
+    },
+    {
+      "Index": 76,
+      "DealSeed": 5048370314497430611,
+      "PairedGames": 16,
+      "CandidateMean": 21.25,
+      "ReferenceMean": 0,
+      "Difference": 21.25
+    },
+    {
+      "Index": 77,
+      "DealSeed": 14572134881765506243,
+      "PairedGames": 16,
+      "CandidateMean": 23.125,
+      "ReferenceMean": 0,
+      "Difference": 23.125
+    },
+    {
+      "Index": 78,
+      "DealSeed": 17480929460824882333,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 79,
+      "DealSeed": 7538296657535330660,
+      "PairedGames": 16,
+      "CandidateMean": 63.75,
+      "ReferenceMean": 0,
+      "Difference": 63.75
+    },
+    {
+      "Index": 80,
+      "DealSeed": 5250203642459107660,
+      "PairedGames": 16,
+      "CandidateMean": 65,
+      "ReferenceMean": 0,
+      "Difference": 65
+    },
+    {
+      "Index": 81,
+      "DealSeed": 7993321252119201572,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 82,
+      "DealSeed": 13179231828398265296,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 83,
+      "DealSeed": 12780871620651509167,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 84,
+      "DealSeed": 15103615583078452,
+      "PairedGames": 16,
+      "CandidateMean": 70,
+      "ReferenceMean": 0,
+      "Difference": 70
+    },
+    {
+      "Index": 85,
+      "DealSeed": 10798471499960593994,
+      "PairedGames": 16,
+      "CandidateMean": 101.875,
+      "ReferenceMean": 0,
+      "Difference": 101.875
+    },
+    {
+      "Index": 86,
+      "DealSeed": 5755397225674859553,
+      "PairedGames": 16,
+      "CandidateMean": 92.5,
+      "ReferenceMean": 0,
+      "Difference": 92.5
+    },
+    {
+      "Index": 87,
+      "DealSeed": 770349990119752052,
+      "PairedGames": 16,
+      "CandidateMean": 80,
+      "ReferenceMean": 0,
+      "Difference": 80
+    },
+    {
+      "Index": 88,
+      "DealSeed": 2585504484536099648,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 89,
+      "DealSeed": 16968605572863408904,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 90,
+      "DealSeed": 208391141538318360,
+      "PairedGames": 16,
+      "CandidateMean": 90.625,
+      "ReferenceMean": 0,
+      "Difference": 90.625
+    },
+    {
+      "Index": 91,
+      "DealSeed": 431449326836982938,
+      "PairedGames": 16,
+      "CandidateMean": 73.125,
+      "ReferenceMean": 0,
+      "Difference": 73.125
+    },
+    {
+      "Index": 92,
+      "DealSeed": 3569488240885390233,
+      "PairedGames": 16,
+      "CandidateMean": 93.125,
+      "ReferenceMean": 0,
+      "Difference": 93.125
+    },
+    {
+      "Index": 93,
+      "DealSeed": 7674975183698005438,
+      "PairedGames": 16,
+      "CandidateMean": 24.375,
+      "ReferenceMean": 0,
+      "Difference": 24.375
+    },
+    {
+      "Index": 94,
+      "DealSeed": 16196448944923197167,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 95,
+      "DealSeed": 13844682094929541598,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 96,
+      "DealSeed": 12309621441837539194,
+      "PairedGames": 16,
+      "CandidateMean": 35.625,
+      "ReferenceMean": 0,
+      "Difference": 35.625
+    },
+    {
+      "Index": 97,
+      "DealSeed": 14845579437616852280,
+      "PairedGames": 16,
+      "CandidateMean": 66.25,
+      "ReferenceMean": 0,
+      "Difference": 66.25
+    },
+    {
+      "Index": 98,
+      "DealSeed": 6632602460962590306,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 99,
+      "DealSeed": 731420497312148139,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 100,
+      "DealSeed": 16276375128417392332,
+      "PairedGames": 16,
+      "CandidateMean": 25,
+      "ReferenceMean": 0,
+      "Difference": 25
+    },
+    {
+      "Index": 101,
+      "DealSeed": 1538195086077796829,
+      "PairedGames": 16,
+      "CandidateMean": 65,
+      "ReferenceMean": 0,
+      "Difference": 65
+    },
+    {
+      "Index": 102,
+      "DealSeed": 779912155419842971,
+      "PairedGames": 16,
+      "CandidateMean": 61.25,
+      "ReferenceMean": 0,
+      "Difference": 61.25
+    },
+    {
+      "Index": 103,
+      "DealSeed": 5922491108984145663,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 104,
+      "DealSeed": 17850437217941017068,
+      "PairedGames": 16,
+      "CandidateMean": 31.25,
+      "ReferenceMean": 0,
+      "Difference": 31.25
+    },
+    {
+      "Index": 105,
+      "DealSeed": 7235338348887853936,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 106,
+      "DealSeed": 8859037163509333742,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 107,
+      "DealSeed": 1702934470955886012,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 108,
+      "DealSeed": 5103844486674487467,
+      "PairedGames": 16,
+      "CandidateMean": 71.25,
+      "ReferenceMean": 0,
+      "Difference": 71.25
+    },
+    {
+      "Index": 109,
+      "DealSeed": 14869358675110030731,
+      "PairedGames": 16,
+      "CandidateMean": 29.375,
+      "ReferenceMean": 0,
+      "Difference": 29.375
+    },
+    {
+      "Index": 110,
+      "DealSeed": 14155872043459574809,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 111,
+      "DealSeed": 13781917200955175624,
+      "PairedGames": 16,
+      "CandidateMean": 91.25,
+      "ReferenceMean": 0,
+      "Difference": 91.25
+    },
+    {
+      "Index": 112,
+      "DealSeed": 17346073650736274027,
+      "PairedGames": 16,
+      "CandidateMean": 30.625,
+      "ReferenceMean": 0,
+      "Difference": 30.625
+    },
+    {
+      "Index": 113,
+      "DealSeed": 4000182756959728016,
+      "PairedGames": 16,
+      "CandidateMean": 37.5,
+      "ReferenceMean": 0,
+      "Difference": 37.5
+    },
+    {
+      "Index": 114,
+      "DealSeed": 10841573105070597480,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 115,
+      "DealSeed": 10573451682206103827,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 116,
+      "DealSeed": 14637864873556997604,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 117,
+      "DealSeed": 329256322736755686,
+      "PairedGames": 16,
+      "CandidateMean": 63.125,
+      "ReferenceMean": 0,
+      "Difference": 63.125
+    },
+    {
+      "Index": 118,
+      "DealSeed": 14316137205493557347,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 119,
+      "DealSeed": 5821720697690097677,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 120,
+      "DealSeed": 13223150883172925417,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 121,
+      "DealSeed": 11375558257532126855,
+      "PairedGames": 16,
+      "CandidateMean": 86.25,
+      "ReferenceMean": 0,
+      "Difference": 86.25
+    },
+    {
+      "Index": 122,
+      "DealSeed": 9854730657536342120,
+      "PairedGames": 16,
+      "CandidateMean": 81.25,
+      "ReferenceMean": 0,
+      "Difference": 81.25
+    },
+    {
+      "Index": 123,
+      "DealSeed": 13449197750043018823,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 124,
+      "DealSeed": 15639439822510636553,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 125,
+      "DealSeed": 9336313265630906062,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 126,
+      "DealSeed": 18316302030836321258,
+      "PairedGames": 16,
+      "CandidateMean": 53.125,
+      "ReferenceMean": 0,
+      "Difference": 53.125
+    },
+    {
+      "Index": 127,
+      "DealSeed": 17718561362006333788,
+      "PairedGames": 16,
+      "CandidateMean": 64.375,
+      "ReferenceMean": 0,
+      "Difference": 64.375
+    },
+    {
+      "Index": 128,
+      "DealSeed": 1466100813350720377,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 129,
+      "DealSeed": 10064921578143244556,
+      "PairedGames": 16,
+      "CandidateMean": 43.125,
+      "ReferenceMean": 0,
+      "Difference": 43.125
+    },
+    {
+      "Index": 130,
+      "DealSeed": 10074086166797221868,
+      "PairedGames": 16,
+      "CandidateMean": 82.5,
+      "ReferenceMean": 0,
+      "Difference": 82.5
+    },
+    {
+      "Index": 131,
+      "DealSeed": 3481826087991835747,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 132,
+      "DealSeed": 5130527909405235320,
+      "PairedGames": 16,
+      "CandidateMean": 102.5,
+      "ReferenceMean": 0,
+      "Difference": 102.5
+    },
+    {
+      "Index": 133,
+      "DealSeed": 9638430090519995435,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 134,
+      "DealSeed": 7227605004871588299,
+      "PairedGames": 16,
+      "CandidateMean": 145.625,
+      "ReferenceMean": 0,
+      "Difference": 145.625
+    },
+    {
+      "Index": 135,
+      "DealSeed": 17258597540301908975,
+      "PairedGames": 16,
+      "CandidateMean": 61.25,
+      "ReferenceMean": 0,
+      "Difference": 61.25
+    },
+    {
+      "Index": 136,
+      "DealSeed": 13963248685919240376,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 137,
+      "DealSeed": 4639612584927683562,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 138,
+      "DealSeed": 10022177659171018714,
+      "PairedGames": 16,
+      "CandidateMean": 34.375,
+      "ReferenceMean": 0,
+      "Difference": 34.375
+    },
+    {
+      "Index": 139,
+      "DealSeed": 17192700576322580157,
+      "PairedGames": 16,
+      "CandidateMean": 65.625,
+      "ReferenceMean": 0,
+      "Difference": 65.625
+    },
+    {
+      "Index": 140,
+      "DealSeed": 7722474514739701381,
+      "PairedGames": 16,
+      "CandidateMean": 63.75,
+      "ReferenceMean": 0,
+      "Difference": 63.75
+    },
+    {
+      "Index": 141,
+      "DealSeed": 4506867745206243938,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 142,
+      "DealSeed": 1701973289207582204,
+      "PairedGames": 16,
+      "CandidateMean": 48.75,
+      "ReferenceMean": 0,
+      "Difference": 48.75
+    },
+    {
+      "Index": 143,
+      "DealSeed": 13728130885636006716,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 144,
+      "DealSeed": 14174206698955856800,
+      "PairedGames": 16,
+      "CandidateMean": 55.625,
+      "ReferenceMean": 0,
+      "Difference": 55.625
+    },
+    {
+      "Index": 145,
+      "DealSeed": 1297515620642644101,
+      "PairedGames": 16,
+      "CandidateMean": 43.125,
+      "ReferenceMean": 0,
+      "Difference": 43.125
+    },
+    {
+      "Index": 146,
+      "DealSeed": 2402987180569083389,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 147,
+      "DealSeed": 14185309978263070418,
+      "PairedGames": 16,
+      "CandidateMean": 28.125,
+      "ReferenceMean": 0,
+      "Difference": 28.125
+    },
+    {
+      "Index": 148,
+      "DealSeed": 15300375835994687457,
+      "PairedGames": 16,
+      "CandidateMean": 37.5,
+      "ReferenceMean": 0,
+      "Difference": 37.5
+    },
+    {
+      "Index": 149,
+      "DealSeed": 15544316474379048125,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 150,
+      "DealSeed": 13970039377575182040,
+      "PairedGames": 16,
+      "CandidateMean": 49.375,
+      "ReferenceMean": 0,
+      "Difference": 49.375
+    },
+    {
+      "Index": 151,
+      "DealSeed": 550488614646551346,
+      "PairedGames": 16,
+      "CandidateMean": 33.75,
+      "ReferenceMean": 0,
+      "Difference": 33.75
+    },
+    {
+      "Index": 152,
+      "DealSeed": 11926061396179577192,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 153,
+      "DealSeed": 12002878259263702988,
+      "PairedGames": 16,
+      "CandidateMean": 103.125,
+      "ReferenceMean": 0,
+      "Difference": 103.125
+    },
+    {
+      "Index": 154,
+      "DealSeed": 15606805963156557625,
+      "PairedGames": 16,
+      "CandidateMean": 56.25,
+      "ReferenceMean": 0,
+      "Difference": 56.25
+    },
+    {
+      "Index": 155,
+      "DealSeed": 16037088194277543218,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 156,
+      "DealSeed": 17751977512954067325,
+      "PairedGames": 16,
+      "CandidateMean": 35.625,
+      "ReferenceMean": 0,
+      "Difference": 35.625
+    },
+    {
+      "Index": 157,
+      "DealSeed": 6403155933894560090,
+      "PairedGames": 16,
+      "CandidateMean": 75.625,
+      "ReferenceMean": 0,
+      "Difference": 75.625
+    },
+    {
+      "Index": 158,
+      "DealSeed": 2538350594740315562,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 159,
+      "DealSeed": 12822256048634971686,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 160,
+      "DealSeed": 5247682059370317566,
+      "PairedGames": 16,
+      "CandidateMean": 43.125,
+      "ReferenceMean": 0,
+      "Difference": 43.125
+    },
+    {
+      "Index": 161,
+      "DealSeed": 11058230670098917669,
+      "PairedGames": 16,
+      "CandidateMean": 41.25,
+      "ReferenceMean": 0,
+      "Difference": 41.25
+    },
+    {
+      "Index": 162,
+      "DealSeed": 11295720452155312289,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 163,
+      "DealSeed": 18416503906438034380,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 164,
+      "DealSeed": 4785593326570386755,
+      "PairedGames": 16,
+      "CandidateMean": 81.25,
+      "ReferenceMean": 0,
+      "Difference": 81.25
+    },
+    {
+      "Index": 165,
+      "DealSeed": 4408380364796791711,
+      "PairedGames": 16,
+      "CandidateMean": 85.625,
+      "ReferenceMean": 0,
+      "Difference": 85.625
+    },
+    {
+      "Index": 166,
+      "DealSeed": 11241914725912555387,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 167,
+      "DealSeed": 2569955440880710431,
+      "PairedGames": 16,
+      "CandidateMean": 49.375,
+      "ReferenceMean": 0,
+      "Difference": 49.375
+    },
+    {
+      "Index": 168,
+      "DealSeed": 13469695400448631974,
+      "PairedGames": 16,
+      "CandidateMean": 28.125,
+      "ReferenceMean": 0,
+      "Difference": 28.125
+    },
+    {
+      "Index": 169,
+      "DealSeed": 2019105701647741586,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 170,
+      "DealSeed": 12425084528349762770,
+      "PairedGames": 16,
+      "CandidateMean": 83.75,
+      "ReferenceMean": 0,
+      "Difference": 83.75
+    },
+    {
+      "Index": 171,
+      "DealSeed": 4075730075360647742,
+      "PairedGames": 16,
+      "CandidateMean": 87.5,
+      "ReferenceMean": 0,
+      "Difference": 87.5
+    },
+    {
+      "Index": 172,
+      "DealSeed": 17872694277727562519,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 173,
+      "DealSeed": 14248866297088225589,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 174,
+      "DealSeed": 7070663315549037682,
+      "PairedGames": 16,
+      "CandidateMean": 16.25,
+      "ReferenceMean": 0,
+      "Difference": 16.25
+    },
+    {
+      "Index": 175,
+      "DealSeed": 14323169441679034863,
+      "PairedGames": 16,
+      "CandidateMean": 45.625,
+      "ReferenceMean": 0,
+      "Difference": 45.625
+    },
+    {
+      "Index": 176,
+      "DealSeed": 6350500295031995804,
+      "PairedGames": 16,
+      "CandidateMean": 56.875,
+      "ReferenceMean": 0,
+      "Difference": 56.875
+    },
+    {
+      "Index": 177,
+      "DealSeed": 14550900378469291355,
+      "PairedGames": 16,
+      "CandidateMean": 78.75,
+      "ReferenceMean": 0,
+      "Difference": 78.75
+    },
+    {
+      "Index": 178,
+      "DealSeed": 4613417980941422478,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 179,
+      "DealSeed": 11927844594828685988,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 180,
+      "DealSeed": 3517200538841647939,
+      "PairedGames": 16,
+      "CandidateMean": 108.125,
+      "ReferenceMean": 0,
+      "Difference": 108.125
+    },
+    {
+      "Index": 181,
+      "DealSeed": 876753924915674750,
+      "PairedGames": 16,
+      "CandidateMean": 96.25,
+      "ReferenceMean": 0,
+      "Difference": 96.25
+    },
+    {
+      "Index": 182,
+      "DealSeed": 10225753745435575908,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 183,
+      "DealSeed": 17470570210583141653,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 184,
+      "DealSeed": 11222750605894529203,
+      "PairedGames": 16,
+      "CandidateMean": 83.75,
+      "ReferenceMean": 0,
+      "Difference": 83.75
+    },
+    {
+      "Index": 185,
+      "DealSeed": 10143598841104161641,
+      "PairedGames": 16,
+      "CandidateMean": 64.375,
+      "ReferenceMean": 0,
+      "Difference": 64.375
+    },
+    {
+      "Index": 186,
+      "DealSeed": 8313302626066866824,
+      "PairedGames": 16,
+      "CandidateMean": 30,
+      "ReferenceMean": 0,
+      "Difference": 30
+    },
+    {
+      "Index": 187,
+      "DealSeed": 9797519448824717058,
+      "PairedGames": 16,
+      "CandidateMean": 63.125,
+      "ReferenceMean": 0,
+      "Difference": 63.125
+    },
+    {
+      "Index": 188,
+      "DealSeed": 6426297430828410611,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 189,
+      "DealSeed": 7374859814820380977,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 190,
+      "DealSeed": 15878010118726613533,
+      "PairedGames": 16,
+      "CandidateMean": 59.375,
+      "ReferenceMean": 0,
+      "Difference": 59.375
+    },
+    {
+      "Index": 191,
+      "DealSeed": 7815708339143117043,
+      "PairedGames": 16,
+      "CandidateMean": 44.375,
+      "ReferenceMean": 0,
+      "Difference": 44.375
+    },
+    {
+      "Index": 192,
+      "DealSeed": 7254220764021030431,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 193,
+      "DealSeed": 7692966326784984864,
+      "PairedGames": 16,
+      "CandidateMean": 118.125,
+      "ReferenceMean": 0,
+      "Difference": 118.125
+    },
+    {
+      "Index": 194,
+      "DealSeed": 11814223069498169679,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 195,
+      "DealSeed": 8207038191498076228,
+      "PairedGames": 16,
+      "CandidateMean": 62.5,
+      "ReferenceMean": 0,
+      "Difference": 62.5
+    },
+    {
+      "Index": 196,
+      "DealSeed": 10920369144637050104,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 197,
+      "DealSeed": 14377812681877032144,
+      "PairedGames": 16,
+      "CandidateMean": 33.75,
+      "ReferenceMean": 0,
+      "Difference": 33.75
+    },
+    {
+      "Index": 198,
+      "DealSeed": 2373000756608468183,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 199,
+      "DealSeed": 1567151431390410602,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 200,
+      "DealSeed": 11910799789429824032,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 201,
+      "DealSeed": 14884979189294932886,
+      "PairedGames": 16,
+      "CandidateMean": 70,
+      "ReferenceMean": 0,
+      "Difference": 70
+    },
+    {
+      "Index": 202,
+      "DealSeed": 1145925502019539453,
+      "PairedGames": 16,
+      "CandidateMean": 31.875,
+      "ReferenceMean": 0,
+      "Difference": 31.875
+    },
+    {
+      "Index": 203,
+      "DealSeed": 15707860080010019330,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 204,
+      "DealSeed": 10482390761128443427,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 205,
+      "DealSeed": 10396165464407471470,
+      "PairedGames": 16,
+      "CandidateMean": 48.75,
+      "ReferenceMean": 0,
+      "Difference": 48.75
+    },
+    {
+      "Index": 206,
+      "DealSeed": 17750312676491389115,
+      "PairedGames": 16,
+      "CandidateMean": 49.375,
+      "ReferenceMean": 0,
+      "Difference": 49.375
+    },
+    {
+      "Index": 207,
+      "DealSeed": 10508576147736354236,
+      "PairedGames": 16,
+      "CandidateMean": 37.5,
+      "ReferenceMean": 0,
+      "Difference": 37.5
+    },
+    {
+      "Index": 208,
+      "DealSeed": 6252782615164418148,
+      "PairedGames": 16,
+      "CandidateMean": 81.875,
+      "ReferenceMean": 0,
+      "Difference": 81.875
+    },
+    {
+      "Index": 209,
+      "DealSeed": 16632702679185632981,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 210,
+      "DealSeed": 15175065606501963275,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 211,
+      "DealSeed": 14389710225451992143,
+      "PairedGames": 16,
+      "CandidateMean": 93.75,
+      "ReferenceMean": 0,
+      "Difference": 93.75
+    },
+    {
+      "Index": 212,
+      "DealSeed": 10493979134504707816,
+      "PairedGames": 16,
+      "CandidateMean": 48.75,
+      "ReferenceMean": 0,
+      "Difference": 48.75
+    },
+    {
+      "Index": 213,
+      "DealSeed": 18155715302061371260,
+      "PairedGames": 16,
+      "CandidateMean": 97.5,
+      "ReferenceMean": 0,
+      "Difference": 97.5
+    },
+    {
+      "Index": 214,
+      "DealSeed": 2031769959347716489,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 215,
+      "DealSeed": 15308523696965015285,
+      "PairedGames": 16,
+      "CandidateMean": 72.5,
+      "ReferenceMean": 0,
+      "Difference": 72.5
+    },
+    {
+      "Index": 216,
+      "DealSeed": 681201116798251996,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 217,
+      "DealSeed": 3431923576098730688,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 218,
+      "DealSeed": 2709089152053733417,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 219,
+      "DealSeed": 14985963350862905889,
+      "PairedGames": 16,
+      "CandidateMean": 41.25,
+      "ReferenceMean": 0,
+      "Difference": 41.25
+    },
+    {
+      "Index": 220,
+      "DealSeed": 7285581619881030507,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 221,
+      "DealSeed": 5971747581593738487,
+      "PairedGames": 16,
+      "CandidateMean": 53.75,
+      "ReferenceMean": 0,
+      "Difference": 53.75
+    },
+    {
+      "Index": 222,
+      "DealSeed": 2430255062514430846,
+      "PairedGames": 16,
+      "CandidateMean": 34.375,
+      "ReferenceMean": 0,
+      "Difference": 34.375
+    },
+    {
+      "Index": 223,
+      "DealSeed": 3401826974367938945,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 224,
+      "DealSeed": 4378101177638879,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 225,
+      "DealSeed": 13851867572850418324,
+      "PairedGames": 16,
+      "CandidateMean": 53.75,
+      "ReferenceMean": 0,
+      "Difference": 53.75
+    },
+    {
+      "Index": 226,
+      "DealSeed": 4941201431712378226,
+      "PairedGames": 16,
+      "CandidateMean": 16.25,
+      "ReferenceMean": 0,
+      "Difference": 16.25
+    },
+    {
+      "Index": 227,
+      "DealSeed": 1111765913624754933,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 228,
+      "DealSeed": 16837300534817669575,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 229,
+      "DealSeed": 271846326836744773,
+      "PairedGames": 16,
+      "CandidateMean": 70.625,
+      "ReferenceMean": 0,
+      "Difference": 70.625
+    },
+    {
+      "Index": 230,
+      "DealSeed": 4711641456037997574,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 231,
+      "DealSeed": 12640590361821688706,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 232,
+      "DealSeed": 13710945927988871978,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 233,
+      "DealSeed": 2778769244027502686,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 234,
+      "DealSeed": 6678533200835524170,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 235,
+      "DealSeed": 5105292657331084229,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 236,
+      "DealSeed": 17168370874208733376,
+      "PairedGames": 16,
+      "CandidateMean": 61.25,
+      "ReferenceMean": 0,
+      "Difference": 61.25
+    },
+    {
+      "Index": 237,
+      "DealSeed": 7317491557678568396,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 238,
+      "DealSeed": 18373634589935761105,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 239,
+      "DealSeed": 890815552413468444,
+      "PairedGames": 16,
+      "CandidateMean": 45,
+      "ReferenceMean": 0,
+      "Difference": 45
+    },
+    {
+      "Index": 240,
+      "DealSeed": 5128777720028874428,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 241,
+      "DealSeed": 16243674694642461394,
+      "PairedGames": 16,
+      "CandidateMean": 100,
+      "ReferenceMean": 0,
+      "Difference": 100
+    },
+    {
+      "Index": 242,
+      "DealSeed": 7449200884900596707,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 243,
+      "DealSeed": 3902357621835074391,
+      "PairedGames": 16,
+      "CandidateMean": 119.375,
+      "ReferenceMean": 0,
+      "Difference": 119.375
+    },
+    {
+      "Index": 244,
+      "DealSeed": 6713763575864147456,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 245,
+      "DealSeed": 836908848039198664,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 246,
+      "DealSeed": 1850782783176525260,
+      "PairedGames": 16,
+      "CandidateMean": 55.625,
+      "ReferenceMean": 0,
+      "Difference": 55.625
+    },
+    {
+      "Index": 247,
+      "DealSeed": 2920029003846510367,
+      "PairedGames": 16,
+      "CandidateMean": 75,
+      "ReferenceMean": 0,
+      "Difference": 75
+    },
+    {
+      "Index": 248,
+      "DealSeed": 10408883867764407197,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 249,
+      "DealSeed": 13151398817560109325,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 250,
+      "DealSeed": 13630720591644982052,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 251,
+      "DealSeed": 4516831122204633839,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 252,
+      "DealSeed": 8554285573103286102,
+      "PairedGames": 16,
+      "CandidateMean": 63.125,
+      "ReferenceMean": 0,
+      "Difference": 63.125
+    },
+    {
+      "Index": 253,
+      "DealSeed": 1349075866032020290,
+      "PairedGames": 16,
+      "CandidateMean": 113.125,
+      "ReferenceMean": 0,
+      "Difference": 113.125
+    },
+    {
+      "Index": 254,
+      "DealSeed": 14928006846503909507,
+      "PairedGames": 16,
+      "CandidateMean": 30,
+      "ReferenceMean": 0,
+      "Difference": 30
+    },
+    {
+      "Index": 255,
+      "DealSeed": 10260836503595645038,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 256,
+      "DealSeed": 11413506156177166668,
+      "PairedGames": 16,
+      "CandidateMean": 122.5,
+      "ReferenceMean": 0,
+      "Difference": 122.5
+    },
+    {
+      "Index": 257,
+      "DealSeed": 12323189051908971482,
+      "PairedGames": 16,
+      "CandidateMean": 43.125,
+      "ReferenceMean": 0,
+      "Difference": 43.125
+    },
+    {
+      "Index": 258,
+      "DealSeed": 7504136887264423722,
+      "PairedGames": 16,
+      "CandidateMean": 31.875,
+      "ReferenceMean": 0,
+      "Difference": 31.875
+    },
+    {
+      "Index": 259,
+      "DealSeed": 3304673151574000943,
+      "PairedGames": 16,
+      "CandidateMean": 56.875,
+      "ReferenceMean": 0,
+      "Difference": 56.875
+    },
+    {
+      "Index": 260,
+      "DealSeed": 1929215107576322874,
+      "PairedGames": 16,
+      "CandidateMean": 53.125,
+      "ReferenceMean": 0,
+      "Difference": 53.125
+    },
+    {
+      "Index": 261,
+      "DealSeed": 12491858689154577519,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 262,
+      "DealSeed": 4816670076872650108,
+      "PairedGames": 16,
+      "CandidateMean": 87.5,
+      "ReferenceMean": 0,
+      "Difference": 87.5
+    },
+    {
+      "Index": 263,
+      "DealSeed": 16041054261334625790,
+      "PairedGames": 16,
+      "CandidateMean": 100,
+      "ReferenceMean": 0,
+      "Difference": 100
+    },
+    {
+      "Index": 264,
+      "DealSeed": 14343286526870483901,
+      "PairedGames": 16,
+      "CandidateMean": 63.125,
+      "ReferenceMean": 0,
+      "Difference": 63.125
+    },
+    {
+      "Index": 265,
+      "DealSeed": 3949354969398148206,
+      "PairedGames": 16,
+      "CandidateMean": 56.25,
+      "ReferenceMean": 0,
+      "Difference": 56.25
+    },
+    {
+      "Index": 266,
+      "DealSeed": 9069742810130021702,
+      "PairedGames": 16,
+      "CandidateMean": 76.25,
+      "ReferenceMean": 0,
+      "Difference": 76.25
+    },
+    {
+      "Index": 267,
+      "DealSeed": 6462772505234814567,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 268,
+      "DealSeed": 10591588213864672448,
+      "PairedGames": 16,
+      "CandidateMean": 41.875,
+      "ReferenceMean": 0,
+      "Difference": 41.875
+    },
+    {
+      "Index": 269,
+      "DealSeed": 13812892791693886531,
+      "PairedGames": 16,
+      "CandidateMean": 75,
+      "ReferenceMean": 0,
+      "Difference": 75
+    },
+    {
+      "Index": 270,
+      "DealSeed": 14993966916522893014,
+      "PairedGames": 16,
+      "CandidateMean": 19.375,
+      "ReferenceMean": 0,
+      "Difference": 19.375
+    },
+    {
+      "Index": 271,
+      "DealSeed": 17418594654997912266,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 272,
+      "DealSeed": 12029018908074853369,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 273,
+      "DealSeed": 16404096532307607195,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 274,
+      "DealSeed": 7066601481333260612,
+      "PairedGames": 16,
+      "CandidateMean": 101.875,
+      "ReferenceMean": 0,
+      "Difference": 101.875
+    },
+    {
+      "Index": 275,
+      "DealSeed": 13129895882783358457,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 276,
+      "DealSeed": 16480607838721275986,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 277,
+      "DealSeed": 6875482620796921075,
+      "PairedGames": 16,
+      "CandidateMean": 81.875,
+      "ReferenceMean": 0,
+      "Difference": 81.875
+    },
+    {
+      "Index": 278,
+      "DealSeed": 177556212156605407,
+      "PairedGames": 16,
+      "CandidateMean": 69.375,
+      "ReferenceMean": 0,
+      "Difference": 69.375
+    },
+    {
+      "Index": 279,
+      "DealSeed": 10383291359611851696,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 280,
+      "DealSeed": 3034635782075871913,
+      "PairedGames": 16,
+      "CandidateMean": 69.375,
+      "ReferenceMean": 0,
+      "Difference": 69.375
+    },
+    {
+      "Index": 281,
+      "DealSeed": 3842335981577836847,
+      "PairedGames": 16,
+      "CandidateMean": 102.5,
+      "ReferenceMean": 0,
+      "Difference": 102.5
+    },
+    {
+      "Index": 282,
+      "DealSeed": 12548388017753338457,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 283,
+      "DealSeed": 4257749622758898567,
+      "PairedGames": 16,
+      "CandidateMean": 30.625,
+      "ReferenceMean": 0,
+      "Difference": 30.625
+    },
+    {
+      "Index": 284,
+      "DealSeed": 17446039055250916740,
+      "PairedGames": 16,
+      "CandidateMean": 16.25,
+      "ReferenceMean": 0,
+      "Difference": 16.25
+    },
+    {
+      "Index": 285,
+      "DealSeed": 7802344238785448705,
+      "PairedGames": 16,
+      "CandidateMean": 53.125,
+      "ReferenceMean": 0,
+      "Difference": 53.125
+    },
+    {
+      "Index": 286,
+      "DealSeed": 10673499922236394559,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 287,
+      "DealSeed": 13465753937338212752,
+      "PairedGames": 16,
+      "CandidateMean": 65,
+      "ReferenceMean": 0,
+      "Difference": 65
+    },
+    {
+      "Index": 288,
+      "DealSeed": 17354529019551186857,
+      "PairedGames": 16,
+      "CandidateMean": 7.5,
+      "ReferenceMean": 0,
+      "Difference": 7.5
+    },
+    {
+      "Index": 289,
+      "DealSeed": 9409782859351365506,
+      "PairedGames": 16,
+      "CandidateMean": 28.125,
+      "ReferenceMean": 0,
+      "Difference": 28.125
+    },
+    {
+      "Index": 290,
+      "DealSeed": 7244755801311728611,
+      "PairedGames": 16,
+      "CandidateMean": 62.5,
+      "ReferenceMean": 0,
+      "Difference": 62.5
+    },
+    {
+      "Index": 291,
+      "DealSeed": 4657815904711706239,
+      "PairedGames": 16,
+      "CandidateMean": 40.625,
+      "ReferenceMean": 0,
+      "Difference": 40.625
+    },
+    {
+      "Index": 292,
+      "DealSeed": 11891494913309097464,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 293,
+      "DealSeed": 4959548490466629642,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 294,
+      "DealSeed": 1919207329598069555,
+      "PairedGames": 16,
+      "CandidateMean": 50,
+      "ReferenceMean": 0,
+      "Difference": 50
+    },
+    {
+      "Index": 295,
+      "DealSeed": 4496649581126281558,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 296,
+      "DealSeed": 18044642092629118151,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 297,
+      "DealSeed": 4927745833290505606,
+      "PairedGames": 16,
+      "CandidateMean": 49.375,
+      "ReferenceMean": 0,
+      "Difference": 49.375
+    },
+    {
+      "Index": 298,
+      "DealSeed": 3892339851618317568,
+      "PairedGames": 16,
+      "CandidateMean": 44.375,
+      "ReferenceMean": 0,
+      "Difference": 44.375
+    },
+    {
+      "Index": 299,
+      "DealSeed": 6777259554595139901,
+      "PairedGames": 16,
+      "CandidateMean": 58.75,
+      "ReferenceMean": 0,
+      "Difference": 58.75
+    },
+    {
+      "Index": 300,
+      "DealSeed": 16359552932295341455,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 301,
+      "DealSeed": 8836763290961269561,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 302,
+      "DealSeed": 707262409363229579,
+      "PairedGames": 16,
+      "CandidateMean": 13.125,
+      "ReferenceMean": 0,
+      "Difference": 13.125
+    },
+    {
+      "Index": 303,
+      "DealSeed": 2301185032467131978,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 304,
+      "DealSeed": 9009853771745287512,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 305,
+      "DealSeed": 1142381593681852372,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 306,
+      "DealSeed": 9570403752866497676,
+      "PairedGames": 16,
+      "CandidateMean": 74.375,
+      "ReferenceMean": 0,
+      "Difference": 74.375
+    },
+    {
+      "Index": 307,
+      "DealSeed": 2891154538571290211,
+      "PairedGames": 16,
+      "CandidateMean": 89.375,
+      "ReferenceMean": 0,
+      "Difference": 89.375
+    },
+    {
+      "Index": 308,
+      "DealSeed": 4219034539977861617,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 309,
+      "DealSeed": 17140884147628939958,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 310,
+      "DealSeed": 9716306443543934991,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 311,
+      "DealSeed": 18265390138741165463,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 312,
+      "DealSeed": 5649024363599977016,
+      "PairedGames": 16,
+      "CandidateMean": 23.125,
+      "ReferenceMean": 0,
+      "Difference": 23.125
+    },
+    {
+      "Index": 313,
+      "DealSeed": 5275429164785376236,
+      "PairedGames": 16,
+      "CandidateMean": 83.125,
+      "ReferenceMean": 0,
+      "Difference": 83.125
+    },
+    {
+      "Index": 314,
+      "DealSeed": 14063893246496485027,
+      "PairedGames": 16,
+      "CandidateMean": 20,
+      "ReferenceMean": 0,
+      "Difference": 20
+    },
+    {
+      "Index": 315,
+      "DealSeed": 6532537393999747138,
+      "PairedGames": 16,
+      "CandidateMean": 18.75,
+      "ReferenceMean": 0,
+      "Difference": 18.75
+    },
+    {
+      "Index": 316,
+      "DealSeed": 12278160920332364179,
+      "PairedGames": 16,
+      "CandidateMean": 46.875,
+      "ReferenceMean": 0,
+      "Difference": 46.875
+    },
+    {
+      "Index": 317,
+      "DealSeed": 14563987910119061429,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 318,
+      "DealSeed": 3441808164912544674,
+      "PairedGames": 16,
+      "CandidateMean": 60,
+      "ReferenceMean": 0,
+      "Difference": 60
+    },
+    {
+      "Index": 319,
+      "DealSeed": 9811050063851481317,
+      "PairedGames": 16,
+      "CandidateMean": 21.25,
+      "ReferenceMean": 0,
+      "Difference": 21.25
+    },
+    {
+      "Index": 320,
+      "DealSeed": 10185684280152958238,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 321,
+      "DealSeed": 8454453675845878190,
+      "PairedGames": 16,
+      "CandidateMean": 75,
+      "ReferenceMean": 0,
+      "Difference": 75
+    },
+    {
+      "Index": 322,
+      "DealSeed": 11650684588367431114,
+      "PairedGames": 16,
+      "CandidateMean": 56.25,
+      "ReferenceMean": 0,
+      "Difference": 56.25
+    },
+    {
+      "Index": 323,
+      "DealSeed": 810497881915125090,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 324,
+      "DealSeed": 934861297248485411,
+      "PairedGames": 16,
+      "CandidateMean": 34.375,
+      "ReferenceMean": 0,
+      "Difference": 34.375
+    },
+    {
+      "Index": 325,
+      "DealSeed": 508036843376362212,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 326,
+      "DealSeed": 493351396812633475,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 327,
+      "DealSeed": 18240635492342754764,
+      "PairedGames": 16,
+      "CandidateMean": 55.625,
+      "ReferenceMean": 0,
+      "Difference": 55.625
+    },
+    {
+      "Index": 328,
+      "DealSeed": 8691697211772739335,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 329,
+      "DealSeed": 11589438389753165105,
+      "PairedGames": 16,
+      "CandidateMean": 56.875,
+      "ReferenceMean": 0,
+      "Difference": 56.875
+    },
+    {
+      "Index": 330,
+      "DealSeed": 12418877174588535837,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 331,
+      "DealSeed": 8178543355554759811,
+      "PairedGames": 16,
+      "CandidateMean": 63.75,
+      "ReferenceMean": 0,
+      "Difference": 63.75
+    },
+    {
+      "Index": 332,
+      "DealSeed": 3828475547853520027,
+      "PairedGames": 16,
+      "CandidateMean": 87.5,
+      "ReferenceMean": 0,
+      "Difference": 87.5
+    },
+    {
+      "Index": 333,
+      "DealSeed": 17648778743733431020,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 334,
+      "DealSeed": 2655209763719861500,
+      "PairedGames": 16,
+      "CandidateMean": 25,
+      "ReferenceMean": 0,
+      "Difference": 25
+    },
+    {
+      "Index": 335,
+      "DealSeed": 13605434975341996697,
+      "PairedGames": 16,
+      "CandidateMean": 103.125,
+      "ReferenceMean": 0,
+      "Difference": 103.125
+    },
+    {
+      "Index": 336,
+      "DealSeed": 18137192007539736732,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 337,
+      "DealSeed": 7207478786993044187,
+      "PairedGames": 16,
+      "CandidateMean": 53.125,
+      "ReferenceMean": 0,
+      "Difference": 53.125
+    },
+    {
+      "Index": 338,
+      "DealSeed": 18320177218294602694,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 339,
+      "DealSeed": 6128288057783478125,
+      "PairedGames": 16,
+      "CandidateMean": 86.25,
+      "ReferenceMean": 0,
+      "Difference": 86.25
+    },
+    {
+      "Index": 340,
+      "DealSeed": 10529984119565960657,
+      "PairedGames": 16,
+      "CandidateMean": 99.375,
+      "ReferenceMean": 0,
+      "Difference": 99.375
+    },
+    {
+      "Index": 341,
+      "DealSeed": 9943116019897954998,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 342,
+      "DealSeed": 13917007652281571325,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 343,
+      "DealSeed": 9982412787950460421,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 344,
+      "DealSeed": 6284309629683148167,
+      "PairedGames": 16,
+      "CandidateMean": 109.375,
+      "ReferenceMean": 0,
+      "Difference": 109.375
+    },
+    {
+      "Index": 345,
+      "DealSeed": 4371114928866069987,
+      "PairedGames": 16,
+      "CandidateMean": 69.375,
+      "ReferenceMean": 0,
+      "Difference": 69.375
+    },
+    {
+      "Index": 346,
+      "DealSeed": 14591391586653234612,
+      "PairedGames": 16,
+      "CandidateMean": 65,
+      "ReferenceMean": 0,
+      "Difference": 65
+    },
+    {
+      "Index": 347,
+      "DealSeed": 15017401231718979742,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 348,
+      "DealSeed": 5538609023446741801,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 349,
+      "DealSeed": 6432724210245961200,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 350,
+      "DealSeed": 9705626182092915423,
+      "PairedGames": 16,
+      "CandidateMean": 64.375,
+      "ReferenceMean": 0,
+      "Difference": 64.375
+    },
+    {
+      "Index": 351,
+      "DealSeed": 18290894485420481781,
+      "PairedGames": 16,
+      "CandidateMean": 106.875,
+      "ReferenceMean": 0,
+      "Difference": 106.875
+    },
+    {
+      "Index": 352,
+      "DealSeed": 13560273103194161795,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 353,
+      "DealSeed": 7747473877824460449,
+      "PairedGames": 16,
+      "CandidateMean": 90.625,
+      "ReferenceMean": 0,
+      "Difference": 90.625
+    },
+    {
+      "Index": 354,
+      "DealSeed": 2381010186853251309,
+      "PairedGames": 16,
+      "CandidateMean": 87.5,
+      "ReferenceMean": 0,
+      "Difference": 87.5
+    },
+    {
+      "Index": 355,
+      "DealSeed": 17708053964548129563,
+      "PairedGames": 16,
+      "CandidateMean": 70,
+      "ReferenceMean": 0,
+      "Difference": 70
+    },
+    {
+      "Index": 356,
+      "DealSeed": 17655433141628149661,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 357,
+      "DealSeed": 4549431880907170563,
+      "PairedGames": 16,
+      "CandidateMean": 141.25,
+      "ReferenceMean": 0,
+      "Difference": 141.25
+    },
+    {
+      "Index": 358,
+      "DealSeed": 2341378846901651936,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 359,
+      "DealSeed": 11374294573463948229,
+      "PairedGames": 16,
+      "CandidateMean": 120.625,
+      "ReferenceMean": 0,
+      "Difference": 120.625
+    },
+    {
+      "Index": 360,
+      "DealSeed": 12499522712208052158,
+      "PairedGames": 16,
+      "CandidateMean": 91.25,
+      "ReferenceMean": 0,
+      "Difference": 91.25
+    },
+    {
+      "Index": 361,
+      "DealSeed": 9087469121038451894,
+      "PairedGames": 16,
+      "CandidateMean": 36.25,
+      "ReferenceMean": 0,
+      "Difference": 36.25
+    },
+    {
+      "Index": 362,
+      "DealSeed": 8028469034727400293,
+      "PairedGames": 16,
+      "CandidateMean": 102.5,
+      "ReferenceMean": 0,
+      "Difference": 102.5
+    },
+    {
+      "Index": 363,
+      "DealSeed": 13083083480092610046,
+      "PairedGames": 16,
+      "CandidateMean": 23.75,
+      "ReferenceMean": 0,
+      "Difference": 23.75
+    },
+    {
+      "Index": 364,
+      "DealSeed": 15135249339993742902,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 365,
+      "DealSeed": 2045951113560128353,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 366,
+      "DealSeed": 6555382306249163897,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 367,
+      "DealSeed": 5383463532404235462,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 368,
+      "DealSeed": 1271756760740080206,
+      "PairedGames": 16,
+      "CandidateMean": 56.25,
+      "ReferenceMean": 0,
+      "Difference": 56.25
+    },
+    {
+      "Index": 369,
+      "DealSeed": 11073902060982610913,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 370,
+      "DealSeed": 5422301390271371356,
+      "PairedGames": 16,
+      "CandidateMean": 35,
+      "ReferenceMean": 0,
+      "Difference": 35
+    },
+    {
+      "Index": 371,
+      "DealSeed": 5306587883310676190,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 372,
+      "DealSeed": 11882380778104586526,
+      "PairedGames": 16,
+      "CandidateMean": 23.125,
+      "ReferenceMean": 0,
+      "Difference": 23.125
+    },
+    {
+      "Index": 373,
+      "DealSeed": 15944764292058824193,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 374,
+      "DealSeed": 6303974800079169499,
+      "PairedGames": 16,
+      "CandidateMean": 128.75,
+      "ReferenceMean": 0,
+      "Difference": 128.75
+    },
+    {
+      "Index": 375,
+      "DealSeed": 7478581709840119278,
+      "PairedGames": 16,
+      "CandidateMean": 65.625,
+      "ReferenceMean": 0,
+      "Difference": 65.625
+    },
+    {
+      "Index": 376,
+      "DealSeed": 8745539576706481859,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 377,
+      "DealSeed": 9207596828418151575,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 378,
+      "DealSeed": 17903367170880243740,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 379,
+      "DealSeed": 17734979985200269235,
+      "PairedGames": 16,
+      "CandidateMean": 30.625,
+      "ReferenceMean": 0,
+      "Difference": 30.625
+    },
+    {
+      "Index": 380,
+      "DealSeed": 2145237814046184715,
+      "PairedGames": 16,
+      "CandidateMean": 81.875,
+      "ReferenceMean": 0,
+      "Difference": 81.875
+    },
+    {
+      "Index": 381,
+      "DealSeed": 6257302855316902624,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 382,
+      "DealSeed": 11495218019846702085,
+      "PairedGames": 16,
+      "CandidateMean": 23.125,
+      "ReferenceMean": 0,
+      "Difference": 23.125
+    },
+    {
+      "Index": 383,
+      "DealSeed": 13794564547150462734,
+      "PairedGames": 16,
+      "CandidateMean": 31.25,
+      "ReferenceMean": 0,
+      "Difference": 31.25
+    },
+    {
+      "Index": 384,
+      "DealSeed": 11716552470371404660,
+      "PairedGames": 16,
+      "CandidateMean": 66.875,
+      "ReferenceMean": 0,
+      "Difference": 66.875
+    },
+    {
+      "Index": 385,
+      "DealSeed": 14695648487189680609,
+      "PairedGames": 16,
+      "CandidateMean": 28.75,
+      "ReferenceMean": 0,
+      "Difference": 28.75
+    },
+    {
+      "Index": 386,
+      "DealSeed": 17123432678417875426,
+      "PairedGames": 16,
+      "CandidateMean": 64.375,
+      "ReferenceMean": 0,
+      "Difference": 64.375
+    },
+    {
+      "Index": 387,
+      "DealSeed": 14910311395263429426,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 388,
+      "DealSeed": 15194987202829518572,
+      "PairedGames": 16,
+      "CandidateMean": 37.5,
+      "ReferenceMean": 0,
+      "Difference": 37.5
+    },
+    {
+      "Index": 389,
+      "DealSeed": 5455508628192036939,
+      "PairedGames": 16,
+      "CandidateMean": 43.125,
+      "ReferenceMean": 0,
+      "Difference": 43.125
+    },
+    {
+      "Index": 390,
+      "DealSeed": 7930584569812828589,
+      "PairedGames": 16,
+      "CandidateMean": 13.75,
+      "ReferenceMean": 0,
+      "Difference": 13.75
+    },
+    {
+      "Index": 391,
+      "DealSeed": 16468098199445874929,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 392,
+      "DealSeed": 1653264448636990640,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    },
+    {
+      "Index": 393,
+      "DealSeed": 7976932448673835391,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 394,
+      "DealSeed": 17334876333090291147,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 395,
+      "DealSeed": 14210654349968120590,
+      "PairedGames": 16,
+      "CandidateMean": 75,
+      "ReferenceMean": 0,
+      "Difference": 75
+    },
+    {
+      "Index": 396,
+      "DealSeed": 2224667072457530085,
+      "PairedGames": 16,
+      "CandidateMean": 38.125,
+      "ReferenceMean": 0,
+      "Difference": 38.125
+    },
+    {
+      "Index": 397,
+      "DealSeed": 8833230077359022533,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 398,
+      "DealSeed": 2687884576329449261,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 399,
+      "DealSeed": 5935450459793747309,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 400,
+      "DealSeed": 12241715514409902496,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 401,
+      "DealSeed": 14814798467107966372,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 402,
+      "DealSeed": 6645599969171701917,
+      "PairedGames": 16,
+      "CandidateMean": 48.125,
+      "ReferenceMean": 0,
+      "Difference": 48.125
+    },
+    {
+      "Index": 403,
+      "DealSeed": 15705529889792711375,
+      "PairedGames": 16,
+      "CandidateMean": 80.625,
+      "ReferenceMean": 0,
+      "Difference": 80.625
+    },
+    {
+      "Index": 404,
+      "DealSeed": 4333419621378178450,
+      "PairedGames": 16,
+      "CandidateMean": 45.625,
+      "ReferenceMean": 0,
+      "Difference": 45.625
+    },
+    {
+      "Index": 405,
+      "DealSeed": 1331334985673927776,
+      "PairedGames": 16,
+      "CandidateMean": 87.5,
+      "ReferenceMean": 0,
+      "Difference": 87.5
+    },
+    {
+      "Index": 406,
+      "DealSeed": 17164972020403725674,
+      "PairedGames": 16,
+      "CandidateMean": 61.875,
+      "ReferenceMean": 0,
+      "Difference": 61.875
+    },
+    {
+      "Index": 407,
+      "DealSeed": 3066568423415075923,
+      "PairedGames": 16,
+      "CandidateMean": 28.125,
+      "ReferenceMean": 0,
+      "Difference": 28.125
+    },
+    {
+      "Index": 408,
+      "DealSeed": 9612858464850420886,
+      "PairedGames": 16,
+      "CandidateMean": 40,
+      "ReferenceMean": 0,
+      "Difference": 40
+    },
+    {
+      "Index": 409,
+      "DealSeed": 11058179831696550260,
+      "PairedGames": 16,
+      "CandidateMean": 83.75,
+      "ReferenceMean": 0,
+      "Difference": 83.75
+    },
+    {
+      "Index": 410,
+      "DealSeed": 248791825541448957,
+      "PairedGames": 16,
+      "CandidateMean": 34.375,
+      "ReferenceMean": 0,
+      "Difference": 34.375
+    },
+    {
+      "Index": 411,
+      "DealSeed": 9265761756820063107,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 412,
+      "DealSeed": 916230320697233126,
+      "PairedGames": 16,
+      "CandidateMean": 43.75,
+      "ReferenceMean": 0,
+      "Difference": 43.75
+    },
+    {
+      "Index": 413,
+      "DealSeed": 5641305998591852843,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 414,
+      "DealSeed": 7646832402313773720,
+      "PairedGames": 16,
+      "CandidateMean": 78.125,
+      "ReferenceMean": 0,
+      "Difference": 78.125
+    },
+    {
+      "Index": 415,
+      "DealSeed": 9437803064284113230,
+      "PairedGames": 16,
+      "CandidateMean": 61.25,
+      "ReferenceMean": 0,
+      "Difference": 61.25
+    },
+    {
+      "Index": 416,
+      "DealSeed": 3073371260143044919,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 417,
+      "DealSeed": 11116883244927395181,
+      "PairedGames": 16,
+      "CandidateMean": 80,
+      "ReferenceMean": 0,
+      "Difference": 80
+    },
+    {
+      "Index": 418,
+      "DealSeed": 6506667736785708984,
+      "PairedGames": 16,
+      "CandidateMean": 103.125,
+      "ReferenceMean": 0,
+      "Difference": 103.125
+    },
+    {
+      "Index": 419,
+      "DealSeed": 9017829694890762975,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 420,
+      "DealSeed": 16736010261216418085,
+      "PairedGames": 16,
+      "CandidateMean": 118.75,
+      "ReferenceMean": 0,
+      "Difference": 118.75
+    },
+    {
+      "Index": 421,
+      "DealSeed": 7239511436926671564,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 422,
+      "DealSeed": 5790928380232006012,
+      "PairedGames": 16,
+      "CandidateMean": 71.875,
+      "ReferenceMean": 0,
+      "Difference": 71.875
+    },
+    {
+      "Index": 423,
+      "DealSeed": 9719759736048120658,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 424,
+      "DealSeed": 11103875872604920124,
+      "PairedGames": 16,
+      "CandidateMean": 31.25,
+      "ReferenceMean": 0,
+      "Difference": 31.25
+    },
+    {
+      "Index": 425,
+      "DealSeed": 2364408053682001681,
+      "PairedGames": 16,
+      "CandidateMean": 88.125,
+      "ReferenceMean": 0,
+      "Difference": 88.125
+    },
+    {
+      "Index": 426,
+      "DealSeed": 9081583158907432870,
+      "PairedGames": 16,
+      "CandidateMean": 26.875,
+      "ReferenceMean": 0,
+      "Difference": 26.875
+    },
+    {
+      "Index": 427,
+      "DealSeed": 2211902084508834529,
+      "PairedGames": 16,
+      "CandidateMean": 71.875,
+      "ReferenceMean": 0,
+      "Difference": 71.875
+    },
+    {
+      "Index": 428,
+      "DealSeed": 14179968768526911309,
+      "PairedGames": 16,
+      "CandidateMean": 35.625,
+      "ReferenceMean": 0,
+      "Difference": 35.625
+    },
+    {
+      "Index": 429,
+      "DealSeed": 14234903347260203460,
+      "PairedGames": 16,
+      "CandidateMean": 32.5,
+      "ReferenceMean": 0,
+      "Difference": 32.5
+    },
+    {
+      "Index": 430,
+      "DealSeed": 4461497733577703877,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 431,
+      "DealSeed": 4318467699713123767,
+      "PairedGames": 16,
+      "CandidateMean": 77.5,
+      "ReferenceMean": 0,
+      "Difference": 77.5
+    },
+    {
+      "Index": 432,
+      "DealSeed": 2437563223953782917,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 433,
+      "DealSeed": 625870981730878763,
+      "PairedGames": 16,
+      "CandidateMean": 33.75,
+      "ReferenceMean": 0,
+      "Difference": 33.75
+    },
+    {
+      "Index": 434,
+      "DealSeed": 7613659391540467018,
+      "PairedGames": 16,
+      "CandidateMean": 69.375,
+      "ReferenceMean": 0,
+      "Difference": 69.375
+    },
+    {
+      "Index": 435,
+      "DealSeed": 467624781787314140,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 436,
+      "DealSeed": 13941791949009748406,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 437,
+      "DealSeed": 17396283718369519519,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 438,
+      "DealSeed": 16682655734760969754,
+      "PairedGames": 16,
+      "CandidateMean": 48.125,
+      "ReferenceMean": 0,
+      "Difference": 48.125
+    },
+    {
+      "Index": 439,
+      "DealSeed": 616890328350516199,
+      "PairedGames": 16,
+      "CandidateMean": 73.125,
+      "ReferenceMean": 0,
+      "Difference": 73.125
+    },
+    {
+      "Index": 440,
+      "DealSeed": 16823884793291907340,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 441,
+      "DealSeed": 9793602325673415819,
+      "PairedGames": 16,
+      "CandidateMean": 59.375,
+      "ReferenceMean": 0,
+      "Difference": 59.375
+    },
+    {
+      "Index": 442,
+      "DealSeed": 10348323390202619891,
+      "PairedGames": 16,
+      "CandidateMean": 47.5,
+      "ReferenceMean": 0,
+      "Difference": 47.5
+    },
+    {
+      "Index": 443,
+      "DealSeed": 6695186897061101320,
+      "PairedGames": 16,
+      "CandidateMean": 95,
+      "ReferenceMean": 0,
+      "Difference": 95
+    },
+    {
+      "Index": 444,
+      "DealSeed": 15035994271777123184,
+      "PairedGames": 16,
+      "CandidateMean": 60,
+      "ReferenceMean": 0,
+      "Difference": 60
+    },
+    {
+      "Index": 445,
+      "DealSeed": 11572385041861565008,
+      "PairedGames": 16,
+      "CandidateMean": 97.5,
+      "ReferenceMean": 0,
+      "Difference": 97.5
+    },
+    {
+      "Index": 446,
+      "DealSeed": 12394567015216882009,
+      "PairedGames": 16,
+      "CandidateMean": 70.625,
+      "ReferenceMean": 0,
+      "Difference": 70.625
+    },
+    {
+      "Index": 447,
+      "DealSeed": 933734402164683361,
+      "PairedGames": 16,
+      "CandidateMean": 41.25,
+      "ReferenceMean": 0,
+      "Difference": 41.25
+    },
+    {
+      "Index": 448,
+      "DealSeed": 8605896015826919595,
+      "PairedGames": 16,
+      "CandidateMean": 51.875,
+      "ReferenceMean": 0,
+      "Difference": 51.875
+    },
+    {
+      "Index": 449,
+      "DealSeed": 17088240844820886896,
+      "PairedGames": 16,
+      "CandidateMean": 76.25,
+      "ReferenceMean": 0,
+      "Difference": 76.25
+    },
+    {
+      "Index": 450,
+      "DealSeed": 877406839153511482,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 451,
+      "DealSeed": 6308971343545767319,
+      "PairedGames": 16,
+      "CandidateMean": 45,
+      "ReferenceMean": 0,
+      "Difference": 45
+    },
+    {
+      "Index": 452,
+      "DealSeed": 1669855552875596911,
+      "PairedGames": 16,
+      "CandidateMean": 42.5,
+      "ReferenceMean": 0,
+      "Difference": 42.5
+    },
+    {
+      "Index": 453,
+      "DealSeed": 5378377830070315162,
+      "PairedGames": 16,
+      "CandidateMean": 41.25,
+      "ReferenceMean": 0,
+      "Difference": 41.25
+    },
+    {
+      "Index": 454,
+      "DealSeed": 1824976302081997692,
+      "PairedGames": 16,
+      "CandidateMean": 108.75,
+      "ReferenceMean": 0,
+      "Difference": 108.75
+    },
+    {
+      "Index": 455,
+      "DealSeed": 13731345957712110761,
+      "PairedGames": 16,
+      "CandidateMean": 115.625,
+      "ReferenceMean": 0,
+      "Difference": 115.625
+    },
+    {
+      "Index": 456,
+      "DealSeed": 1734608716693877152,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 457,
+      "DealSeed": 11943018232424539675,
+      "PairedGames": 16,
+      "CandidateMean": 75.625,
+      "ReferenceMean": 0,
+      "Difference": 75.625
+    },
+    {
+      "Index": 458,
+      "DealSeed": 6493626003728855941,
+      "PairedGames": 16,
+      "CandidateMean": 50.625,
+      "ReferenceMean": 0,
+      "Difference": 50.625
+    },
+    {
+      "Index": 459,
+      "DealSeed": 15395793276374419065,
+      "PairedGames": 16,
+      "CandidateMean": 93.75,
+      "ReferenceMean": 0,
+      "Difference": 93.75
+    },
+    {
+      "Index": 460,
+      "DealSeed": 6748676424342704731,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 461,
+      "DealSeed": 1642167156934566819,
+      "PairedGames": 16,
+      "CandidateMean": 109.375,
+      "ReferenceMean": 0,
+      "Difference": 109.375
+    },
+    {
+      "Index": 462,
+      "DealSeed": 10920773233878728294,
+      "PairedGames": 16,
+      "CandidateMean": 69.375,
+      "ReferenceMean": 0,
+      "Difference": 69.375
+    },
+    {
+      "Index": 463,
+      "DealSeed": 15206630317684291358,
+      "PairedGames": 16,
+      "CandidateMean": 105.625,
+      "ReferenceMean": 0,
+      "Difference": 105.625
+    },
+    {
+      "Index": 464,
+      "DealSeed": 4767378331073975953,
+      "PairedGames": 16,
+      "CandidateMean": 68.75,
+      "ReferenceMean": 0,
+      "Difference": 68.75
+    },
+    {
+      "Index": 465,
+      "DealSeed": 15224302185167396595,
+      "PairedGames": 16,
+      "CandidateMean": 36.875,
+      "ReferenceMean": 0,
+      "Difference": 36.875
+    },
+    {
+      "Index": 466,
+      "DealSeed": 8602969187007783276,
+      "PairedGames": 16,
+      "CandidateMean": 23.75,
+      "ReferenceMean": 0,
+      "Difference": 23.75
+    },
+    {
+      "Index": 467,
+      "DealSeed": 4487997665155930576,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 468,
+      "DealSeed": 17902726855932957945,
+      "PairedGames": 16,
+      "CandidateMean": 73.75,
+      "ReferenceMean": 0,
+      "Difference": 73.75
+    },
+    {
+      "Index": 469,
+      "DealSeed": 17511050431212773377,
+      "PairedGames": 16,
+      "CandidateMean": 51.25,
+      "ReferenceMean": 0,
+      "Difference": 51.25
+    },
+    {
+      "Index": 470,
+      "DealSeed": 15899872694197778020,
+      "PairedGames": 16,
+      "CandidateMean": 55,
+      "ReferenceMean": 0,
+      "Difference": 55
+    },
+    {
+      "Index": 471,
+      "DealSeed": 9213555343669723219,
+      "PairedGames": 16,
+      "CandidateMean": 67.5,
+      "ReferenceMean": 0,
+      "Difference": 67.5
+    },
+    {
+      "Index": 472,
+      "DealSeed": 5412840763684750777,
+      "PairedGames": 16,
+      "CandidateMean": 18.125,
+      "ReferenceMean": 0,
+      "Difference": 18.125
+    },
+    {
+      "Index": 473,
+      "DealSeed": 2908408056100720995,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 474,
+      "DealSeed": 15194707819507897667,
+      "PairedGames": 16,
+      "CandidateMean": 48.125,
+      "ReferenceMean": 0,
+      "Difference": 48.125
+    },
+    {
+      "Index": 475,
+      "DealSeed": 1638297636934258651,
+      "PairedGames": 16,
+      "CandidateMean": 28.125,
+      "ReferenceMean": 0,
+      "Difference": 28.125
+    },
+    {
+      "Index": 476,
+      "DealSeed": 449434553677973716,
+      "PairedGames": 16,
+      "CandidateMean": 33.125,
+      "ReferenceMean": 0,
+      "Difference": 33.125
+    },
+    {
+      "Index": 477,
+      "DealSeed": 3410187207702137199,
+      "PairedGames": 16,
+      "CandidateMean": 51.25,
+      "ReferenceMean": 0,
+      "Difference": 51.25
+    },
+    {
+      "Index": 478,
+      "DealSeed": 14493187446489186257,
+      "PairedGames": 16,
+      "CandidateMean": 46.25,
+      "ReferenceMean": 0,
+      "Difference": 46.25
+    },
+    {
+      "Index": 479,
+      "DealSeed": 12286501224072182589,
+      "PairedGames": 16,
+      "CandidateMean": 31.25,
+      "ReferenceMean": 0,
+      "Difference": 31.25
+    },
+    {
+      "Index": 480,
+      "DealSeed": 7888742914105047239,
+      "PairedGames": 16,
+      "CandidateMean": 75,
+      "ReferenceMean": 0,
+      "Difference": 75
+    },
+    {
+      "Index": 481,
+      "DealSeed": 8461829184426333935,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 482,
+      "DealSeed": 13029012604941380864,
+      "PairedGames": 16,
+      "CandidateMean": 41.875,
+      "ReferenceMean": 0,
+      "Difference": 41.875
+    },
+    {
+      "Index": 483,
+      "DealSeed": 6923873911747748098,
+      "PairedGames": 16,
+      "CandidateMean": 89.375,
+      "ReferenceMean": 0,
+      "Difference": 89.375
+    },
+    {
+      "Index": 484,
+      "DealSeed": 10354330602647088988,
+      "PairedGames": 16,
+      "CandidateMean": 52.5,
+      "ReferenceMean": 0,
+      "Difference": 52.5
+    },
+    {
+      "Index": 485,
+      "DealSeed": 9769848090511961514,
+      "PairedGames": 16,
+      "CandidateMean": 39.375,
+      "ReferenceMean": 0,
+      "Difference": 39.375
+    },
+    {
+      "Index": 486,
+      "DealSeed": 7045815363593688401,
+      "PairedGames": 16,
+      "CandidateMean": 88.75,
+      "ReferenceMean": 0,
+      "Difference": 88.75
+    },
+    {
+      "Index": 487,
+      "DealSeed": 6058651378148174450,
+      "PairedGames": 16,
+      "CandidateMean": 81.25,
+      "ReferenceMean": 0,
+      "Difference": 81.25
+    },
+    {
+      "Index": 488,
+      "DealSeed": 10645069954962578505,
+      "PairedGames": 16,
+      "CandidateMean": 38.75,
+      "ReferenceMean": 0,
+      "Difference": 38.75
+    },
+    {
+      "Index": 489,
+      "DealSeed": 3086046069673012557,
+      "PairedGames": 16,
+      "CandidateMean": 60.625,
+      "ReferenceMean": 0,
+      "Difference": 60.625
+    },
+    {
+      "Index": 490,
+      "DealSeed": 3604203785777361284,
+      "PairedGames": 16,
+      "CandidateMean": 45,
+      "ReferenceMean": 0,
+      "Difference": 45
+    },
+    {
+      "Index": 491,
+      "DealSeed": 9827598466042829683,
+      "PairedGames": 16,
+      "CandidateMean": 103.75,
+      "ReferenceMean": 0,
+      "Difference": 103.75
+    },
+    {
+      "Index": 492,
+      "DealSeed": 10320006150177814977,
+      "PairedGames": 16,
+      "CandidateMean": 45.625,
+      "ReferenceMean": 0,
+      "Difference": 45.625
+    },
+    {
+      "Index": 493,
+      "DealSeed": 7447682231400988787,
+      "PairedGames": 16,
+      "CandidateMean": 13.75,
+      "ReferenceMean": 0,
+      "Difference": 13.75
+    },
+    {
+      "Index": 494,
+      "DealSeed": 1155781227623639206,
+      "PairedGames": 16,
+      "CandidateMean": 83.75,
+      "ReferenceMean": 0,
+      "Difference": 83.75
+    },
+    {
+      "Index": 495,
+      "DealSeed": 8690217309718716004,
+      "PairedGames": 16,
+      "CandidateMean": 57.5,
+      "ReferenceMean": 0,
+      "Difference": 57.5
+    },
+    {
+      "Index": 496,
+      "DealSeed": 9748385944605776907,
+      "PairedGames": 16,
+      "CandidateMean": 79.375,
+      "ReferenceMean": 0,
+      "Difference": 79.375
+    },
+    {
+      "Index": 497,
+      "DealSeed": 9368578725779272460,
+      "PairedGames": 16,
+      "CandidateMean": 54.375,
+      "ReferenceMean": 0,
+      "Difference": 54.375
+    },
+    {
+      "Index": 498,
+      "DealSeed": 9501120232568988754,
+      "PairedGames": 16,
+      "CandidateMean": 58.125,
+      "ReferenceMean": 0,
+      "Difference": 58.125
+    },
+    {
+      "Index": 499,
+      "DealSeed": 6617527672191560395,
+      "PairedGames": 16,
+      "CandidateMean": 68.125,
+      "ReferenceMean": 0,
+      "Difference": 68.125
+    }
+  ],
+  "Examples": [
+    {
+      "RulesVersion": "schafkopf-long-v1",
+      "Seed": 12601640897787201416,
+      "Dealer": 0,
+      "SamplingSeed": 11406145758445241532,
+      "Policies": [
+        "conservative",
+        "random",
+        "random",
+        "random"
+      ],
+      "PolicyVersions": [
+        "heuristic-v1/conservative",
+        "uniform-legal-splitmix64-v1",
+        "uniform-legal-splitmix64-v1",
+        "uniform-legal-splitmix64-v1"
+      ],
+      "Actions": [
+        1,
+        0,
+        1,
+        0,
+        15,
+        7,
+        32,
+        22,
+        31,
+        25,
+        19,
+        21,
+        17,
+        24,
+        44,
+        48,
+        41,
+        47,
+        36,
+        46,
+        29,
+        20,
+        23,
+        34,
+        45,
+        18,
+        35,
+        40,
+        38,
+        33,
+        26,
+        30,
+        27,
+        43,
+        37,
+        28,
+        39,
+        42
+      ],
+      "Rewards": [
+        180,
+        -540,
+        180,
+        180
+      ],
+      "Contract": {
+        "Player": 1,
+        "GameType": "Solo",
+        "Suit": "Eichel",
+        "Tout": true
+      },
+      "Roles": [
+        "defender",
+        "declarer",
+        "defender",
+        "defender"
+      ],
+      "AuctionPrefix": [],
+      "Failure": null
+    },
+    {
+      "RulesVersion": "schafkopf-long-v1",
+      "Seed": 12601640897787201416,
+      "Dealer": 0,
+      "SamplingSeed": 11406145758445241532,
+      "Policies": [
+        "random",
+        "random",
+        "random",
+        "random"
+      ],
+      "PolicyVersions": [
+        "uniform-legal-splitmix64-v1",
+        "uniform-legal-splitmix64-v1",
+        "uniform-legal-splitmix64-v1",
+        "uniform-legal-splitmix64-v1"
+      ],
+      "Actions": [
+        1,
+        0,
+        1,
+        0,
+        15,
+        7,
+        32,
+        22,
+        31,
+        25,
+        19,
+        21,
+        17,
+        23,
+        44,
+        48,
+        41,
+        47,
+        36,
+        46,
+        29,
+        20,
+        30,
+        27,
+        45,
+        26,
+        35,
+        40,
+        39,
+        34,
+        28,
+        24,
+        42,
+        43,
+        18,
+        38,
+        33,
+        37
+      ],
+      "Rewards": [
+        180,
+        -540,
+        180,
+        180
+      ],
+      "Contract": {
+        "Player": 1,
+        "GameType": "Solo",
+        "Suit": "Eichel",
+        "Tout": true
+      },
+      "Roles": [
+        "defender",
+        "declarer",
+        "defender",
+        "defender"
+      ],
+      "AuctionPrefix": [],
+      "Failure": null
+    }
+  ]
+}

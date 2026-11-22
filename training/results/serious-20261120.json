@@ -1,0 +1,1227 @@
+{
+  "source_commit": "f7b94c3",
+  "source_dirty": true,
+  "training_run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120",
+  "evaluation_directory": "/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120",
+  "training_config": {
+    "script_version": 1,
+    "algorithm": "complete-game-ppo",
+    "encoder_version": "schafkopf-observation-v1",
+    "rules_version": "schafkopf-long-v1",
+    "warm_start": "/home/pax77/.local/share/pax-schafkopf/runs/serious-imitation-20261120/models/pair.json",
+    "warm_start_sha256": {
+      "bidding": "79751127b5abaabf3d93403253303929ed05586150ff191c8139e195429f1ebe",
+      "playing": "76baea36606c8d98cc989bf16685c68d4229ae4d3d059e3c6602d7a3f5553c15"
+    },
+    "train": "playing",
+    "decisions": 32768,
+    "warmup_updates": 24,
+    "bidding_decisions": 8192,
+    "controlled_percent": 20,
+    "keep_checkpoints": 4,
+    "keep_rollouts": 2,
+    "pool": 128,
+    "max_games": 131072,
+    "epochs": 4,
+    "batch_size": 0,
+    "eval_seeds": 500,
+    "eval_every": 10,
+    "seed": 20261120,
+    "start_index": 20000000,
+    "gpu_memory_mb": 2048,
+    "clip": 0.2,
+    "value_coefficient": 0.5,
+    "entropy_coefficient": 0.01,
+    "target_kl": 0.02,
+    "gamma": 1.0,
+    "gae_lambda": 1.0,
+    "reward_scale": 100,
+    "gradient_norm_limit": 0.5,
+    "learning_rates": {
+      "bidding": 0.0001,
+      "playing": 0.0003
+    },
+    "adam_epsilon": 1e-05,
+    "created_at_utc": "2026-11-20T20:53:24.197894+00:00"
+  },
+  "status": {
+    "phase": "complete",
+    "completed_updates": 251,
+    "total_decisions": 8688064,
+    "latest_checkpoint": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120/checkpoints/update-0251-9134c573",
+    "run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120",
+    "live_promoted": false,
+    "updated_at_utc": "2026-11-20T21:59:23.272287+00:00",
+    "session_elapsed_seconds": 3619.63
+  },
+  "selected_update": 250,
+  "selected_checkpoint": "checkpoints/update-0250-cf721aa3",
+  "selection_validation_score": 0.27125,
+  "validation_gain": {
+    "independent_seeds": 500,
+    "mean": 1.2,
+    "lower95": 0.7249375,
+    "upper95": 1.6975
+  },
+  "training_games": 547688,
+  "controlled_games": 109420,
+  "rejected_deals": 3640532,
+  "next_training_index": 24188220,
+  "optimizer_steps": {
+    "bidding": 0,
+    "playing": 15255
+  },
+  "bidder_frozen": true,
+  "selected_versions": {
+    "bidding": "67f136e7d1013a1b3a44c9beca1d3c18b8b075bca3c10c226284a956d18b2f9b",
+    "playing": "ccc1d2610709b647f3bfbf0a7b77046caaf6bd640bb4e39182f5547399e096cb"
+  },
+  "imitation": {
+    "config": {
+      "script_version": 1,
+      "encoder_version": "schafkopf-observation-v1",
+      "rules_version": "schafkopf-long-v1",
+      "kind": "heuristic-imitation",
+      "games": 30000,
+      "validation_games": 3000,
+      "batch_size": 512,
+      "eval_seeds": 500,
+      "seed": 20261120,
+      "gpu_memory_mb": 2048,
+      "created_at_utc": "2026-11-20T20:45:12.336979+00:00"
+    },
+    "status": {
+      "phase": "complete",
+      "completed_epochs": 20,
+      "best_epoch": {
+        "bidding": 20,
+        "playing": 11
+      },
+      "run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-imitation-20261120",
+      "live_promoted": false,
+      "updated_at_utc": "2026-11-20T20:52:18.875833+00:00",
+      "session_elapsed_seconds": 391.35
+    },
+    "selected_validation_metrics": [
+      {
+        "model": "playing",
+        "epoch": 11,
+        "split": "validation",
+        "policy_loss": 0.24739731879988433,
+        "choice_accuracy": 0.9161614411917547,
+        "value_mse": 0.0596859320455457,
+        "choice_rows": 46184,
+        "rows": 69408,
+        "forced_fraction": 0.33460119870908256
+      },
+      {
+        "model": "bidding",
+        "epoch": 20,
+        "split": "validation",
+        "policy_loss": 0.08260196769448958,
+        "choice_accuracy": 0.9705761033961227,
+        "value_mse": 0.07499841605881033,
+        "choice_rows": 14546,
+        "rows": 14546,
+        "forced_fraction": 0.0
+      }
+    ],
+    "interest": {
+      "run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-imitation-20261120",
+      "interest_hands": 12000,
+      "teacher_interest_rate": 0.21216666666666667,
+      "model_interest_rate": 0.22041666666666668,
+      "interest_recall": 0.9450117831893166,
+      "interest_precision": 0.909640831758034,
+      "accuracy": 0.9684166666666667
+    }
+  },
+  "pilot": {
+    "path": "/home/pax77/.local/share/pax-schafkopf/runs/serious-20261120-90min",
+    "status": {
+      "phase": "failed",
+      "error": "Rollout process failed",
+      "updated_at_utc": "2026-11-20T20:41:14.735387+00:00",
+      "session_elapsed_seconds": 1362.31
+    },
+    "completed_updates": 94,
+    "learner_decisions": 2845711,
+    "diagnosis": "1000-attempt controlled-deal cap exhausted; bidder interest collapsed to 54/8168 (0.66%) learner hands in rollout 94. Raised cap to 10000 and used stronger imitation with frozen bidding for main run."
+  },
+  "combined_session_elapsed_seconds": 5373.29,
+  "native_pair": {
+    "schema_version": 1,
+    "native_format": "dense-f32-v1",
+    "encoder_version": "schafkopf-observation-v1",
+    "rules_version": "schafkopf-long-v1",
+    "feature_count": 1748,
+    "reward_scale": 100,
+    "selection": "masked-argmax",
+    "pair_id": "4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+    "bidding": "bidding.bin",
+    "playing": "playing.bin",
+    "bidding_sha256": "08947ae26dcbe4854f3e5ce12c49207ca342cd9fa7a9e2ff380acbe84113fd06",
+    "playing_sha256": "3513e9bb83e54dadb409107b52fb22e045556a92fa3cc8bc601dadc4ddb5e4b2",
+    "source_pair": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120/checkpoints/update-0250-cf721aa3/pair.json",
+    "source_versions": {
+      "bidding": "67f136e7d1013a1b3a44c9beca1d3c18b8b075bca3c10c226284a956d18b2f9b",
+      "playing": "ccc1d2610709b647f3bfbf0a7b77046caaf6bd640bb4e39182f5547399e096cb"
+    },
+    "experimental": true,
+    "live_promoted": false
+  },
+  "native_export_repository_path": "models/serious-20261120",
+  "parity": {
+    "pair_id": "4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+    "samples": 512,
+    "real_observation_rows": {
+      "bidding": 256,
+      "playing": 256
+    },
+    "max_absolute_logit_error": 7.707733153949903e-06,
+    "max_absolute_value_error": 9.852016067471436e-07,
+    "masked_action_disagreements": 0
+  },
+  "latency": {
+    "policy": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+    "runtime": "10.0.15",
+    "processor_count": 24,
+    "illegal_actions": 0,
+    "observations": 1004,
+    "measurements": [
+      {
+        "workers": 1,
+        "decisions": 1000,
+        "wall_seconds": 0.1949872,
+        "mean_ms": 0.18881869999999987,
+        "p50_ms": 0.0558,
+        "p95_ms": 0.5776,
+        "max_ms": 2.0687
+      },
+      {
+        "workers": 10,
+        "decisions": 10000,
+        "wall_seconds": 0.076756,
+        "mean_ms": 0.06752515000000012,
+        "p50_ms": 0.0568,
+        "p95_ms": 0.1245,
+        "max_ms": 1.6589
+      }
+    ],
+    "scope": "Encoding + masked CPU policy decision on non-forced observations; includes CPU contention, excludes scheduler queue/display pacing/network. Not a live-table soak."
+  },
+  "protocol": {
+    "purpose": "90-minute local experimental bot run; not a public release or expert-strength certification",
+    "training_run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120",
+    "master_seed": 20261120,
+    "minutes": 60,
+    "training_start_index": 20000000,
+    "training_mode": "playing PPO with the larger imitation bidder frozen; 20 percent controlled contracts",
+    "pilot": "The initial staged run stopped at update 94 after 22.7 minutes on a 1000-attempt curriculum cap. The cap was raised to 10000. Its bidder expressed interest in 0.66 percent of learner hands, so the remaining budget uses a 30000-game / 20-epoch imitation warm start and frozen bidding.",
+    "selection": "highest mean raw payout on the fixed 500-seed validation panel; includes the initial imitation pair",
+    "validation_start_index": 1000000,
+    "held_out_split": "Confirmation",
+    "held_out_start_index": 2000000,
+    "held_out_natural_seeds_per_lineup": 2000,
+    "held_out_lineups": [
+      "conservative,conservative,conservative",
+      "balanced,balanced,balanced"
+    ],
+    "held_out_reference": "the main run's larger imitation warm-start pair",
+    "controlled_seeds_per_contract": 500,
+    "controlled_contract_actions": [
+      3,
+      6,
+      8
+    ],
+    "controlled_opponents": "conservative,conservative,conservative",
+    "controlled_reference": "the main run's larger imitation warm-start player",
+    "seat_and_dealer_rotations": "all four seats and all four dealers within each base-seed block",
+    "bootstrap": "2000 resamples of base-seed blocks; 95 percent percentile intervals",
+    "selection_after_holdout": "none; report the chosen pair once without retuning or extending these panels",
+    "limitations": "Smaller than the planned public-release confirmation suite; controlled diagnostics cover one Ruf suit, Wenz, and one Solo suit. Historical opponents and long human-session gates remain pending.",
+    "quick": false,
+    "actual_training_run": "/home/pax77/.local/share/pax-schafkopf/runs/serious-play-20261120",
+    "actual_master_seed": 20261120,
+    "actual_evaluation_split": "Confirmation",
+    "actual_start_index": 2000000
+  },
+  "reports": {
+    "natural-conservative": {
+      "SchemaVersion": 1,
+      "RulesVersion": "schafkopf-long-v1",
+      "SeedScheduleVersion": "splitmix64-partition-v1",
+      "Runtime": ".NET 10.0.15",
+      "BuildSdk": "10.0.404",
+      "OS": "Ubuntu 24.04.5 LTS",
+      "SourceCommit": "f7b94c3be755c64237815c19d50f78fe3fbe373e",
+      "SourceDirty": true,
+      "CreatedAtUtc": "2026-11-20T22:01:00.9631608+00:00",
+      "Options": {
+        "Seeds": 2000,
+        "StartIndex": 2000000,
+        "MasterSeed": 20261120,
+        "Split": "Confirmation",
+        "Candidate": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json",
+        "Reference": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": null
+      },
+      "PolicyVersions": {
+        "conservative": "heuristic-v1/conservative",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json": "neural/09f108110213f1eb5fec2a281dac4c4ebd9b1f73cf08c458aec2f40545c8122c"
+      },
+      "SelectionMode": "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+      "CompletedGames": 64000,
+      "SkippedSeeds": 0,
+      "ElapsedSeconds": 18.6761548,
+      "ActionChecksum": "8AF5314C5469AB8B",
+      "CandidatePayout": {
+        "IndependentSeeds": 2000,
+        "Mean": -0.4678125,
+        "Lower95": -0.745953125,
+        "Upper95": -0.19186718750000004
+      },
+      "ReferencePayout": {
+        "IndependentSeeds": 2000,
+        "Mean": -1.3446875,
+        "Lower95": -1.5831484374999998,
+        "Upper95": -1.1140000000000003
+      },
+      "PairedImprovement": {
+        "IndependentSeeds": 2000,
+        "Mean": 0.876875,
+        "Lower95": 0.6324921874999999,
+        "Upper95": 1.131265625
+      },
+      "CandidateTotals": {
+        "Games": 32000,
+        "AllPass": 8796,
+        "Interests": 27323,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 6129,
+        "FocalDeclarationWins": 4763,
+        "RawPayout": -14970,
+        "ByContractRole": {
+          "all-pass": {
+            "Games": 8796,
+            "Wins": 0,
+            "Payout": 0,
+            "MeanPayout": 0
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 4104,
+            "Wins": 780,
+            "Payout": -71420,
+            "MeanPayout": -17.40253411306043
+          },
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 2088,
+            "Wins": 1750,
+            "Payout": 35850,
+            "MeanPayout": 17.169540229885058
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 2033,
+            "Wins": 1645,
+            "Payout": 35760,
+            "MeanPayout": 17.589768814559765
+          },
+          "Solo/Herz/normal/declarer": {
+            "Games": 365,
+            "Wins": 197,
+            "Payout": 3780,
+            "MeanPayout": 10.356164383561644
+          },
+          "Ruf/Eichel/normal/defender": {
+            "Games": 2307,
+            "Wins": 439,
+            "Payout": -38190,
+            "MeanPayout": -16.553966189856958
+          },
+          "Ruf/Eichel/normal/declarer": {
+            "Games": 1160,
+            "Wins": 931,
+            "Payout": 18810,
+            "MeanPayout": 16.21551724137931
+          },
+          "Ruf/Eichel/normal/partner": {
+            "Games": 1141,
+            "Wins": 916,
+            "Payout": 19110,
+            "MeanPayout": 16.74846625766871
+          },
+          "Solo/Herz/normal/defender": {
+            "Games": 525,
+            "Wins": 202,
+            "Payout": -4010,
+            "MeanPayout": -7.6380952380952385
+          },
+          "Ruf/Gras/normal/defender": {
+            "Games": 3470,
+            "Wins": 702,
+            "Payout": -55060,
+            "MeanPayout": -15.867435158501442
+          },
+          "Ruf/Gras/normal/declarer": {
+            "Games": 1729,
+            "Wins": 1411,
+            "Payout": 26580,
+            "MeanPayout": 15.373048004626952
+          },
+          "Ruf/Gras/normal/partner": {
+            "Games": 1736,
+            "Wins": 1377,
+            "Payout": 27390,
+            "MeanPayout": 15.777649769585253
+          },
+          "Wenz/None/normal/declarer": {
+            "Games": 265,
+            "Wins": 174,
+            "Payout": 12270,
+            "MeanPayout": 46.301886792452834
+          },
+          "Solo/Eichel/normal/defender": {
+            "Games": 383,
+            "Wins": 166,
+            "Payout": -1990,
+            "MeanPayout": -5.195822454308094
+          },
+          "Solo/Eichel/normal/declarer": {
+            "Games": 186,
+            "Wins": 87,
+            "Payout": 60,
+            "MeanPayout": 0.3225806451612903
+          },
+          "Solo/Schellen/normal/declarer": {
+            "Games": 171,
+            "Wins": 109,
+            "Payout": 3990,
+            "MeanPayout": 23.333333333333332
+          },
+          "Solo/Gras/normal/defender": {
+            "Games": 413,
+            "Wins": 98,
+            "Payout": -7510,
+            "MeanPayout": -18.18401937046005
+          },
+          "Solo/Gras/normal/declarer": {
+            "Games": 165,
+            "Wins": 104,
+            "Payout": 4680,
+            "MeanPayout": 28.363636363636363
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 513,
+            "Wins": 53,
+            "Payout": -17660,
+            "MeanPayout": -34.42495126705653
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 450,
+            "Wins": 104,
+            "Payout": -7410,
+            "MeanPayout": -16.466666666666665
+          }
+        }
+      },
+      "ReferenceTotals": {
+        "Games": 32000,
+        "AllPass": 8796,
+        "Interests": 27323,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 6129,
+        "FocalDeclarationWins": 4594,
+        "RawPayout": -43030,
+        "ByContractRole": {
+          "all-pass": {
+            "Games": 8796,
+            "Wins": 0,
+            "Payout": 0,
+            "MeanPayout": 0
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 4104,
+            "Wins": 598,
+            "Payout": -77410,
+            "MeanPayout": -18.862085769980506
+          },
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 2088,
+            "Wins": 1712,
+            "Payout": 35550,
+            "MeanPayout": 17.025862068965516
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 2033,
+            "Wins": 1669,
+            "Payout": 35290,
+            "MeanPayout": 17.35858337432366
+          },
+          "Solo/Herz/normal/declarer": {
+            "Games": 365,
+            "Wins": 153,
+            "Payout": -3510,
+            "MeanPayout": -9.616438356164384
+          },
+          "Ruf/Eichel/normal/defender": {
+            "Games": 2307,
+            "Wins": 397,
+            "Payout": -39380,
+            "MeanPayout": -17.06978760294755
+          },
+          "Ruf/Eichel/normal/declarer": {
+            "Games": 1160,
+            "Wins": 922,
+            "Payout": 18470,
+            "MeanPayout": 15.922413793103448
+          },
+          "Ruf/Eichel/normal/partner": {
+            "Games": 1141,
+            "Wins": 906,
+            "Payout": 17870,
+            "MeanPayout": 15.661700262927257
+          },
+          "Solo/Herz/normal/defender": {
+            "Games": 525,
+            "Wins": 204,
+            "Payout": -3750,
+            "MeanPayout": -7.142857142857143
+          },
+          "Ruf/Gras/normal/defender": {
+            "Games": 3470,
+            "Wins": 622,
+            "Payout": -57910,
+            "MeanPayout": -16.688760806916427
+          },
+          "Ruf/Gras/normal/declarer": {
+            "Games": 1729,
+            "Wins": 1396,
+            "Payout": 26780,
+            "MeanPayout": 15.488721804511279
+          },
+          "Ruf/Gras/normal/partner": {
+            "Games": 1736,
+            "Wins": 1372,
+            "Payout": 26910,
+            "MeanPayout": 15.501152073732719
+          },
+          "Wenz/None/normal/declarer": {
+            "Games": 265,
+            "Wins": 172,
+            "Payout": 12600,
+            "MeanPayout": 47.54716981132076
+          },
+          "Solo/Eichel/normal/defender": {
+            "Games": 383,
+            "Wins": 149,
+            "Payout": -2890,
+            "MeanPayout": -7.545691906005222
+          },
+          "Solo/Eichel/normal/declarer": {
+            "Games": 186,
+            "Wins": 70,
+            "Payout": -2460,
+            "MeanPayout": -13.225806451612904
+          },
+          "Solo/Schellen/normal/declarer": {
+            "Games": 171,
+            "Wins": 93,
+            "Payout": 1860,
+            "MeanPayout": 10.87719298245614
+          },
+          "Solo/Gras/normal/defender": {
+            "Games": 413,
+            "Wins": 107,
+            "Payout": -7080,
+            "MeanPayout": -17.142857142857142
+          },
+          "Solo/Gras/normal/declarer": {
+            "Games": 165,
+            "Wins": 76,
+            "Payout": 750,
+            "MeanPayout": 4.545454545454546
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 513,
+            "Wins": 66,
+            "Payout": -17200,
+            "MeanPayout": -33.528265107212476
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 450,
+            "Wins": 102,
+            "Payout": -7520,
+            "MeanPayout": -16.711111111111112
+          }
+        }
+      }
+    },
+    "natural-balanced": {
+      "SchemaVersion": 1,
+      "RulesVersion": "schafkopf-long-v1",
+      "SeedScheduleVersion": "splitmix64-partition-v1",
+      "Runtime": ".NET 10.0.15",
+      "BuildSdk": "10.0.404",
+      "OS": "Ubuntu 24.04.5 LTS",
+      "SourceCommit": "f7b94c3be755c64237815c19d50f78fe3fbe373e",
+      "SourceDirty": true,
+      "CreatedAtUtc": "2026-11-20T22:01:27.4933246+00:00",
+      "Options": {
+        "Seeds": 2000,
+        "StartIndex": 2000000,
+        "MasterSeed": 20261120,
+        "Split": "Confirmation",
+        "Candidate": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json",
+        "Reference": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json",
+        "Opponents": [
+          "balanced",
+          "balanced",
+          "balanced"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": null
+      },
+      "PolicyVersions": {
+        "balanced": "heuristic-v1/balanced",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json": "neural/09f108110213f1eb5fec2a281dac4c4ebd9b1f73cf08c458aec2f40545c8122c"
+      },
+      "SelectionMode": "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+      "CompletedGames": 64000,
+      "SkippedSeeds": 0,
+      "ElapsedSeconds": 22.7861439,
+      "ActionChecksum": "608DFD683A415B11",
+      "CandidatePayout": {
+        "IndependentSeeds": 2000,
+        "Mean": 0.7334375,
+        "Lower95": 0.341875,
+        "Upper95": 1.1455234374999987
+      },
+      "ReferencePayout": {
+        "IndependentSeeds": 2000,
+        "Mean": -0.3496875,
+        "Lower95": -0.730953125,
+        "Upper95": 0.04908593749999987
+      },
+      "PairedImprovement": {
+        "IndependentSeeds": 2000,
+        "Mean": 1.083125,
+        "Lower95": 0.8080859375,
+        "Upper95": 1.3709453125
+      },
+      "CandidateTotals": {
+        "Games": 32000,
+        "AllPass": 1167,
+        "Interests": 47591,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 4435,
+        "FocalDeclarationWins": 3501,
+        "RawPayout": 23470,
+        "ByContractRole": {
+          "Ruf/Gras/normal/defender": {
+            "Games": 4238,
+            "Wins": 1178,
+            "Payout": -45930,
+            "MeanPayout": -10.837659273242096
+          },
+          "Ruf/Gras/normal/partner": {
+            "Games": 2186,
+            "Wins": 1657,
+            "Payout": 30710,
+            "MeanPayout": 14.048490393412626
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 2822,
+            "Wins": 2155,
+            "Payout": 41390,
+            "MeanPayout": 14.66690290574061
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 5361,
+            "Wins": 1507,
+            "Payout": -60890,
+            "MeanPayout": -11.35795560529752
+          },
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 1373,
+            "Wins": 1175,
+            "Payout": 24270,
+            "MeanPayout": 17.676620538965768
+          },
+          "all-pass": {
+            "Games": 1167,
+            "Wins": 0,
+            "Payout": 0,
+            "MeanPayout": 0
+          },
+          "Ruf/Eichel/normal/defender": {
+            "Games": 2923,
+            "Wins": 791,
+            "Payout": -31950,
+            "MeanPayout": -10.930550803968526
+          },
+          "Solo/Herz/normal/declarer": {
+            "Games": 320,
+            "Wins": 195,
+            "Payout": 7020,
+            "MeanPayout": 21.9375
+          },
+          "Ruf/Eichel/normal/partner": {
+            "Games": 1511,
+            "Wins": 1152,
+            "Payout": 20900,
+            "MeanPayout": 13.831899404367968
+          },
+          "Solo/Eichel/normal/defender": {
+            "Games": 1430,
+            "Wins": 791,
+            "Payout": 2420,
+            "MeanPayout": 1.6923076923076923
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 1623,
+            "Wins": 807,
+            "Payout": -3310,
+            "MeanPayout": -2.03943314849045
+          },
+          "Solo/Herz/normal/defender": {
+            "Games": 1625,
+            "Wins": 967,
+            "Payout": 7130,
+            "MeanPayout": 4.387692307692308
+          },
+          "Ruf/Eichel/normal/declarer": {
+            "Games": 768,
+            "Wins": 640,
+            "Payout": 13150,
+            "MeanPayout": 17.122395833333332
+          },
+          "Ruf/Gras/normal/declarer": {
+            "Games": 1126,
+            "Wins": 947,
+            "Payout": 18360,
+            "MeanPayout": 16.30550621669627
+          },
+          "Solo/Gras/normal/defender": {
+            "Games": 1526,
+            "Wins": 719,
+            "Payout": -4480,
+            "MeanPayout": -2.9357798165137616
+          },
+          "Solo/Gras/normal/declarer": {
+            "Games": 194,
+            "Wins": 126,
+            "Payout": 6480,
+            "MeanPayout": 33.402061855670105
+          },
+          "Wenz/None/normal/declarer": {
+            "Games": 247,
+            "Wins": 173,
+            "Payout": 13590,
+            "MeanPayout": 55.020242914979754
+          },
+          "Solo/Eichel/normal/declarer": {
+            "Games": 202,
+            "Wins": 106,
+            "Payout": 1980,
+            "MeanPayout": 9.801980198019802
+          },
+          "Solo/Schellen/normal/declarer": {
+            "Games": 205,
+            "Wins": 139,
+            "Payout": 7260,
+            "MeanPayout": 35.41463414634146
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 1153,
+            "Wins": 289,
+            "Payout": -24630,
+            "MeanPayout": -21.361665221162184
+          }
+        }
+      },
+      "ReferenceTotals": {
+        "Games": 32000,
+        "AllPass": 1167,
+        "Interests": 47591,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 4435,
+        "FocalDeclarationWins": 3336,
+        "RawPayout": -11190,
+        "ByContractRole": {
+          "Ruf/Gras/normal/defender": {
+            "Games": 4238,
+            "Wins": 1064,
+            "Payout": -50000,
+            "MeanPayout": -11.798017932987259
+          },
+          "Ruf/Gras/normal/partner": {
+            "Games": 2186,
+            "Wins": 1695,
+            "Payout": 30990,
+            "MeanPayout": 14.176578225068619
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 2822,
+            "Wins": 2208,
+            "Payout": 42520,
+            "MeanPayout": 15.067328136073707
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 5361,
+            "Wins": 1238,
+            "Payout": -70320,
+            "MeanPayout": -13.116955791829882
+          },
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 1373,
+            "Wins": 1151,
+            "Payout": 24140,
+            "MeanPayout": 17.581937363437728
+          },
+          "all-pass": {
+            "Games": 1167,
+            "Wins": 0,
+            "Payout": 0,
+            "MeanPayout": 0
+          },
+          "Ruf/Eichel/normal/defender": {
+            "Games": 2923,
+            "Wins": 704,
+            "Payout": -34770,
+            "MeanPayout": -11.89531303455354
+          },
+          "Solo/Herz/normal/declarer": {
+            "Games": 320,
+            "Wins": 147,
+            "Payout": -1230,
+            "MeanPayout": -3.84375
+          },
+          "Ruf/Eichel/normal/partner": {
+            "Games": 1511,
+            "Wins": 1176,
+            "Payout": 20520,
+            "MeanPayout": 13.58041032428855
+          },
+          "Solo/Eichel/normal/defender": {
+            "Games": 1430,
+            "Wins": 764,
+            "Payout": 1060,
+            "MeanPayout": 0.7412587412587412
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 1623,
+            "Wins": 802,
+            "Payout": -3390,
+            "MeanPayout": -2.088724584103512
+          },
+          "Solo/Herz/normal/defender": {
+            "Games": 1625,
+            "Wins": 958,
+            "Payout": 6630,
+            "MeanPayout": 4.08
+          },
+          "Ruf/Eichel/normal/declarer": {
+            "Games": 768,
+            "Wins": 624,
+            "Payout": 12430,
+            "MeanPayout": 16.184895833333332
+          },
+          "Ruf/Gras/normal/declarer": {
+            "Games": 1126,
+            "Wins": 927,
+            "Payout": 18280,
+            "MeanPayout": 16.234458259325045
+          },
+          "Solo/Gras/normal/defender": {
+            "Games": 1526,
+            "Wins": 732,
+            "Payout": -4480,
+            "MeanPayout": -2.9357798165137616
+          },
+          "Solo/Gras/normal/declarer": {
+            "Games": 194,
+            "Wins": 108,
+            "Payout": 3630,
+            "MeanPayout": 18.711340206185568
+          },
+          "Wenz/None/normal/declarer": {
+            "Games": 247,
+            "Wins": 163,
+            "Payout": 12000,
+            "MeanPayout": 48.582995951417004
+          },
+          "Solo/Eichel/normal/declarer": {
+            "Games": 202,
+            "Wins": 92,
+            "Payout": -270,
+            "MeanPayout": -1.3366336633663367
+          },
+          "Solo/Schellen/normal/declarer": {
+            "Games": 205,
+            "Wins": 124,
+            "Payout": 5400,
+            "MeanPayout": 26.341463414634145
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 1153,
+            "Wins": 304,
+            "Payout": -24330,
+            "MeanPayout": -21.101474414570685
+          }
+        }
+      }
+    },
+    "controlled-3": {
+      "SchemaVersion": 1,
+      "RulesVersion": "schafkopf-long-v1",
+      "SeedScheduleVersion": "splitmix64-partition-v1",
+      "Runtime": ".NET 10.0.15",
+      "BuildSdk": "10.0.404",
+      "OS": "Ubuntu 24.04.5 LTS",
+      "SourceCommit": "f7b94c3be755c64237815c19d50f78fe3fbe373e",
+      "SourceDirty": true,
+      "CreatedAtUtc": "2026-11-20T22:01:31.3154442+00:00",
+      "Options": {
+        "Seeds": 500,
+        "StartIndex": 2000000,
+        "MasterSeed": 20261120,
+        "Split": "Confirmation",
+        "Candidate": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json",
+        "Reference": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": 3
+      },
+      "PolicyVersions": {
+        "conservative": "heuristic-v1/conservative",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json": "neural/09f108110213f1eb5fec2a281dac4c4ebd9b1f73cf08c458aec2f40545c8122c"
+      },
+      "SelectionMode": "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+      "CompletedGames": 9760,
+      "SkippedSeeds": 195,
+      "ElapsedSeconds": 3.6613472,
+      "ActionChecksum": "ED0287D3A68E31DF",
+      "CandidatePayout": {
+        "IndependentSeeds": 305,
+        "Mean": -0.35860655737704916,
+        "Lower95": -0.8156762295081966,
+        "Upper95": 0.07382172131147513
+      },
+      "ReferencePayout": {
+        "IndependentSeeds": 305,
+        "Mean": -0.7725409836065574,
+        "Lower95": -1.1947233606557377,
+        "Upper95": -0.430327868852459
+      },
+      "PairedImprovement": {
+        "IndependentSeeds": 305,
+        "Mean": 0.4139344262295082,
+        "Lower95": -0.03483606557377049,
+        "Upper95": 0.8463627049180326
+      },
+      "CandidateTotals": {
+        "Games": 4880,
+        "AllPass": 0,
+        "Interests": 4880,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 1220,
+        "FocalDeclarationWins": 623,
+        "RawPayout": -1750,
+        "ByContractRole": {
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 1220,
+            "Wins": 623,
+            "Payout": 1420,
+            "MeanPayout": 1.1639344262295082
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 2440,
+            "Wins": 1178,
+            "Payout": -3820,
+            "MeanPayout": -1.5655737704918034
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 1220,
+            "Wins": 604,
+            "Payout": 650,
+            "MeanPayout": 0.5327868852459017
+          }
+        }
+      },
+      "ReferenceTotals": {
+        "Games": 4880,
+        "AllPass": 0,
+        "Interests": 4880,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 1220,
+        "FocalDeclarationWins": 628,
+        "RawPayout": -3770,
+        "ByContractRole": {
+          "Ruf/Schellen/normal/declarer": {
+            "Games": 1220,
+            "Wins": 628,
+            "Payout": 1710,
+            "MeanPayout": 1.401639344262295
+          },
+          "Ruf/Schellen/normal/defender": {
+            "Games": 2440,
+            "Wins": 1113,
+            "Payout": -6750,
+            "MeanPayout": -2.7663934426229506
+          },
+          "Ruf/Schellen/normal/partner": {
+            "Games": 1220,
+            "Wins": 617,
+            "Payout": 1270,
+            "MeanPayout": 1.040983606557377
+          }
+        }
+      }
+    },
+    "controlled-6": {
+      "SchemaVersion": 1,
+      "RulesVersion": "schafkopf-long-v1",
+      "SeedScheduleVersion": "splitmix64-partition-v1",
+      "Runtime": ".NET 10.0.15",
+      "BuildSdk": "10.0.404",
+      "OS": "Ubuntu 24.04.5 LTS",
+      "SourceCommit": "f7b94c3be755c64237815c19d50f78fe3fbe373e",
+      "SourceDirty": true,
+      "CreatedAtUtc": "2026-11-20T22:01:36.7872773+00:00",
+      "Options": {
+        "Seeds": 500,
+        "StartIndex": 2000000,
+        "MasterSeed": 20261120,
+        "Split": "Confirmation",
+        "Candidate": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json",
+        "Reference": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": 6
+      },
+      "PolicyVersions": {
+        "conservative": "heuristic-v1/conservative",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json": "neural/09f108110213f1eb5fec2a281dac4c4ebd9b1f73cf08c458aec2f40545c8122c"
+      },
+      "SelectionMode": "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+      "CompletedGames": 16000,
+      "SkippedSeeds": 0,
+      "ElapsedSeconds": 5.3247694,
+      "ActionChecksum": "3E1FE4690C9CA56F",
+      "CandidatePayout": {
+        "IndependentSeeds": 500,
+        "Mean": -2.9325,
+        "Lower95": -3.4763124999999997,
+        "Upper95": -2.4322500000000016
+      },
+      "ReferencePayout": {
+        "IndependentSeeds": 500,
+        "Mean": -2.3025,
+        "Lower95": -2.82628125,
+        "Upper95": -1.74875
+      },
+      "PairedImprovement": {
+        "IndependentSeeds": 500,
+        "Mean": -0.63,
+        "Lower95": -1.257625,
+        "Upper95": -0.05371875000000017
+      },
+      "CandidateTotals": {
+        "Games": 8000,
+        "AllPass": 0,
+        "Interests": 8000,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 2000,
+        "FocalDeclarationWins": 83,
+        "RawPayout": -23460,
+        "ByContractRole": {
+          "Wenz/None/normal/declarer": {
+            "Games": 2000,
+            "Wins": 83,
+            "Payout": -269160,
+            "MeanPayout": -134.58
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 6000,
+            "Wins": 5572,
+            "Payout": 245700,
+            "MeanPayout": 40.95
+          }
+        }
+      },
+      "ReferenceTotals": {
+        "Games": 8000,
+        "AllPass": 0,
+        "Interests": 8000,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 2000,
+        "FocalDeclarationWins": 91,
+        "RawPayout": -18420,
+        "ByContractRole": {
+          "Wenz/None/normal/declarer": {
+            "Games": 2000,
+            "Wins": 91,
+            "Payout": -267420,
+            "MeanPayout": -133.71
+          },
+          "Wenz/None/normal/defender": {
+            "Games": 6000,
+            "Wins": 5601,
+            "Payout": 249000,
+            "MeanPayout": 41.5
+          }
+        }
+      }
+    },
+    "controlled-8": {
+      "SchemaVersion": 1,
+      "RulesVersion": "schafkopf-long-v1",
+      "SeedScheduleVersion": "splitmix64-partition-v1",
+      "Runtime": ".NET 10.0.15",
+      "BuildSdk": "10.0.404",
+      "OS": "Ubuntu 24.04.5 LTS",
+      "SourceCommit": "f7b94c3be755c64237815c19d50f78fe3fbe373e",
+      "SourceDirty": true,
+      "CreatedAtUtc": "2026-11-20T22:01:42.4482806+00:00",
+      "Options": {
+        "Seeds": 500,
+        "StartIndex": 2000000,
+        "MasterSeed": 20261120,
+        "Split": "Confirmation",
+        "Candidate": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json",
+        "Reference": "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": 8
+      },
+      "PolicyVersions": {
+        "conservative": "heuristic-v1/conservative",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/best/pair.json": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "neural:/home/pax77/.local/share/pax-schafkopf/evaluations/serious-20261120/initial/pair.json": "neural/09f108110213f1eb5fec2a281dac4c4ebd9b1f73cf08c458aec2f40545c8122c"
+      },
+      "SelectionMode": "heuristic: deterministic, action-ID tie-break; neural: masked argmax, action-ID tie-break; random: uniform legal, seeded SplitMix64",
+      "CompletedGames": 16000,
+      "SkippedSeeds": 0,
+      "ElapsedSeconds": 5.5120774,
+      "ActionChecksum": "D4A16097521702EB",
+      "CandidatePayout": {
+        "IndependentSeeds": 500,
+        "Mean": -1.23,
+        "Lower95": -1.79634375,
+        "Upper95": -0.67
+      },
+      "ReferencePayout": {
+        "IndependentSeeds": 500,
+        "Mean": -1.93625,
+        "Lower95": -2.39,
+        "Upper95": -1.50625
+      },
+      "PairedImprovement": {
+        "IndependentSeeds": 500,
+        "Mean": 0.70625,
+        "Lower95": 0.16993750000000002,
+        "Upper95": 1.27125
+      },
+      "CandidateTotals": {
+        "Games": 8000,
+        "AllPass": 0,
+        "Interests": 8000,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 2000,
+        "FocalDeclarationWins": 109,
+        "RawPayout": -9840,
+        "ByContractRole": {
+          "Solo/Schellen/normal/declarer": {
+            "Games": 2000,
+            "Wins": 109,
+            "Payout": -284820,
+            "MeanPayout": -142.41
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 6000,
+            "Wins": 5614,
+            "Payout": 274980,
+            "MeanPayout": 45.83
+          }
+        }
+      },
+      "ReferenceTotals": {
+        "Games": 8000,
+        "AllPass": 0,
+        "Interests": 8000,
+        "ToutGames": 0,
+        "ToutWins": 0,
+        "FocalDeclarations": 2000,
+        "FocalDeclarationWins": 89,
+        "RawPayout": -15490,
+        "ByContractRole": {
+          "Solo/Schellen/normal/declarer": {
+            "Games": 2000,
+            "Wins": 89,
+            "Payout": -290820,
+            "MeanPayout": -145.41
+          },
+          "Solo/Schellen/normal/defender": {
+            "Games": 6000,
+            "Wins": 5600,
+            "Payout": 275330,
+            "MeanPayout": 45.888333333333335
+          }
+        }
+      }
+    }
+  },
+  "experimental": true,
+  "live_promoted": false,
+  "verification": {
+    "csharp_tests_passed": 108,
+    "python_tests_passed": 16,
+    "evaluation_illegal_actions": 0,
+    "limitations": "Compute latency only, not a live-table soak. No public-release or expert-strength claim; controlled Wenz regressed.",
+    "local_play": {
+      "server_policy": {
+        "policy": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+        "trained": true,
+        "fallbackCount": 0
+      },
+      "web_url": "http://localhost:5027",
+      "restart_approved_by_user": true
+    }
+  }
+}

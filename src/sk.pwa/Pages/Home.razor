@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using sk.pwa.Services
 @using sk.shared
 @using sk.shared.Interfaces
@@ -7,200 +7,115 @@
 @inject ConnectInfoState ConnectState
 @inject IGameHubClient GameHubClient
 @inject NavigationManager NavigationManager
-@inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JSRuntime
-@inject ILogger<Home> Logger
 @implements IDisposable
 
-<PageTitle>pax.schafkopf</PageTitle>
+<PageTitle>Schafkopf · Die digitale Wirtsstube</PageTitle>
 
-@if (ConnectState.Current == null)
+@if (GameHubClient.GameState is not null && ConnectState.Current is not null)
 {
-    @* Step 1: User needs to identify themselves *@
-    <div class="text-center">
-        <h3>Welcome to Schafkopf</h3>
-        <button class="btn btn-primary btn-lg" @onclick="ShowConnect">Set Nickname</button>
-    </div>
+    <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" />
 }
 else
 {
-    @if (GameHubClient.GameState == null)
-    {
-        <div>
-            @* Step 2: User is identified but not in a game *@
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card card-body">
-                        <h4>Start Fresh</h4>
-                        <button class="btn btn-success" disabled="@starting" @onclick="CreateGame">
-                            Create New Table
-                        </button>
-                    </div>
-                </div>
-                @if (!string.IsNullOrEmpty(TableId))
+    <main class="lobby-shell" tabindex="-1">
+        <header class="lobby-header">
+            <a class="wordmark" href="/"><span class="brand-acorn" aria-hidden="true">♧</span> Schafkopf<span class="brand-sub">DIE DIGITALE WIRTSSTUBE</span></a>
+            <span class="lobby-note">Bayerisches Blatt.<br />Beste Gesellschaft.</span>
+        </header>
+        <div class="lobby-main">
+            <section class="lobby-copy">
+                <span class="eyebrow">HEREINSPAZIERT.</span>
+                <h1>Ein gutes Blatt.<br /><em>Ein guter Abend.</em></h1>
+                <p>Ein Stammtisch ist überall, wo wir zusammenkommen. Spiel Schafkopf mit Freunden oder nimm mit unseren Bots Platz.</p>
+                <div class="lobby-features"><span><i class="bi bi-people" aria-hidden="true"></i> Vier am Tisch</span><span><i class="bi bi-suit-club" aria-hidden="true"></i> 32 Karten</span><span><i class="bi bi-heart" aria-hidden="true"></i> Echt bayerisch</span></div>
+                <div class="lobby-deck" aria-hidden="true"><div class="skcard card-Ober-Eichel"></div><div class="skcard card-Ace-Herz"></div><div class="skcard card-King-Schellen"></div></div>
+            </section>
+            <section class="lobby-card" aria-label="Am Tisch Platz nehmen">
+                @if (ConnectState.Current is null)
                 {
-                    <div class="col-md-6">
-                        <div class="card card-body border-primary">
-                            <h4>Invitation Found</h4>
-                            <p>You've been invited to a game!</p>
-                            <button class="btn btn-primary" disabled="@starting" @onclick="JoinGame">
-                                Join Invited Game
-                            </button>
-                        </div>
-                    </div>
+                    <span class="eyebrow">DEIN PLATZ IST NOCH FREI</span>
+                    <h2>Servus am Stammtisch.</h2>
+                    <p>Alles, was noch fehlt, ist dein Name. Dann kann die erste Runde losgehen.</p>
+                    <button class="btn btn-primary mt-3" @onclick="ShowConnect">Platz nehmen <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
                 }
                 else
                 {
-                    <div class="col-md-6">
-                        <div class="card card-body">
-                            <h4>Join Existing Game</h4>
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" placeholder="Enter Table ID" @bind="_inputTableId" />
-                                <button class="btn btn-primary" disabled="@(starting || string.IsNullOrEmpty(_inputTableId))"
-                                        @onclick="JoinGameFromInput">
-                                    Join Game
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <span class="eyebrow">SCHÖN, DASS DU DA BIST</span>
+                    <h2>Servus, @ConnectState.Current.UserName.</h2>
+                    <p>Mach einen neuen Tisch auf oder setz dich zu deinen Freunden.</p>
+                    <button class="btn btn-primary mt-2" disabled="@starting" @onclick="CreateGame">Neuen Tisch eröffnen <i class="bi bi-plus-lg ms-2" aria-hidden="true"></i></button>
+                    <div class="lobby-divider">ODER DAZUSETZEN</div>
+                    @if (!string.IsNullOrWhiteSpace(TableId))
+                    {
+                        <p>Ein Platz wartet auf dich. Du hast eine Einladung für Tisch <strong>@TableId</strong>.</p>
+                        <button class="btn btn-outline-primary" disabled="@starting" @onclick="JoinGame">Einladung annehmen</button>
+                    }
+                    else
+                    {
+                        <label class="form-label" for="table-code">Tischcode deiner Freunde</label>
+                        <input class="form-control mb-3" id="table-code" placeholder="Tischcode eingeben" autocomplete="off" @bind="_inputTableId" @bind:event="oninput" />
+                        <button class="btn btn-outline-primary" disabled="@(starting || string.IsNullOrWhiteSpace(_inputTableId))" @onclick="JoinGameFromInput">An den Tisch setzen</button>
+                    }
                 }
-            </div>
+                @if (starting) { <p class="mt-3 mb-0" role="status">Der Tisch wird vorbereitet …</p> }
+                @if (error is not null) { <p class="text-danger mt-3 mb-0" role="alert">@error</p> }
+            </section>
         </div>
-    }
-    else
-    {
-        @* Step 3: Active Game *@
-        <TableComponent Player="CurrentPlayer" OnTableLeft="LeaveTable" />
-    }
+        <footer class="lobby-footer"><span>Mit Herz gespielt. Mit Freunden geteilt.</span><span>pax.schafkopf</span></footer>
+    </main>
 }
 <ConnectModal @ref="connectModal" OnConnect="Connect" />
 
 @code {
-    [SupplyParameterFromQuery]
-    public string? TableId { get; set; }
-
-    ConnectModal? connectModal;
+    [SupplyParameterFromQuery] public string? TableId { get; set; }
+    private ConnectModal? connectModal;
     private bool starting;
-    private string? _inputTableId;
-
-    private Player CurrentPlayer => new()
-    {
-        Name = ConnectState.Current?.UserName ?? "Anonymous",
-        Guid = ConnectState.Current?.Guid ?? Guid.Empty
-    };
+    private string? _inputTableId, error;
+    private Player CurrentPlayer => new() { Name = ConnectState.Current?.UserName ?? "Gast", Guid = ConnectState.Current?.Guid ?? Guid.Empty };
 
     protected override async Task OnInitializedAsync()
     {
         GameHubClient.OnGameInitialized += GameReadyHandler;
         await ConnectState.LoadAsync();
-
-        if (ConnectState.Current == null)
-        {
-            connectModal?.Show(new());
-        }
     }
-
-    private void GameReadyHandler() => _ = GameReady();
-
+    private void GameReadyHandler() => _ = InvokeAsync(GameReady);
     private async Task Connect(ConnectInfo info)
     {
         await ConnectState.SaveAsync(info);
         await InvokeAsync(StateHasChanged);
     }
-
     private async Task GameReady()
     {
-        if (!starting)
-        {
-            return;
-        }
-        if (GameHubClient.GameState != null)
-        {
-            var newId = GameHubClient.GameState.ShortCode;
-            var url = NavigationManager.GetUriWithQueryParameters(
-    new Dictionary<string, object?> { ["TableId"] = newId });
-
-            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
-        }
+        if (GameHubClient.GameState is { } state)
+            await JSRuntime.InvokeVoidAsync("updateUrlSilently", NavigationManager.GetUriWithQueryParameters(
+                new Dictionary<string, object?> { ["TableId"] = state.ShortCode }));
         starting = false;
-        await InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
-
-    async Task CreateGame()
+    private async Task BeginAsync(Func<Task> action)
     {
-        if (starting)
-        {
-            return;
-        }
+        if (starting) return;
         starting = true;
-        await GameHubClient.StartAsync(CurrentPlayer, Guid.Empty);
-        if (GameHubClient.GameState != null)
+        error = null;
+        try
         {
-            var newId = GameHubClient.GameState.ShortCode;
-            var url = NavigationManager.GetUriWithQueryParameters(
-    new Dictionary<string, object?> { ["TableId"] = newId });
-
-            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
+            await action();
+            if (GameHubClient.GameState is null) error = "Der Tisch ist gerade nicht erreichbar. Bitte versuche es erneut.";
         }
+        catch { error = "Der Tisch konnte nicht geöffnet werden. Prüfe den Tischcode und versuche es erneut."; }
+        finally { starting = false; }
     }
-
-    async Task JoinGame()
-    {
-        if (starting)
-        {
-            return;
-        }
-        starting = true;
-        if (Guid.TryParse(TableId, out var id))
-        {
-            await GameHubClient.StartAsync(CurrentPlayer, id);
-        }
-        else if (!string.IsNullOrEmpty(TableId))
-        {
-            await GameHubClient.JoinByCode(CurrentPlayer, TableId);
-        }
-    }
-
-    async Task JoinGameFromInput()
-    {
-        if (starting || string.IsNullOrEmpty(_inputTableId))
-        {
-            return;
-        }
-        starting = true;
-        await GameHubClient.JoinByCode(CurrentPlayer, _inputTableId);
-
-        if (GameHubClient.GameState != null)
-        {
-            var newId = GameHubClient.GameState.ShortCode;
-            var url = NavigationManager.GetUriWithQueryParameters(
-                new Dictionary<string, object?> { ["TableId"] = newId });
-
-            await JSRuntime.InvokeVoidAsync("updateUrlSilently", url);
-        }
-        starting = false;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    async Task LeaveTable()
+    private Task CreateGame() => BeginAsync(() => GameHubClient.StartAsync(CurrentPlayer, Guid.Empty));
+    private Task JoinGame() => BeginAsync(() => Guid.TryParse(TableId, out var id)
+        ? GameHubClient.StartAsync(CurrentPlayer, id) : GameHubClient.JoinByCode(CurrentPlayer, TableId!.Trim()));
+    private Task JoinGameFromInput() => BeginAsync(() => GameHubClient.JoinByCode(CurrentPlayer, _inputTableId!.Trim()));
+    private async Task LeaveTable()
     {
         TableId = null;
         await JSRuntime.InvokeVoidAsync("updateUrlSilently", NavigationManager.BaseUri);
         await InvokeAsync(StateHasChanged);
     }
-
-    private Uri GetBaseAddress()
-    {
-        using var httpClient = HttpClientFactory.CreateClient("api");
-        var baseUri = httpClient.BaseAddress
-            ?? new Uri("http://localhost:5283");
-        return new Uri(baseUri, "/gameHub");
-    }
-
     private void ShowConnect() => connectModal?.Show(new());
-
-    public void Dispose()
-    {
-        GameHubClient.OnGameInitialized -= GameReadyHandler;
-    }
+    public void Dispose() => GameHubClient.OnGameInitialized -= GameReadyHandler;
 }

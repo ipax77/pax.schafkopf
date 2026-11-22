@@ -1,0 +1,39 @@
+@using sk.shared
+@using sk.weblib.Presentation
+
+<div class="trick-layout" id="@Id" aria-label="Stich">
+    @foreach (var player in Players)
+    {
+        var card = Cards.ElementAtOrDefault(player.ServerIndex);
+        <div class="trick-slot trick-slot-@player.ViewIndex @(Winner == player.ServerIndex ? "is-winner" : "")"
+             data-trick-seat="@player.ServerIndex" data-play-order="@Order(player.ServerIndex)" style="z-index:@Order(player.ServerIndex)">
+            <div class="trick-card-target">
+                @if (card is not null)
+                {
+                    <div @key="card" class="skcard @card.GetCssClass()" role="img" aria-label="@CardText.Label(card)"></div>
+                }
+            </div>
+            <span class="trick-player">@(card is not null ? player.TablePlayer.Player.Name : "")</span>
+        </div>
+    }
+    @if (Winner >= 0)
+    {
+        <div class="trick-caption" role="status"><span class="winner-mark">✓</span> @Players.FirstOrDefault(p => p.ServerIndex == Winner)?.TablePlayer.Player.Name <span>· @Points Augen</span></div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public Card?[] Cards { get; set; } = new Card?[4];
+    [Parameter] public List<PlayerViewInfo> Players { get; set; } = [];
+    [Parameter] public IReadOnlyList<int> PlayOrder { get; set; } = [];
+    [Parameter] public int Winner { get; set; } = -1;
+    [Parameter] public int Points { get; set; }
+
+    private int Order(int seat)
+    {
+        for (int i = 0; i < PlayOrder.Count; i++)
+            if (PlayOrder[i] == seat) return i + 1;
+        return 0;
+    }
+}

@@ -49,11 +49,8 @@ public class GameHub(GameHubService service) : Hub
             && Context.Items.TryGetValue("playerId", out var playerIdObj)
             && gameIdObj is Guid gameId && playerIdObj is Guid playerId)
         {
-            var gameReady = service.Ready(gameId, playerId);
-            if (gameReady)
-            {
-                await service.BroadcastGame(gameId);
-            }
+            service.Ready(gameId, playerId);
+            await service.BroadcastGame(gameId);
         }
     }
 
@@ -97,6 +94,8 @@ public class GameHub(GameHubService service) : Hub
             && p is Guid pGuid && g is Guid gGuid)
         {
             service.LeaveGame(gGuid, pGuid);
+            Context.Items.Remove("gameId");
+            Context.Items.Remove("playerId");
             await service.BroadcastGame((Guid)g);
         }
     }
@@ -107,11 +106,30 @@ public class GameHub(GameHubService service) : Hub
             Context.Items.TryGetValue("gameId", out var g)
             && p is Guid pGuid && g is Guid gGuid)
         {
-            service.DisconnectPlayer(gGuid, pGuid);
+            service.DisconnectPlayer(gGuid, pGuid, Context.ConnectionId);
             await service.BroadcastGame((Guid)g);
         }
 
         await base.OnDisconnectedAsync(exception);
     }
+
+    public async Task FillBotSeats()
+    {
+        var (gameId, playerId) = CurrentPlayer();
+        service.FillBotSeats(gameId, playerId);
+        await service.BroadcastGame(gameId);
+    }
+
+    public async Task RemoveBot(int position)
+    {
+        var (gameId, playerId) = CurrentPlayer();
+        service.RemoveBot(gameId, playerId, position);
+        await service.BroadcastGame(gameId);
+    }
+
+    private (Guid GameId, Guid PlayerId) CurrentPlayer() =>
+        Context.Items.TryGetValue("gameId", out var game) && game is Guid gameId &&
+        Context.Items.TryGetValue("playerId", out var player) && player is Guid playerId
+            ? (gameId, playerId) : throw new HubException("Join a table first");
 }
 

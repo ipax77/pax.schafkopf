@@ -21,5 +21,7 @@ public sealed class Table
             player.Reset();
         }
         CurrentTrickCard = null;
+        CurrentTrick = [null, null, null, null];
+        PreviouseTrick = null;
     }
 }

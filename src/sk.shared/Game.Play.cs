@@ -4,8 +4,16 @@ public partial class Game
 {
     public void PlayCard(int playerIndex, Card card)
     {
+        ArgumentNullException.ThrowIfNull(card);
+        if (GameState != GameState.Playing || Bidding2Result == null)
+            throw new InvalidOperationException("Not in playing phase.");
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
+        if (!Table.Players[playerIndex].GetValidCards(this).Contains(card))
+            throw new InvalidOperationException("Illegal card.");
+
+        Revision++;
+        _history.Add(new(playerIndex, GameAction.Play(card)));
 
         var rufAce = Bidding2Result?.GameType == GameType.Ruf
             ? new Card() { Rank = Rank.Ace, Suit = Bidding2Result!.Suit }
@@ -18,10 +26,11 @@ public partial class Game
 
         if (Table.CurrentTrick.All(a => a == null))
         {
-            if (rufAce != null && card.Suit == rufAce.Suit && !card.IsTrump(Bidding2Result!.GameType, Bidding2Result!.Suit)
+            if (rufAce != null && card != rufAce && card.Suit == rufAce.Suit && !card.IsTrump(Bidding2Result!.GameType, Bidding2Result!.Suit)
                 && Table.Players[playerIndex].Hand.Contains(rufAce))
             {
                 DrunterDurch = true;
+                PublicTeammate = playerIndex;
             }
 
             leadingPlayer = playerIndex;
@@ -46,35 +55,28 @@ public partial class Game
         Table.CurrentTrickCard = new() { Position = playerIndex, Card = card };
     }
 
-    public void CollectTrick()
+    private void CollectTrick()
     {
         ArgumentNullException.ThrowIfNull(Bidding2Result);
 
-        var trick = new List<(int Player, Card Card)>();
-
-        int player = leadingPlayer;
-
-        for (int i = 0; i < 4; i++)
+        var firstCard = Table.CurrentTrick[leadingPlayer]!;
+        int winner = leadingPlayer;
+        int bestRank = firstCard.GetCardRank(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
+        for (int i = 1; i < 4; i++)
         {
-            var card = Table.CurrentTrick[player];
-            ArgumentNullException.ThrowIfNull(card);
-
-            trick.Add((player, card));
-            player = (player + 1) % 4;
+            int player = (leadingPlayer + i) % 4;
+            var card = Table.CurrentTrick[player]!;
+            int rank = card.GetCardRank(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
+            if (rank > bestRank) { winner = player; bestRank = rank; }
         }
-
-        var firstCard = trick[0].Card;
-        var comparer = new TrickCardComparer(Bidding2Result.GameType, Bidding2Result.Suit, firstCard);
-        var winner = trick.OrderByDescending(o => o.Card, comparer).First();
-
-        // store trick in play order, not sorted order
-        foreach (var (_, card) in trick)
-            Table.Players[winner.Player].Tricks.Add(card);
+        // Keep play order for snapshots and the public trick history.
+        for (int i = 0; i < 4; i++)
+            Table.Players[winner].Tricks.Add(Table.CurrentTrick[(leadingPlayer + i) % 4]!);
 
         Table.PreviouseTrick = Table.CurrentTrick;
         Table.CurrentTrick = [null, null, null, null];
 
-        ActivePlayer = winner.Player;
+        ActivePlayer = winner;
     }
 
     private void AdvanceTurn()
@@ -87,15 +89,6 @@ public sealed class TrickCardComparer(GameType gameType, Suit trump, Card firstC
 {
     public int Compare(Card? a, Card? b)
     {
-        bool aTrump = a?.IsTrump(gameType, trump) ?? false;
-        bool bTrump = b?.IsTrump(gameType, trump) ?? false;
-
-        if (aTrump != bTrump)
-            return aTrump ? 1 : -1;
-
-        if (!aTrump && a?.Suit != b?.Suit)
-            return a?.Suit == firstCard.Suit ? 1 : -1;
-
         return (a?.GetCardRank(gameType, trump, firstCard) ?? 0)
             .CompareTo(b?.GetCardRank(gameType, trump, firstCard) ?? 0);
     }

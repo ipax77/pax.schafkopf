@@ -2,176 +2,139 @@ namespace sk.shared;
 
 public partial class Game
 {
-    private static readonly Rank[] Ranks =
-    [
-        Rank.Seven, Rank.Eight, Rank.Nine,
-        Rank.Unter, Rank.Ober,
-        Rank.King, Rank.Ten, Rank.Ace
-    ];
-
-    private static readonly Suit[] Suits =
-    [
-        Suit.Schellen, Suit.Herz, Suit.Gras, Suit.Eichel
-    ];
-
-    private static readonly List<Card> stdRunnerCards = [
-        new Card() { Rank = Rank.Ober, Suit = Suit.Eichel },
-        new Card() { Rank = Rank.Ober, Suit = Suit.Gras },
-        new Card() { Rank = Rank.Ober, Suit = Suit.Herz },
-        new Card() { Rank = Rank.Ober, Suit = Suit.Schellen },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Gras },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Herz },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Schellen },
-    ];
-
-    private static readonly List<Card> wenzRunnerCards = [
-        new Card() { Rank = Rank.Unter, Suit = Suit.Eichel },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Gras },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Herz },
-        new Card() { Rank = Rank.Unter, Suit = Suit.Schellen },
-    ];
-
     public bool TryStartGame()
     {
-        if (!Table.Players.All(a => a.IsConnected))
-        {
-            return false;
-        }
-        DealCards();
-        GameState = GameState.Bidding1;
+        if (GameState != GameState.None || !Table.Players.All(p =>
+            p.Player.Guid != Guid.Empty && (p.IsBot || p.IsConnected))) return false;
+        StartRound((ulong)Random.Shared.NextInt64(), Dealer);
         return true;
     }
 
-    public void DealCards()
-    {
-        var deck = CreateDeck().Shuffle();
-        var hands = deck.Chunk(8).ToArray();
+    public void DealCards() => DealCards((ulong)Random.Shared.NextInt64());
 
+    public void DealCards(ulong seed)
+    {
+        Span<int> deck = stackalloc int[32];
+        for (int i = 0; i < deck.Length; i++) deck[i] = i;
+        var rng = new DealRandom(seed);
+        for (int i = deck.Length - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (deck[i], deck[j]) = (deck[j], deck[i]);
+        }
         for (int i = 0; i < 4; i++)
         {
-            Table.Players[i].Hand = [.. hands[i]];
-            Table.Players[i].StartingHand = [.. hands[i]];
+            var hand = new List<Card>(8);
+            var startingHand = new List<Card>(8);
+            for (int j = 0; j < 8; j++)
+            {
+                var card = GameAction.FromCardId(deck[i * 8 + j]);
+                hand.Add(card);
+                startingHand.Add(card);
+            }
+            Table.Players[i].Hand = hand;
+            Table.Players[i].StartingHand = startingHand;
         }
-    }
-
-    private static Card[] CreateDeck()
-    {
-        var deck = new Card[32];
-        int i = 0;
-
-        foreach (var suit in Suits)
-            foreach (var rank in Ranks)
-                deck[i++] = new Card { Rank = rank, Suit = suit };
-
-        return deck;
     }
 
     public void CreateGameResult()
     {
-        var bidding = Bidding2Result;
-        if (bidding is null)
+        if (_settled) throw new InvalidOperationException("Round already settled.");
+        if (Bidding2Result == null)
         {
+            if (GameState != GameState.Finished || !_bidding1Decisions.All(d => d == Bidding1Decision.No))
+                throw new InvalidOperationException("Round is not complete.");
             GameResults.Add(new());
+            _settled = true;
             return;
         }
+        if (GameState != GameState.Playing || Turn != 8 || Table.Players.Any(p => p.Hand.Count != 0) ||
+            Table.Players.Sum(p => p.Tricks.Count) != 32)
+            throw new InvalidOperationException("Round is not complete.");
 
-        var gameType = bidding.GameType;
-        var suit = bidding.Suit;
-
-        var declarer = Table.Players[bidding.PlayerIndex];
-        var hand = new List<Card>(declarer.StartingHand);
-        var trickCards = new List<Card>(declarer.Tricks);
-
-        TablePlayer? partner = null;
-
-        if (PublicTeammate >= 0)
-        {
-            partner = Table.Players[PublicTeammate];
-            hand.AddRange(partner.StartingHand);
-            trickCards.AddRange(partner.Tricks);
-        }
-
-        var runnerCards = gameType == GameType.Wenz
-            ? wenzRunnerCards
-            : stdRunnerCards;
-
-        // Sort once by trump order
-        hand.Sort((a, b) =>
-            b.GetCardOrder(gameType, suit)
-             .CompareTo(a.GetCardOrder(gameType, suit)));
-
-        int runners = 0;
-        for (int i = 0; i < runnerCards.Count && i < hand.Count; i++)
-        {
-            if (runnerCards[i].Equals(hand[i]))
-                runners++;
-            else
-                break;
-        }
-
-        int playerPoints = trickCards.Sum(c => c.GetValue());
-        bool declarerWins = bidding.Tout ? playerPoints == 120 : playerPoints > 60;
-
+        var b = Bidding2Result;
+        var declarer = Table.Players[b.PlayerIndex];
+        // Determine the actual team from the original deal, independently of public revelation.
+        var partner = b.GameType == GameType.Ruf
+            ? Table.Players.Single(p => p.StartingHand.Contains(new Card { Rank = Rank.Ace, Suit = b.Suit })) : null;
+        var team = partner == null ? new[] { declarer } : new[] { declarer, partner };
+        var teamHand = team.SelectMany(p => p.StartingHand).ToList();
+        var taken = team.SelectMany(p => p.Tricks).ToList();
+        var (runners, without) = GameScoring.CountRunners(teamHand, b.GameType, b.Suit);
         var result = new GameResult
         {
-            GameType = gameType,
-            Suit = suit,
-            Tout = bidding.Tout,
-            Player = declarer.Player,
-            Player2 = partner?.Player,
-            Runners = runners,
-            PlayerPoints = playerPoints
+            GameType = b.GameType, Suit = b.Suit, Tout = b.Tout,
+            Player = CopyPlayer(declarer.Player), Player2 = partner == null ? null : CopyPlayer(partner.Player),
+            Runners = runners, WithoutRunners = without, PlayerPoints = taken.Sum(c => c.GetValue()), PlayerTricks = taken.Count / 4
         };
-
         result.SetGameCost();
-
-        List<TablePlayer> declarers = partner is null
-            ? [declarer]
-            : [declarer, partner];
-
-        var defenders = Table.Players
-            .Except(declarers)
-            .ToList();
-
-        if (partner is null)
+        for (int seat = 0; seat < 4; seat++)
         {
-            foreach (var d in defenders)
-                d.Cash += declarerWins ? -result.Cost : result.Cost;
-
-            declarer.Cash += declarerWins ? 3 * result.Cost : -3 * result.Cost;
+            bool inTeam = team.Contains(Table.Players[seat]);
+            int amount = result.Cost * (partner == null && inTeam ? 3 : 1);
+            _rewards[seat] = inTeam == result.DeclarerWins ? amount : -amount;
+            Table.Players[seat].Cash += _rewards[seat];
         }
-        else
-        {
-            // Ruf: 2 vs 2
-            foreach (var p in declarers)
-                p.Cash += declarerWins ? result.Cost : -result.Cost;
-
-            foreach (var d in defenders)
-                d.Cash += declarerWins ? -result.Cost : result.Cost;
-        }
-
         GameResults.Add(result);
+        _settled = true;
         GameState = GameState.Finished;
     }
 
-    public void Reset()
+    // Live tables retain their session ledger; headless resets discard it.
+    public void Reset() => StartRound((ulong)Random.Shared.NextInt64(), (Dealer + 1) % 4);
+
+    public void ResetEpisode(ulong seed, int dealer = 3)
     {
+        if (dealer is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(dealer));
+        GameResults.Clear();
+        foreach (var p in Table.Players) p.Cash = 0;
+        StartRound(seed, dealer);
+    }
+
+    private void StartRound(ulong seed, int dealer)
+    {
+        Revision++;
         Turn = 0;
         ReadyCheck = 0;
         Table.Reset();
-        _bidding1Decisions[0] = null;
-        _bidding1Decisions[1] = null;
-        _bidding1Decisions[2] = null;
-        _bidding1Decisions[3] = null;
+        _roundPlayers = Table.Players.Any(p => p.Player.Guid != Guid.Empty)
+            ? Table.Players.Select(p => CopyPlayer(p.Player)).ToArray() : [];
+        Array.Clear(_bidding1Decisions);
         _bidding2States.Clear();
+        _history.Clear();
+        Array.Clear(_rewards);
+        _settled = false;
         Bidding1Result = null;
         Bidding2Result = null;
         DrunterDurch = false;
         PublicTeammate = -1;
-        Dealer = (Dealer + 1) % 4;
-        ActivePlayer = (Dealer + 1) % 4;
-        DealCards();
+        Dealer = dealer;
+        ActivePlayer = leadingPlayer = (Dealer + 1) % 4;
+        DealCards(seed);
         GameState = GameState.Bidding1;
+    }
+}
+
+// Versioned by the engine contract: SplitMix64 + unbiased Fisher-Yates, independent of System.Random.
+internal struct DealRandom(ulong seed)
+{
+    private ulong _state = seed;
+    private ulong NextUInt64()
+    {
+        unchecked
+        {
+            ulong z = (_state += 0x9E3779B97F4A7C15UL);
+            z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9UL;
+            z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
+            return z ^ (z >> 31);
+        }
+    }
+    public int Next(int bound)
+    {
+        ulong range = (ulong)bound;
+        ulong threshold = unchecked(0UL - range) % range;
+        ulong value;
+        do value = NextUInt64(); while (value < threshold);
+        return (int)(value % range);
     }
 }

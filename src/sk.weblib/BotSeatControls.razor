@@ -1,0 +1,42 @@
+@using sk.shared
+@using sk.shared.Interfaces
+@inject IGameHubClient GameHubClient
+
+@if (State.GameState is GameState.None or GameState.Finished)
+{
+    <div class="my-2">
+        @if (State.Table.Players.Any(p => p.Player.Guid == Guid.Empty))
+        {
+            <button class="btn btn-success" disabled="@busy" @onclick="() => ChangeSeats(() => GameHubClient.FillBotSeats())">
+                Freie Plätze mit Bots füllen
+            </button>
+        }
+        @foreach (var bot in State.Table.Players.Where(p => p.IsBot))
+        {
+            <button class="btn btn-sm btn-outline-secondary m-1" disabled="@busy"
+                    @onclick="() => ChangeSeats(() => GameHubClient.RemoveBot(bot.Position))">
+                @bot.Player.Name entfernen
+            </button>
+        }
+        <div class="small text-muted">Bots sind automatisch für die nächste Runde bereit.</div>
+        @if (error != null)
+        {
+            <div class="text-danger" role="alert">@error</div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public PublicGameState State { get; set; } = default!;
+    private bool busy;
+    private string? error;
+
+    private async Task ChangeSeats(Func<Task> change)
+    {
+        busy = true;
+        error = null;
+        try { await change(); }
+        catch { error = "Plätze konnten nicht geändert werden. Bitte zwischen den Runden erneut versuchen."; }
+        finally { busy = false; }
+    }
+}

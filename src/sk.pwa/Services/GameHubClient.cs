@@ -7,8 +7,38 @@ namespace sk.pwa.Services;
 public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> logger) : IAsyncDisposable, IGameHubClient
 {
     public PublicGameState? GameState { get; private set; }
-    public event Action? OnStateChanged;
+    public event Action<PublicGameState, bool>? OnStateChanged;
     public event Action? OnGameInitialized;
+
+    private Player? currentPlayer;
+    private bool handlersRegistered;
+    private bool needsResync = true;
+
+    private void PrepareConnection(Player player)
+    {
+        GameState = null;
+        needsResync = true;
+        currentPlayer = player;
+        if (handlersRegistered) return;
+        handlersRegistered = true;
+        _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
+        {
+            var isInitial = GameState is null;
+            if (!needsResync && GameState is { } previous && previous.Table.Guid == state.Table.Guid
+                && state.Revision < previous.Revision) return;
+            GameState = state;
+            var resync = needsResync;
+            needsResync = false;
+            if (isInitial) OnGameInitialized?.Invoke();
+            OnStateChanged?.Invoke(state, resync);
+        });
+        _hubConnection.Reconnecting += _ => { needsResync = true; return Task.CompletedTask; };
+        _hubConnection.Reconnected += async _ =>
+        {
+            if (GameState is { } state && currentPlayer is { } human)
+                await _hubConnection.InvokeAsync("RejoinGame", state.Table.Guid, human);
+        };
+    }
 
     public async Task StartAsync(Player player, Guid gameId)
     {
@@ -17,24 +47,7 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
 
         try
         {
-            GameState = null;
-            _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
-            {
-                var isInitial = GameState is null;
-                GameState = state;
-
-                if (isInitial)
-                {
-                    OnGameInitialized?.Invoke();
-                }
-                OnStateChanged?.Invoke();
-            });
-
-            // Robust Reconnect: Always tell the server who we are when we come back online
-            _hubConnection.Reconnected += async (connectionId) =>
-            {
-                await _hubConnection.InvokeAsync("RejoinGame", gameId, player);
-            };
+            PrepareConnection(player);
 
             await _hubConnection.StartAsync();
 
@@ -47,6 +60,9 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
         catch (Exception ex)
         {
             logger.LogError("start failed: {error}", ex.Message);
+            await _hubConnection.StopAsync();
+            GameState = null;
+            throw;
         }
     }
 
@@ -57,25 +73,7 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
 
         try
         {
-            GameState = null;
-
-            _hubConnection.On<PublicGameState>("ReceiveGameState", state =>
-            {
-                var isInitial = GameState is null;
-                GameState = state;
-
-                if (isInitial)
-                {
-                    OnGameInitialized?.Invoke();
-                }
-                OnStateChanged?.Invoke();
-            });
-
-            // Robust Reconnect: Always tell the server who we are when we come back online
-            _hubConnection.Reconnected += async (connectionId) =>
-            {
-                await _hubConnection.InvokeAsync("RejoinGame", GameState?.Table.Guid ?? Guid.Empty, player);
-            };
+            PrepareConnection(player);
 
             await _hubConnection.StartAsync();
 
@@ -85,6 +83,9 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
         catch (Exception ex)
         {
             logger.LogError("Join failed: {error}", ex.Message);
+            await _hubConnection.StopAsync();
+            GameState = null;
+            throw;
         }
     }
 
@@ -93,6 +94,9 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
         if (_hubConnection is null) return;
         await _hubConnection.SendAsync("Ready");
     }
+
+    public Task FillBotSeats() => _hubConnection.InvokeAsync("FillBotSeats");
+    public Task RemoveBot(int position) => _hubConnection.InvokeAsync("RemoveBot", position);
 
     public async Task SubmitBidding1(bool wouldPlay)
     {
@@ -127,13 +131,13 @@ public class GameHubClient(HubConnection _hubConnection, ILogger<GameHubClient> 
     {
         if (_hubConnection is null) return;
 
-        await _hubConnection.SendAsync("PlayCard", card);
+        await _hubConnection.InvokeAsync("PlayCard", card);
     }
 
     public async Task LeaveTable()
     {
         if (_hubConnection is null) return;
-        await _hubConnection.SendAsync("LeaveGame");
+        await _hubConnection.InvokeAsync("LeaveGame");
         GameState = null;
         await _hubConnection.StopAsync();
     }

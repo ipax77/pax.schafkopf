@@ -1,0 +1,495 @@
+{
+  "date": "2026-11-21",
+  "purpose": "Gameplay diagnostics and training-pipeline verification; no new strength or promotion claim",
+  "tests": {
+    "csharp_passed": 120,
+    "python_passed": 20
+  },
+  "teacher_comparisons": [
+    {
+      "experiment": "teacher",
+      "options": {
+        "Seeds": 256,
+        "StartIndex": 7000000,
+        "MasterSeed": 20261121,
+        "Split": "Validation",
+        "Candidate": "gameplay",
+        "Reference": "conservative",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": null
+      },
+      "games": 8192,
+      "candidate_payout": {
+        "IndependentSeeds": 256,
+        "Mean": -2.7099609375,
+        "Lower95": -3.85992431640625,
+        "Upper95": -1.6259765625
+      },
+      "paired_improvement": {
+        "IndependentSeeds": 256,
+        "Mean": -2.7099609375,
+        "Lower95": -3.85992431640625,
+        "Upper95": -1.6259765625
+      },
+      "checksum": "1D5DDD3DE8E1FBB3"
+    },
+    {
+      "experiment": "bidding",
+      "options": {
+        "Seeds": 256,
+        "StartIndex": 7000000,
+        "MasterSeed": 20261121,
+        "Split": "Validation",
+        "Candidate": "gameplay-bidding",
+        "Reference": "conservative",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": null
+      },
+      "games": 8192,
+      "candidate_payout": {
+        "IndependentSeeds": 256,
+        "Mean": -2.958984375,
+        "Lower95": -4.0726318359375,
+        "Upper95": -1.8407592773437504
+      },
+      "paired_improvement": {
+        "IndependentSeeds": 256,
+        "Mean": -2.958984375,
+        "Lower95": -4.0726318359375,
+        "Upper95": -1.8407592773437504
+      },
+      "checksum": "84A2AEDF62E91B3D"
+    },
+    {
+      "experiment": "playing",
+      "options": {
+        "Seeds": 256,
+        "StartIndex": 7000000,
+        "MasterSeed": 20261121,
+        "Split": "Validation",
+        "Candidate": "gameplay-playing",
+        "Reference": "conservative",
+        "Opponents": [
+          "conservative",
+          "conservative",
+          "conservative"
+        ],
+        "BootstrapSamples": 2000,
+        "BootstrapSeed": 712367,
+        "ContractAction": null
+      },
+      "games": 8192,
+      "candidate_payout": {
+        "IndependentSeeds": 256,
+        "Mean": 0.244140625,
+        "Lower95": -0.19775390625,
+        "Upper95": 0.7422485351562497
+      },
+      "paired_improvement": {
+        "IndependentSeeds": 256,
+        "Mean": 0.244140625,
+        "Lower95": -0.19775390625,
+        "Upper95": 0.7422485351562497
+      },
+      "checksum": "56CEE36EEE0ADBCD"
+    }
+  ],
+  "deployed_model_audits": [
+    {
+      "model": "serious-20261120",
+      "policy": "neural/4e63f99be9f2b4927911b4a69e9eab0302176836053eb71545bda9c470572702",
+      "seeds": 64,
+      "master_seed": 20261121,
+      "start_index": 6000000,
+      "panels": [
+        {
+          "name": "1-neural-vs-conservative",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 33,
+              "followed": 17,
+              "overtakes": 16
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 627,
+              "followed": 432,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 149,
+              "followed": 76,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 77,
+              "followed": 64,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 168,
+              "followed": 125,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "1-neural-vs-gameplay",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 29,
+              "followed": 12,
+              "overtakes": 15
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 527,
+              "followed": 376,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 110,
+              "followed": 43,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 166,
+              "followed": 112,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 30,
+              "followed": 27,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "3-neural-vs-conservative",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 567,
+              "followed": 298,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 591,
+              "followed": 425,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 223,
+              "followed": 183,
+              "overtakes": 0
+            },
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 122,
+              "followed": 39,
+              "overtakes": 71
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 1921,
+              "followed": 1297,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "3-neural-vs-gameplay",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 528,
+              "followed": 275,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 602,
+              "followed": 436,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 170,
+              "followed": 143,
+              "overtakes": 0
+            },
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 100,
+              "followed": 42,
+              "overtakes": 47
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 1837,
+              "followed": 1239,
+              "overtakes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "serious-20261121-update0450",
+      "policy": "neural/84e30520435a8153930ef6144856829115597169335696648eec896d939b6920",
+      "seeds": 64,
+      "master_seed": 20261121,
+      "start_index": 6000000,
+      "panels": [
+        {
+          "name": "1-neural-vs-conservative",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 37,
+              "followed": 18,
+              "overtakes": 18
+            },
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 129,
+              "followed": 83,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 72,
+              "followed": 59,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 168,
+              "followed": 117,
+              "overtakes": 0
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 564,
+              "followed": 383,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "1-neural-vs-gameplay",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 34,
+              "followed": 15,
+              "overtakes": 17
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 488,
+              "followed": 314,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 94,
+              "followed": 51,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 170,
+              "followed": 122,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 29,
+              "followed": 28,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "3-neural-vs-conservative",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 532,
+              "followed": 299,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 650,
+              "followed": 428,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 211,
+              "followed": 146,
+              "overtakes": 0
+            },
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 162,
+              "followed": 52,
+              "overtakes": 88
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 1793,
+              "followed": 1200,
+              "overtakes": 0
+            }
+          ]
+        },
+        {
+          "name": "3-neural-vs-gameplay",
+          "games": 1024,
+          "guidance": [
+            {
+              "rule": "defender-search-called-ace",
+              "opportunities": 484,
+              "followed": 275,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-fresh-suit",
+              "opportunities": 627,
+              "followed": 416,
+              "overtakes": 0
+            },
+            {
+              "rule": "defender-lead-side-suit",
+              "opportunities": 186,
+              "followed": 132,
+              "overtakes": 0
+            },
+            {
+              "rule": "preserve-secure-partner-winner",
+              "opportunities": 133,
+              "followed": 37,
+              "overtakes": 77
+            },
+            {
+              "rule": "declaring-side-draw-trumps",
+              "opportunities": 1723,
+              "followed": 1159,
+              "overtakes": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "weighted_imitation": {
+    "validation_games": 256,
+    "training_games": 2000,
+    "tactical_training_copies": 4,
+    "tactical_training_rows_added": 927,
+    "teacher": "heuristic-v1/conservative-bidding+gameplay-v1/playing"
+  },
+  "final_preset_smoke": {
+    "gain_over_initial": {
+      "mean": -0.1373895202020202,
+      "lower95": -0.9775425149936868,
+      "upper95": 0.6376708984374996,
+      "independent_seeds": 189
+    },
+    "contract_changes": {
+      "ruf": {
+        "mean": -0.5899621212121211,
+        "lower95": -1.3296283143939391,
+        "upper95": 0.04128787878787826,
+        "independent_seeds": 29
+      },
+      "wenz": {
+        "mean": -0.3125,
+        "lower95": -5.3134765625,
+        "upper95": 3.984375,
+        "independent_seeds": 16
+      },
+      "solo": {
+        "mean": 0.13671875,
+        "lower95": -0.458984375,
+        "upper95": 0.76171875,
+        "independent_seeds": 64
+      }
+    },
+    "status": {
+      "phase": "complete",
+      "completed_updates": 2,
+      "total_decisions": 8816,
+      "latest_checkpoint": "/home/pax77/.local/share/pax-schafkopf/runs/gameplay-fixed-smoke-20261121/checkpoints/update-0002-ecd7dd1e",
+      "run": "/home/pax77/.local/share/pax-schafkopf/runs/gameplay-fixed-smoke-20261121",
+      "live_promoted": false,
+      "updated_at_utc": "2026-11-21T09:32:17.074097+01:00",
+      "session_elapsed_seconds": 41.39
+    },
+    "run": "/home/pax77/.local/share/pax-schafkopf/runs/gameplay-fixed-smoke-20261121",
+    "evaluation_games": 6048,
+    "selected_update": 0,
+    "selection_eligible": false
+  },
+  "resume_verification": {
+    "bidding_optimizer_steps": 0,
+    "restored_update": 10,
+    "restored_next_index": 40052342,
+    "run": "/home/pax77/.local/share/pax-schafkopf/runs/gameplay-ppo-smoke-20261121",
+    "completed_update": 11,
+    "restored_playing_optimizer_steps": 120
+  },
+  "export_parity": {
+    "pair_id": "a7c856c2e8714b87cd6d7eff68072705e8548f466a41007bf4e72e8449e15dd3",
+    "samples": 512,
+    "real_observation_rows": {
+      "bidding": 256,
+      "playing": 256
+    },
+    "max_absolute_logit_error": 2.163052368331364E-06,
+    "max_absolute_value_error": 6.236499786593797E-07,
+    "masked_action_disagreements": 0
+  },
+  "recommended_bidder": "heuristic-v1/conservative",
+  "recommended_teacher": "gameplay-playing",
+  "limitations": [
+    "Bidding prototype regressed and is not the default",
+    "Card-teacher gain is inconclusive on validation",
+    "Small training runs verify mechanics, not strength",
+    "Guidance deviations are review candidates, not automatically mistakes",
+    "Audit opportunities are correlated; counts are descriptive",
+    "No automatic phase transition or historical neural opponent pool"
+  ]
+}

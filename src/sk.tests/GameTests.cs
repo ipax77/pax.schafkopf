@@ -1,4 +1,4 @@
-﻿using sk.shared;
+using sk.shared;
 
 namespace sk.tests;
 
@@ -10,7 +10,7 @@ public sealed class GameTests
     {
         Game game = new();
 
-        game.DealCards();
+        game.DealCards(42);
 
         foreach (var player in game.Table.Players)
         {
@@ -22,7 +22,7 @@ public sealed class GameTests
     public void DealCards_AllCardsAreUnique()
     {
         var game = new Game();
-        game.DealCards();
+        game.DealCards(42);
 
         var allCards = game.Table.Players
             .SelectMany(p => p.Hand)
@@ -70,7 +70,7 @@ public sealed class GameTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Schellen });
         Assert.AreEqual(GameState.Playing, game.GameState);
         Assert.AreEqual(0, game.ActivePlayer);
     }
@@ -137,7 +137,7 @@ public sealed class GameTests
     public void CanPlayCard()
     {
         Game game = new();
-        game.DealCards();
+        game.DealCards(42);
         game.GameState = GameState.Bidding1;
 
         game.SetBidding1(0, new() { WouldPlay = true });
@@ -145,7 +145,7 @@ public sealed class GameTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Schellen });
         var card = game.Table.Players[0].Hand[0];
         game.PlayCard(0, card);
 
@@ -158,7 +158,7 @@ public sealed class GameTests
     public void CanCollectTrick()
     {
         Game game = new();
-        game.DealCards();
+        game.DealCards(42);
         game.GameState = GameState.Bidding1;
 
         game.SetBidding1(0, new() { WouldPlay = true });
@@ -166,7 +166,7 @@ public sealed class GameTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
-        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
+        game.SetBidding2(0, new() { WouldPlay = true, ProposedGame = GameType.Solo, ProposedSuit = Suit.Schellen });
 
         for (int i = 0; i < 4; i++)
         {
@@ -188,7 +188,7 @@ public sealed class GameTests
     public void CanDrunterDurch()
     {
         Game game = new();
-        game.DealCards();
+        game.DealCards(42);
         game.GameState = GameState.Bidding1;
 
         game.SetBidding1(0, new() { WouldPlay = false });
@@ -196,6 +196,7 @@ public sealed class GameTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
+        game.Table.Players[1].Hand = [new() { Rank = Rank.Seven, Suit = Suit.Schellen }];
         game.SetBidding2(1, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
 
         var publicState = game.ToPublicGameState(0);
@@ -217,7 +218,7 @@ public sealed class GameTests
     public void CanNotDrunterDurch()
     {
         Game game = new();
-        game.DealCards();
+        game.DealCards(42);
         game.GameState = GameState.Bidding1;
 
         game.SetBidding1(0, new() { WouldPlay = false });
@@ -225,6 +226,7 @@ public sealed class GameTests
         game.SetBidding1(2, new() { WouldPlay = false });
         game.SetBidding1(3, new() { WouldPlay = false });
 
+        game.Table.Players[1].Hand = [new() { Rank = Rank.Seven, Suit = Suit.Schellen }];
         game.SetBidding2(1, new() { WouldPlay = true, ProposedGame = GameType.Ruf, ProposedSuit = Suit.Schellen });
 
         var publicState = game.ToPublicGameState(0);

@@ -1,0 +1,117 @@
+{
+  "OS": "Ubuntu 24.04.5 LTS",
+  "Runtime": ".NET 10.0.15",
+  "LogicalProcessors": 24,
+  "RulesVersion": "schafkopf-long-v1",
+  "Timestamp": "2026-11-20T17:53:33.4346857+00:00",
+  "Results": [
+    {
+      "Name": "Deal",
+      "Operations": 50000,
+      "MedianMicroseconds": 0.37969034,
+      "MinMicroseconds": 0.36484506,
+      "MaxMicroseconds": 0.46614353999999997,
+      "BytesPerOperation": 960,
+      "Checksum": "B6EA9BA73AFD1ED4",
+      "SamplesMicroseconds": [
+        0.40558476000000004,
+        0.37969034,
+        0.37139474,
+        0.36484506,
+        0.46614353999999997,
+        0.3927365,
+        0.37964818
+      ]
+    },
+    {
+      "Name": "LegalCards",
+      "Operations": 200000,
+      "MedianMicroseconds": 0.028282170000000002,
+      "MinMicroseconds": 0.02652884,
+      "MaxMicroseconds": 0.032865295,
+      "BytesPerOperation": 120,
+      "Checksum": "D9883F33390AA6C0",
+      "SamplesMicroseconds": [
+        0.02652884,
+        0.02959931,
+        0.032865295,
+        0.028282170000000002,
+        0.027103895000000003,
+        0.03138163,
+        0.027857835
+      ]
+    },
+    {
+      "Name": "Observe",
+      "Operations": 50000,
+      "MedianMicroseconds": 0.301164,
+      "MinMicroseconds": 0.29194632000000004,
+      "MaxMicroseconds": 0.32756298,
+      "BytesPerOperation": 1448,
+      "Checksum": "CA86A7CD736D1FB0",
+      "SamplesMicroseconds": [
+        0.3189296,
+        0.301164,
+        0.29456804,
+        0.3007531,
+        0.30801738,
+        0.32756298,
+        0.29194632000000004
+      ]
+    },
+    {
+      "Name": "Auction",
+      "Operations": 10000,
+      "MedianMicroseconds": 4.188717700000001,
+      "MinMicroseconds": 4.1351488,
+      "MaxMicroseconds": 4.3590182,
+      "BytesPerOperation": 16078.8432,
+      "Checksum": "6FB618006058EBE4",
+      "SamplesMicroseconds": [
+        4.3371385,
+        4.188717700000001,
+        4.2151483,
+        4.3590182,
+        4.1409883,
+        4.1351488,
+        4.1689042999999995
+      ]
+    },
+    {
+      "Name": "FullGame",
+      "Operations": 10000,
+      "MedianMicroseconds": 15.150747599999999,
+      "MinMicroseconds": 14.8544033,
+      "MaxMicroseconds": 15.4621968,
+      "BytesPerOperation": 33899.1616,
+      "Checksum": "49792B2969824678",
+      "SamplesMicroseconds": [
+        15.169901399999999,
+        15.4621968,
+        15.150747599999999,
+        14.9368967,
+        15.330385999999999,
+        15.066776999999998,
+        14.8544033
+      ]
+    },
+    {
+      "Name": "FullGameWithObservations",
+      "Operations": 10000,
+      "MedianMicroseconds": 33.9974783,
+      "MinMicroseconds": 33.5603314,
+      "MaxMicroseconds": 34.928023599999996,
+      "BytesPerOperation": 90220.5128,
+      "Checksum": "49792B2969824678",
+      "SamplesMicroseconds": [
+        33.5603314,
+        33.952315899999995,
+        34.5957562,
+        33.7883084,
+        33.9974783,
+        34.7521535,
+        34.928023599999996
+      ]
+    }
+  ]
+}

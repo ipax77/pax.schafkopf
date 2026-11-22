@@ -3,13 +3,12 @@
 @using sk.shared
 @inject IJSRuntime JSRuntime
 
-<div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="@modalId" tabindex="-1">
+<div class="modal" id="@modalId" aria-hidden="true" aria-labelledby="connectTitle" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Spieler Information</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                        @onclick="Close"></button>
+                <h5 class="modal-title" id="connectTitle">Wie dürfen wir dich nennen?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
             </div>
             <div class="modal-body">
                 <div>
@@ -18,9 +17,9 @@
                         <EditForm EditContext="editContext" FormName="ConnectForm">
                             <ValidationSummary />
                             <div>
-                                <label for="nameInput" class="form-label">Spieler Name</label>
-                                <InputText class="form-control" id="nameInput" aria-describedby="nameHelp"
-                                           @bind-Value="model.UserName" />
+                                <label for="nameInput" class="form-label">Dein Name am Stammtisch</label>
+                                <input class="form-control" id="nameInput" maxlength="32" autocomplete="nickname" aria-describedby="nameHelp"
+                                       @bind="model.UserName" @bind:event="oninput" />
                                 <div id="nameHelp" class="form-text">Sichtbar für die anderen Spieler.</div>
                                 <ValidationMessage For="() => model.UserName" />
                             </div>
@@ -29,7 +28,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="Save">Speichern</button>
+                <button type="button" class="btn btn-primary" disabled="@string.IsNullOrWhiteSpace(model.UserName)" @onclick="Save">An den Stammtisch</button>
             </div>
         </div>
     </div>
@@ -55,9 +54,11 @@
         StateHasChanged();
     }
 
-    public void Save()
+    public async Task Save()
     {
-        OnConnect.InvokeAsync(model);
+        if (string.IsNullOrWhiteSpace(model.UserName)) return;
+        model = model with { UserName = model.UserName.Trim() };
+        await OnConnect.InvokeAsync(model);
         Close();
     }
 

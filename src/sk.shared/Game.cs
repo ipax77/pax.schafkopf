@@ -18,6 +18,7 @@ public partial class Game
     public int leadingPlayer;
     private readonly Bidding1Decision?[] _bidding1Decisions = new Bidding1Decision?[4];
     private readonly List<(int, BiddingState)> _bidding2States = [];
+    private Player[] _roundPlayers = [];
     public readonly List<GameResult> GameResults = [];
     public readonly Lock readyLock = new();
     public readonly Lock joinLock = new();

@@ -6,7 +6,7 @@ public partial class Game
     {
         if (Bidding1Result is not null)
         {
-            return Bidding1Result;
+            return new() { InterestedPlayers = Bidding1Result.InterestedPlayers.ToArray(), DeclinedPlayers = Bidding1Result.DeclinedPlayers.ToArray() };
         }
         else if (GameState == GameState.Bidding1)
         {
@@ -39,17 +39,12 @@ public partial class Game
 
     public Bidding2Result? GetPublicBidding2Result()
     {
-        if (GameState == GameState.Finished)
-        {
-            return new();
-        }
         if (Bidding2Result != null)
-            return Bidding2Result;
+            return CopyBid(Bidding2Result);
 
         if (_bidding2States.Count == 0)
             return null;
-        var comparer = new BiddingStateComparer();
-        var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+        var highestBid = HighestBid();
         return new()
         {
             PlayerIndex = highestBid.Item1,
@@ -62,6 +57,9 @@ public partial class Game
 
     public void SetBidding1(int playerIndex, BiddingState command)
     {
+        ArgumentNullException.ThrowIfNull(command);
+        if (command.ProposedGame is not (null or GameType.None) || command.ProposedSuit is not (null or Suit.None) || command.Tout || command.Sie)
+            throw new InvalidOperationException("Interest must not include a contract.");
         if (GameState != GameState.Bidding1)
             throw new InvalidOperationException("Not in bidding phase 1.");
 
@@ -81,6 +79,8 @@ public partial class Game
             : Bidding1Decision.No;
 
         _bidding1Decisions[playerIndex] = decision;
+        Revision++;
+        _history.Add(new(playerIndex, GameAction.Interest(command.WouldPlay)));
 
         if (!_bidding1Decisions.All(a => a.HasValue))
         {
@@ -107,6 +107,7 @@ public partial class Game
 
     public void SetBidding2(int playerIndex, BiddingState command)
     {
+        ArgumentNullException.ThrowIfNull(command);
         if (GameState != GameState.Bidding2)
             throw new InvalidOperationException("Not in bidding phase 2.");
 
@@ -115,12 +116,24 @@ public partial class Game
         if (playerIndex != ActivePlayer)
             throw new InvalidOperationException("Not this player's turn.");
 
-        _bidding2States.Add((playerIndex, command));
+        var type = command.ProposedGame ?? GameType.None;
+        var suit = command.ProposedSuit ?? Suit.None;
+        // Sie is a contract, not an independently selectable modifier. Accept legacy Tout on Sie.
+        if (command.Sie && type != GameType.Sie)
+            throw new InvalidOperationException("Sie requires the Sie contract.");
+        var action = type == GameType.None ? GameAction.Pass : GameAction.Bid(type, suit, type != GameType.Sie && command.Tout);
+        if (type == GameType.None && (suit != Suit.None || command.Tout || command.Sie) ||
+            !GetLegalActions().Contains(action))
+            throw new InvalidOperationException("Illegal bid.");
+        var accepted = new BiddingState { WouldPlay = type != GameType.None, ProposedGame = type,
+            ProposedSuit = suit, Tout = action.Tout, Sie = type == GameType.Sie };
+        _bidding2States.Add((playerIndex, accepted));
+        Revision++;
+        _history.Add(new(playerIndex, action));
 
         if (_bidding2States.Count == Bidding1Result.InterestedPlayers.Count)
         {
-            var comparer = new BiddingStateComparer();
-            var highestBid = _bidding2States.OrderByDescending(o => o.Item2, comparer).FirstOrDefault();
+            var highestBid = HighestBid();
             ArgumentNullException.ThrowIfNull(highestBid.Item2);
             ArgumentNullException.ThrowIfNull(highestBid.Item2.ProposedGame);
 
@@ -139,6 +152,19 @@ public partial class Game
         {
             AdvanceBidding2Turn();
         }
+    }
+
+    private (int, BiddingState) HighestBid()
+    {
+        var highest = _bidding2States[0];
+        int rank = GameRules.BidRank(highest.Item2.ProposedGame ?? GameType.None, highest.Item2.Tout);
+        for (int i = 1; i < _bidding2States.Count; i++)
+        {
+            var bid = _bidding2States[i];
+            int candidate = GameRules.BidRank(bid.Item2.ProposedGame ?? GameType.None, bid.Item2.Tout);
+            if (candidate > rank) { highest = bid; rank = candidate; }
+        }
+        return highest;
     }
 
     private void AdvanceBidding2Turn()
@@ -161,16 +187,5 @@ public sealed class BiddingStateComparer : IComparer<BiddingState>
         return ra.CompareTo(rb);
     }
 
-    private static int Rank(BiddingState? x) => x switch
-    {
-        null => 0,
-
-        { Sie: true } => 10,
-        { Tout: true } => 4,
-        { ProposedGame: GameType.Solo } => 3,
-        { ProposedGame: GameType.Wenz } => 2,
-        { ProposedGame: GameType.Ruf } => 1,
-
-        _ => 0
-    };
+    private static int Rank(BiddingState? x) => x == null ? 0 : GameRules.BidRank(x.ProposedGame ?? GameType.None, x.Tout);
 }

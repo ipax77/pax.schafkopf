@@ -1,0 +1,8 @@
+<span class="trick-stack" id="trick-stack-@ViewIndex" aria-label="@($"{Count} Stiche")" title="@($"{Count} Stiche")">
+    <span class="stack-cards" aria-hidden="true"></span><span>@Count</span>
+</span>
+
+@code {
+    [Parameter] public int Count { get; set; }
+    [Parameter] public int ViewIndex { get; set; }
+}
